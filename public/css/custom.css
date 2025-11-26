@@ -1,0 +1,32 @@
+:root {
+    --base-bg: #f4f7f9;
+    --sidebar-bg: #34495e;
+    --primary-color: #3498db;
+}
+
+body {
+    margin: 0;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+        Helvetica, Arial, sans-serif;
+    display: flex;
+    height: 100vh;
+}
+
+/* Sidebar */
+.sidebar {
+    width: 220px;
+    background: var(--sidebar-bg);
+    color: white;
+    padding: 20px;
+}
+
+.sidebar a {
+    color: white;
+    display: block;
+    padding: 8px 0;
+    text-decoration: none;
+}
+
+.sidebar a:hover {
+    text-decoration: underline;
+}

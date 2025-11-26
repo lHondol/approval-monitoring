@@ -1,0 +1,32 @@
+<?php
+
+use App\Http\Controllers\Auth\AuthController;
+use App\Http\Controllers\DrawingTransactionController;
+use Illuminate\Support\Facades\Route;
+
+// DEFAULT
+Route::get('/', function () {
+    return redirect()->route('loginForm');
+});
+
+// AUTH
+Route::controller(AuthController::class)
+->group(function () {
+    Route::middleware('guest')->get('/login', 'loginForm')->name('loginForm');
+    Route::middleware('guest')->post('/login', 'login')->name('login');
+    Route::middleware('auth')->post('/logout', 'logout')->name('logout');
+});
+
+// DASHBOARD
+Route::middleware('auth')->get('/dashboard', function () {
+    return view('dashboard');
+})->name('dashboard');
+
+// DRAWING TRANSACTION
+Route::middleware('auth')
+->controller(DrawingTransactionController::class)
+->group(function () {
+    Route::get('/drawing-transaction', 'view')->name('drawingTransactionView');
+    Route::get('/drawing-transaction/data', 'getData')->name('drawingTransactionData');
+});
+
