@@ -2,6 +2,36 @@
 
 @section('content')
     @include('shared.back-button', ['backRoute' => 'drawingTransactionView'])
+    <style>
+        .pdf-wrapper {
+            position: relative;
+            width: 120px;
+            height: 150px;
+            flex-shrink: 0;
+            cursor: pointer;
+            overflow: hidden;
+            border-radius: 4px;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        .pdf-wrapper:hover {
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
+            cursor: pointer;
+        }
+
+        .pdf-wrapper::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+            pointer-events: none;
+        }
+
+        .pdf-wrapper:hover::after {
+            opacity: 1;
+        }
+    </style>
     <div>
         <form class="ui form" method="post" action="{{ route('drawingTransactionCreate') }}" enctype="multipart/form-data">
             @csrf
@@ -36,10 +66,14 @@
                 <textarea style="resize: none;" name="description" placeholder="Description"></textarea>
             </div>
                 <div class="field">
-                    <label class="!text-base">Upload Images</label>
+                    <label class="!text-base">Upload Files</label>
 
-                    <div class="ui file input">
-                        <input type="file" name="files[]" multiple id="fileInput" accept="image/*">
+                    <div class="ui">
+                        <input class="ui invisible file input" type="file" name="files[]" multiple id="fileInput" accept="application/pdf">
+                        <label for="fileInput" class="ui icon button">
+                            <i class="file icon"></i>
+                            Upload PDF File
+                        </label>
                     </div>
                     <!-- Preview container -->
                     <div id="previewContainer" class="ui small images" 
@@ -50,68 +84,101 @@
         </form>
     </div>
 
-<script>
-const fileInput = $('#fileInput')[0];
-if (!fileInput._files) fileInput._files = [];
+    <!-- PDF.js -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.min.js"></script>
+    <script>
+        pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.worker.min.js';
+    </script>
 
-// Add files
-$('#fileInput').on('change', function(event) {
-    const newFiles = Array.from(event.target.files);
-    if (!newFiles.length) return;
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const fileInput = document.getElementById('fileInput');
+            const previewContainer = document.getElementById('previewContainer');
+            fileInput._files = fileInput._files || [];
 
-    newFiles.forEach(file => {
-        const index = fileInput._files.length;
-        fileInput._files.push(file);
+            fileInput.addEventListener('change', async function(event) {
+                const newFiles = Array.from(event.target.files);
 
-        if (!file.type.startsWith("image/")) return;
+                for (let file of newFiles) {
+                    const index = fileInput._files.length;
+                    fileInput._files.push(file);
 
-        const reader = new FileReader();
-        reader.onload = function(e) {
-            const html = `
-                <div data-index="${index}" 
-                    style="position:relative; width:120px; height:120px; flex-shrink:0; 
-                           display:flex; align-items:center; justify-content:center; border:1px solid #ddd;">
-                    <img src="${e.target.result}" 
-                        style="max-width:100%; max-height:100%; object-fit:contain; border-radius:0;">
-                    <button class="ui red mini circular icon button remove-btn"
-                            style="position:absolute; top:5px; right:5px; opacity:0.85;">
-                        <i class="close icon"></i>
-                    </button>
-                </div>
-            `;
-            $('#previewContainer').append(html);
-        };
-        reader.readAsDataURL(file);
-    });
+                    const reader = new FileReader();
+                    reader.onload = async function(e) {
+                        const typedArray = new Uint8Array(e.target.result);
+                        const pdf = await pdfjsLib.getDocument(typedArray).promise;
+                        const page = await pdf.getPage(1);
 
-    // Update input.files
-    const dataTransfer = new DataTransfer();
-    fileInput._files.forEach(f => dataTransfer.items.add(f));
-    fileInput.files = dataTransfer.files;
-});
+                        // Fixed preview size
+                        const fixedWidth = 120;
+                        const fixedHeight = 150;
+                        const viewport = page.getViewport({ scale: 1 });
+                        const scale = Math.min(fixedWidth / viewport.width, fixedHeight / viewport.height);
+                        const scaledViewport = page.getViewport({ scale });
 
-// Remove preview + file
-$(document).on('click', '.remove-btn', function() {
-    const parent = $(this).closest('[data-index]');
-    const index = parseInt(parent.attr('data-index'));
+                        const canvas = document.createElement('canvas');
+                        canvas.width = fixedWidth;
+                        canvas.height = fixedHeight;
+                        const context = canvas.getContext('2d');
+                        context.fillStyle = '#fff'; // white background
+                        context.fillRect(0, 0, fixedWidth, fixedHeight);
 
-    // Remove preview
-    parent.remove();
+                        // Center the PDF page in canvas
+                        const offsetX = (fixedWidth - scaledViewport.width) / 2;
+                        const offsetY = (fixedHeight - scaledViewport.height) / 2;
 
-    // Remove file from _files
-    fileInput._files[index] = null; // mark as removed
+                        await page.render({
+                            canvasContext: context,
+                            viewport: scaledViewport,
+                            transform: [1, 0, 0, 1, offsetX, offsetY] // translate
+                        }).promise;
 
-    // Rebuild input.files without nulls
-    const dataTransfer = new DataTransfer();
-    fileInput._files.forEach(f => {
-        if (f) dataTransfer.items.add(f);
-    });
-    fileInput.files = dataTransfer.files;
+                        const wrapper = document.createElement('div');
+                        wrapper.style.position = 'relative';
+                        wrapper.style.width = fixedWidth + 'px';
+                        wrapper.style.height = fixedHeight + 'px';
+                        wrapper.style.flexShrink = '0';
+                        wrapper.className = 'pdf-wrapper';
+                        wrapper.appendChild(canvas);
 
-    // Keep _files array same length to preserve index mapping
-});
+                        // Open in new tab on click
+                        wrapper.addEventListener('click', (e) => {
+                            // Avoid triggering when clicking remove button
+                            if (e.target.tagName.toLowerCase() === 'i') return;
+                            const pdfUrl = URL.createObjectURL(fileInput._files[index]);
+                            window.open(pdfUrl, '_blank');
+                        });
 
-</script>
+                        // Remove button with Semantic UI icon
+                        const btn = document.createElement('button');
+                        btn.type = 'button';
+                        btn.className = 'ui red mini circular icon button';
+                        btn.style.position = 'absolute';
+                        btn.style.top = '5px';
+                        btn.style.right = '5px';
+                        btn.style.opacity = '0.85';
+                        btn.innerHTML = '<i class="close icon"></i>';
+                        btn.addEventListener('click', (e) => {
+                            e.stopPropagation(); // prevent opening PDF
+                            wrapper.remove();
+                            fileInput._files[index] = null;
 
+                            const dataTransfer = new DataTransfer();
+                            fileInput._files.forEach(f => { if(f) dataTransfer.items.add(f); });
+                            fileInput.files = dataTransfer.files;
+                        });
 
+                        wrapper.appendChild(btn);
+                        previewContainer.appendChild(wrapper);
+                    };
+                    reader.readAsArrayBuffer(file);
+                }
+
+                // Rebuild input files
+                const dataTransfer = new DataTransfer();
+                fileInput._files.forEach(f => { if(f) dataTransfer.items.add(f); });
+                fileInput.files = dataTransfer.files;
+            });
+        });
+    </script>
 @endsection

@@ -22,7 +22,9 @@ class DrawingTransactionController extends Controller
     }
 
     public function create(CreateRequest $request) {
-        $this->drawingTransactionService->create((object) $request->all());
+        $data = $request->all();
+        $data['files'] = $request->file('files');
+        $this->drawingTransactionService->create((object) $data);
         return redirect()->route('drawingTransactionView');
     }
 

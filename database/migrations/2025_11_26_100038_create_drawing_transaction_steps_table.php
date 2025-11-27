@@ -23,7 +23,7 @@ return new class extends Migration
             ->cascadeOnDelete();
             $table->dateTime('do_at');
             $table->string('status');
-            $table->string('reject_reason');
+            $table->string('reject_reason')->nullable();
             $table->string('filepath')->nullable(); // filepath will created using job
             $table->timestamps();
         });

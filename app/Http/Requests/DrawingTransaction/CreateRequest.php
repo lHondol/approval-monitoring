@@ -27,7 +27,7 @@ class CreateRequest extends FormRequest
             "po_number" => "required",
             "description" => "nullable",
             'files' => 'required|array|min:1',
-            'files.*' => 'sometimes|image|mimes:jpeg,png,jpg,bmp|max:5120',
+            'files.*' => 'sometimes|file|mimes:pdf|max:5120',
         ];
     }
 
@@ -43,7 +43,7 @@ class CreateRequest extends FormRequest
     {
         return [
             'files.required' => 'Please upload at least one file.',
-            'files.*.mimes' => 'Each file must be a jpeg, png, jpg, or bmp.',
+            'files.*.mimes' => 'Each file must be a pdf',
             'files.*.max' => 'Each file must not exceed 5MB.',
         ];
     }

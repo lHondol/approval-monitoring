@@ -1,5 +1,6 @@
 <?php
 
+use App\Enums\StatusEnum;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
@@ -16,7 +17,7 @@ return new class extends Migration
             $table->string('customer_name');
             $table->string('so_number');
             $table->string('po_number');
-            $table->string('status')->default('Waiting 1st Approval');
+            $table->string('status');
             $table->timestamp('distributed_at')->nullable();
             $table->text('description')->nullable();
             $table->text('revise_reason')->nullable(); // take from step reject_reason

@@ -41,6 +41,9 @@
                     { data: 'created_at', name: 'created_at' },
                     { data: 'status', name: 'status' },
                 ],
+                columnDefs: [
+                    { targets: 1, className: 'dt-left' } // force left alignment for SO Number (detected as number)
+                ],
                 layout: {
                     topStart: {
                         buttons: [
