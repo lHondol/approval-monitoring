@@ -47,11 +47,11 @@
                     </div>
                     <div class="field">
                         <div class="ui checkbox">
-                            <input type="checkbox" tabindex="0" class="hidden" name="rememberMe">
+                            <input type="checkbox" tabindex="0" class="hidden" name="remember_me">
                             <label class="!text-base">Remember Me</label>
                         </div>
                     </div>
-                    <button class="ui button w-full !bg-[var(--primary-color)] !text-white" type="submit">Login</button>
+                    <button class="ui button w-full customButton" type="submit">Login</button>
                 </form>
             </div>
         </div>

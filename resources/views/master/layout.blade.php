@@ -22,8 +22,15 @@
     
     <!-- DataTables -->
     <link rel="stylesheet" href="https://cdn.datatables.net/2.3.5/css/dataTables.semanticui.css">
+    <link rel="stylesheet" href="https://cdn.datatables.net/buttons/3.2.5/css/buttons.semanticui.css">
     <script src="https://cdn.datatables.net/2.3.5/js/dataTables.js"></script>
     <script src="https://cdn.datatables.net/2.3.5/js/dataTables.semanticui.js"></script>
+    <script src="https://cdn.datatables.net/buttons/3.2.5/js/dataTables.buttons.js"></script>
+    <script src="https://cdn.datatables.net/buttons/3.2.5/js/buttons.semanticui.js"></script>
+    <script src="https://cdn.datatables.net/buttons/3.2.5/js/buttons.colVis.min.js"></script>
+    <script src="https://cdn.datatables.net/buttons/3.2.5/js/dataTables.buttons.min.js"></script>
+    <script src="https://cdn.datatables.net/buttons/3.2.5/js/buttons.semanticui.min.js"></script>
+
 
     <style>
         /* Content */
@@ -34,11 +41,11 @@
         }
     </style>
 </head>
-<body>
+<body class="min-h-screen flex">
 
     @include('master.sidebar')
 
-    <div class="content">
+    <div class="content flex-1 overflow-auto">
         @yield('content')
     </div>
 

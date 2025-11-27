@@ -24,4 +24,16 @@ class DrawingTransactionService
             'status',
         ]))->make(true);
     }
+
+    public function create($data) {
+        $drawingTransaction = new DrawingTransaction();
+        $drawingTransaction->customer_name = $data->customer_name;
+        $drawingTransaction->so_number = $data->so_number;
+        $drawingTransaction->po_number = $data->po_number;
+
+        if (isset($data->description))
+            $drawingTransaction->description = $data->description; 
+
+        $drawingTransaction->save();
+    }
 }

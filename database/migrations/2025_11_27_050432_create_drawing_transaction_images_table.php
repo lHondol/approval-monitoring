@@ -11,20 +11,13 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('drawing_transaction_steps', function (Blueprint $table) {
+        Schema::create('drawing_transaction_images', function (Blueprint $table) {
             $table->uuid('id')->primary();
             $table->foreignUuid('drawing_transaction_id')
             ->references('id')
             ->on('drawing_transactions')
             ->cascadeOnDelete();
-            $table->foreignUuid('do_by_user')
-            ->references('id')
-            ->on('users')
-            ->cascadeOnDelete();
-            $table->dateTime('do_at');
-            $table->string('status');
-            $table->string('reject_reason');
-            $table->string('filepath')->nullable(); // filepath will created using job
+            $table->string('filepath');
             $table->timestamps();
         });
     }
@@ -34,6 +27,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('drawing_transaction_steps');
+        Schema::dropIfExists('drawing_transaction_images');
     }
 };

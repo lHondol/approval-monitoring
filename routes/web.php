@@ -28,5 +28,7 @@ Route::middleware('auth')
 ->group(function () {
     Route::get('/drawing-transaction', 'view')->name('drawingTransactionView');
     Route::get('/drawing-transaction/data', 'getData')->name('drawingTransactionData');
+    Route::get('/drawing-transaction/create', 'createForm')->name('drawingTransactionCreateForm');
+    Route::post('/drawing-transaction/post', 'create')->name('drawingTransactionCreate');
 });
 

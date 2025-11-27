@@ -16,11 +16,11 @@ return new class extends Migration
             $table->string('customer_name');
             $table->string('so_number');
             $table->string('po_number');
-            $table->dateTime('created_at');
             $table->string('status')->default('Waiting 1st Approval');
-            $table->dateTime('distributed_at')->nullable();
-            $table->text('revise_reason')->nullable();
-            $table->string('filepath');
+            $table->timestamp('distributed_at')->nullable();
+            $table->text('description')->nullable();
+            $table->text('revise_reason')->nullable(); // take from step reject_reason
+            $table->string('filepath')->nullable(); // filepath will created using job
             $table->timestamps();
         });
     }

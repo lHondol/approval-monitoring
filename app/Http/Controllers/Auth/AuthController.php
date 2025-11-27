@@ -20,7 +20,7 @@ class AuthController extends Controller
     public function login(Request $request) {
         $email = $request->email;
         $password = $request->password;
-        $rememberMe = (!!$request->rememberMe) ?? false;
+        $rememberMe = (!!$request->remember_me) ?? false;
 
         $attemptOk = $this->authService->login($email, $password, $rememberMe);
 

@@ -1,6 +1,6 @@
 @php
-    function isActive($routeName) {
-        return request()->routeIs($routeName);
+    function isActive($path) {
+        return request()->is($path);
     }
 
     function navClass($routeName) {
@@ -27,7 +27,7 @@
             Dashboard
         </a>
 
-        <a href="{{ route('drawingTransactionView') }}" class="{{ navClass('drawingTransactionView') }}">
+        <a href="{{ route('drawingTransactionView') }}" class="{{ navClass('drawing-transaction*') }}">
             Drawing Transactions
         </a>
     </div>

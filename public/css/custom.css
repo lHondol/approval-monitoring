@@ -30,3 +30,25 @@ body {
 .sidebar a:hover {
     text-decoration: underline;
 }
+
+.customButton {
+    background-color: var(--primary-color) !important;
+    color: #fff !important;
+    transition: 0.2s ease-in-out !important;
+}
+
+/* Hover effect: slightly darker */
+.customButton:hover {
+    background-color: color-mix(
+        in srgb,
+        var(--primary-color) 85%,
+        black
+    ) !important;
+    color: #fff !important;
+}
+
+.ui.dropdown .scrolling.resizable.menu,
+.ui.scrolling.resizable.dropdown .menu {
+    resize: none !important;
+    height: fit-content !important;
+}
