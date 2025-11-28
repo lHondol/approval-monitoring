@@ -47,14 +47,10 @@
                 </div>
             @endif
 
-            <div class="field">
-                <label class="!text-base"">Customer Name</label>
-                <input type="text" name="customer_name" placeholder="Customer Name">
-            </div>
             <div class="flex flex-row gap-5">
                 <div class="field flex-1">
-                    <label class="!text-base"">Sales Order Number (SO)</label>
-                    <input type="text" name="so_number" placeholder="Sales Order Number">
+                    <label class="!text-base"">Customer Name</label>
+                    <input type="text" name="customer_name" placeholder="Customer Name">
                 </div>
                 <div class="field flex-1">
                     <label class="!text-base"">Purchase Order Number (PO)</label>
@@ -65,22 +61,28 @@
                 <label class="!text-base"">Description</label>
                 <textarea style="resize: none;" name="description" placeholder="Description"></textarea>
             </div>
-                <div class="field">
-                    <label class="!text-base">Upload Files</label>
-
-                    <div class="ui">
-                        <input class="ui invisible file input" type="file" name="files[]" multiple id="fileInput" accept="application/pdf">
-                        <label for="fileInput" class="ui icon button">
-                            <i class="file icon"></i>
-                            Upload PDF File
-                        </label>
-                    </div>
-                    <!-- Preview container -->
-                    <div id="previewContainer" class="ui small images" 
-                        style="margin-top:15px; padding: 5px; display:flex; gap:10px; flex-wrap:wrap;">
-                    </div>
+            <div class="field">
+                <div class="ui checkbox">
+                    <input type="checkbox" tabindex="0" class="hidden" name="as_additional_data">
+                    <label class="!text-base">As Additional Data</label>
                 </div>
-            <button class="ui button customButton" type="submit">Create</button>
+            </div>
+            <div class="field">
+                <label class="!text-base">Upload Files</label>
+
+                <div class="ui">
+                    <input class="ui invisible file input" type="file" name="files[]" multiple id="fileInput" accept="application/pdf">
+                    <label for="fileInput" class="ui icon button">
+                        <i class="file icon"></i>
+                        Upload PDF File
+                    </label>
+                </div>
+                <!-- Preview container -->
+                <div id="previewContainer" class="ui small images" 
+                    style="margin-top:15px; padding: 5px; display:flex; gap:10px; flex-wrap:wrap;">
+                </div>
+            </div>
+            <button class="ui button customButton" type="submit">Submit</button>
         </form>
     </div>
 
@@ -180,5 +182,7 @@
                 fileInput.files = dataTransfer.files;
             });
         });
+
+        $('.ui.checkbox').checkbox();
     </script>
 @endsection

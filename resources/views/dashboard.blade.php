@@ -1,6 +1,15 @@
 @extends('master.layout', ['active' => 'dashboard'])
 
 @section('content')
-    <div class="text-xl">Welcome to Approving Monitoring . . .</div>
-    <div class="text-2xl font-bold">Mr./Ms./Mrs. {{ auth()->user()->name }}</div>
+<div class="flex items-center justify-center min-h-[100%]">
+    <div class="p-8 text-center rounded-2xl">
+        <h1 class="text-3xl font-bold mb-4">
+            Welcome to Your Dashboard
+        </h1>
+
+        <p class="text-gray-600 text-lg">
+            You're all set! Use the menu on the left to start navigating the system.
+        </p>
+    </div>
+</div>
 @endsection

@@ -28,7 +28,21 @@ class DrawingTransactionController extends Controller
         return redirect()->route('drawingTransactionView');
     }
 
+    public function detailForm(Request $request) {
+        $id = $request->id;
+        $data = $this->drawingTransactionService->getDetail($id);
+        return view('drawing-transaction.detail', compact('data'));
+    }
+
     public function getData() {
         return $this->drawingTransactionService->getData();
+    }
+
+    public function approval1() {
+
+    }
+
+    public function approval2() {
+
     }
 }

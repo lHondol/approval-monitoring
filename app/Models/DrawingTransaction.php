@@ -9,4 +9,8 @@ class DrawingTransaction extends Model
 {
     use HasUuids;
     protected $primaryKey = 'id';
+
+    public function steps() {
+        return $this->hasMany(DrawingTransactionStep::class);
+    }
 }

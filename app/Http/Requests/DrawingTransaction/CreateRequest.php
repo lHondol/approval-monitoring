@@ -23,7 +23,6 @@ class CreateRequest extends FormRequest
     {
         return [
             "customer_name" => "required",
-            "so_number" => "required",
             "po_number" => "required",
             "description" => "nullable",
             'files' => 'required|array|min:1',

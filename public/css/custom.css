@@ -32,16 +32,16 @@ body {
 }
 
 .customButton {
-    background-color: var(--primary-color) !important;
+    --btn-color: var(--primary-color); /* default */
+    background-color: var(--btn-color) !important;
     color: #fff !important;
     transition: 0.2s ease-in-out !important;
 }
 
-/* Hover effect: slightly darker */
 .customButton:hover {
     background-color: color-mix(
         in srgb,
-        var(--primary-color) 85%,
+        var(--btn-color) 85%,
         black
     ) !important;
     color: #fff !important;

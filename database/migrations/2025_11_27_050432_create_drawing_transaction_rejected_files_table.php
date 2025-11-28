@@ -11,12 +11,14 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('drawing_transaction_images', function (Blueprint $table) {
+        Schema::create('drawing_transaction_rejected_files', function (Blueprint $table) {
             $table->uuid('id')->primary();
             $table->foreignUuid('drawing_transaction_id')
-            ->references('id')
-            ->on('drawing_transactions')
-            ->cascadeOnDelete();
+                ->constrained('drawing_transactions', 'id', 'dt_rejected_dt_fk')
+                ->cascadeOnDelete();
+            $table->foreignUuid('drawing_transaction_step_id')
+                ->constrained('drawing_transaction_steps', 'id', 'dt_rejected_dts_fk')
+                ->cascadeOnDelete();
             $table->string('filepath');
             $table->timestamps();
         });

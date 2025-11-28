@@ -10,6 +10,7 @@
                 <th>PO Number</th>
                 <th>Created At</th>
                 <th>Status</th>
+                <th>Actions</th>
             </tr>
         </thead>
         <tbody>
@@ -21,6 +22,7 @@
                 <th>PO Number</th>
                 <th>Created At</th>
                 <th>Status</th>
+                <th>Actions</th>
             </tr>
         </tfoot>
     </table>
@@ -40,6 +42,7 @@
                     { data: 'po_number', name: 'po_number' },
                     { data: 'created_at', name: 'created_at' },
                     { data: 'status', name: 'status' },
+                    { data: 'actions', name: 'actions' },
                 ],
                 columnDefs: [
                     { targets: 1, className: 'dt-left' } // force left alignment for SO Number (detected as number)

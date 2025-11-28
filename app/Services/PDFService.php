@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use Illuminate\Support\Facades\Storage;
 use setasign\Fpdi\Fpdi;
 
 class PDFService
@@ -14,26 +15,36 @@ class PDFService
         //
     }
 
-    public function mergeDrawingPdf($sourceFiles, $outputName) {
+    public function mergeDrawingPdf($sourceFiles, $outputName)
+    {
+        $directory = 'drawing-pdfs';
 
-        // Output path
-        $outputFile = storage_path("app/public/pdfs/" . $outputName);
+        if (!Storage::disk('public')->exists($directory)) {
+            Storage::disk('public')->makeDirectory($directory);
+        }
+
+        $outputFile = storage_path("app/public/drawing-pdfs/" . $outputName);
 
         $pdf = new Fpdi();
+        $pdf->SetAutoPageBreak(false);
 
-        // A4 dimensions in mm
+        // A4 size
         $a4Width = 210;
         $a4Height = 297;
 
-        foreach ($sourceFiles as $sourceFile) {
-            $sourcePath = storage_path('app/public/' . $sourceFile); // read from private storage
+        foreach ($sourceFiles as $file) {
+
+            // Uploaded file → use getRealPath()
+            $sourcePath = $file->getRealPath();
+
             $pageCount = $pdf->setSourceFile($sourcePath);
 
             for ($pageNo = 1; $pageNo <= $pageCount; $pageNo++) {
+
                 $templateId = $pdf->importPage($pageNo);
                 $size = $pdf->getTemplateSize($templateId);
 
-                // Calculate scale to target width
+                // Scale to fit A4
                 $scale = min($a4Width / $size['width'], $a4Height / $size['height']);
                 $scaledWidth = $size['width'] * $scale;
                 $scaledHeight = $size['height'] * $scale;
@@ -42,27 +53,24 @@ class PDFService
                 $x = ($a4Width - $scaledWidth) / 2;
                 $y = ($a4Height - $scaledHeight) / 2;
 
-                // Add new A4 page
+                // A4 page
                 $pdf->AddPage('P', [$a4Width, $a4Height]);
 
-                // Place imported page
+                // Insert the PDF content
                 $pdf->useTemplate($templateId, $x, $y, $scaledWidth, $scaledHeight);
 
-                // --------- ADD TEXT OUTSIDE THE SAFE AREA ---------
-                $stampX = $x + $scaledWidth - 50;   // 50mm from right of PDF content
-                $stampY = 0;   // 5mm below the imported page
-
+                // ---- Add stamp at top-right of page ----
                 $pdf->SetFont('Helvetica', 'B', 12);
                 $pdf->SetTextColor(255, 0, 0);
-                $pdf->SetXY($stampX, $stampY);
-                $pdf->Cell(40, 10, 'Approved', 0, 0, 'C');
-                // ---------------------------------------------------
+
+                $pdf->SetXY($a4Width - 60, 10); // safe position
+                $pdf->Cell(50, 10, 'Approved', 0, 0, 'C');
             }
         }
 
-        // Save merged and scaled PDF
+        // Save file
         $pdf->Output('F', $outputFile);
 
-        return "pdfs/" . $outputName; 
+        return "drawing-pdfs/" . $outputName;
     }
 }

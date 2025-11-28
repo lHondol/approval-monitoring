@@ -7,6 +7,7 @@ use App\Models\DrawingTransaction;
 use App\Models\DrawingTransactionImage;
 use App\Models\DrawingTransactionStep;
 use Carbon\Carbon;
+use Ramsey\Uuid\Uuid;
 use Str;
 use Yajra\DataTables\DataTables;
 
@@ -21,24 +22,54 @@ class DrawingTransactionService
         $this->pdfService = $pdfService;
     }
 
+    private function renderActionButtons($row) {
+        return '<a href="' . route('drawingTransactionDetailForm', $row->id) . '" 
+                class="ui button customButton">
+                    Detail
+                </a>';
+    }
+
     public function getData() {
         return DataTables::of(DrawingTransaction::select([
+            'id',
             'customer_name',
             'so_number',
             'po_number',
             'created_at',
             'status',
-        ]))
+            'as_additional_data',
+        ])->orderBy('created_at', 'desc'))
+        ->addColumn('actions', function($row) {
+            return $this->renderActionButtons($row);
+        })
+        ->editColumn('status', function($row) {
+            if ($row->as_additional_data)
+                return "<div class='flex gap-3'>{$row->status} <span class='ui green label'>Additional Data</span></div>";
+            return $row->status;
+        })
         ->editColumn('created_at', function($row) {
             return Carbon::parse($row->created_at)->format('d M Y H:i:s');
         })
+        ->rawColumns(['status', 'actions'])
         ->make(true);
+    }
+
+    public function getDetail($id) {
+        $drawingTransaction = DrawingTransaction::where('id', $id)
+            ->with(['steps' => function ($stepQuery) {
+                $stepQuery->with('rejectedFile');
+            }])
+            ->first();
+        return $drawingTransaction;
     }
 
     public function create($data) {
         $drawingTransaction = new DrawingTransaction();
+        
+        $uuid =  Uuid::uuid4()->toString();
+        $drawingTransaction->id =$uuid;
+
         $drawingTransaction->customer_name = $data->customer_name;
-        $drawingTransaction->so_number = $data->so_number;
         $drawingTransaction->po_number = $data->po_number;
 
         $status = StatusEnum::WAITING_1ST_APPROVAL;
@@ -47,70 +78,36 @@ class DrawingTransactionService
         if (isset($data->description))
             $drawingTransaction->description = $data->description; 
 
-        $filePaths = $this->uploadPdf(
-            $data->files, 
-            $data->customer_name, 
-            $data->so_number, 
-            $data->po_number
-        );
+        if (isset($data->as_additional_data))
+            $drawingTransaction->as_additional_data = !!$data->as_additional_data;
 
-        $mergedFilePath = $this->mergePdf($filePaths,           
-            $data->customer_name, 
-            $data->so_number, 
-            $data->po_number,
+        $mergedFilePath = $this->mergePdf(
+            $data->files, 
+            $uuid,
             $status->value
         );
 
         $drawingTransaction->filepath = $mergedFilePath;
         $drawingTransaction->save();
 
-        $this->createImages($drawingTransaction->id, $filePaths);
         $this->createStep($drawingTransaction);
     }
 
-    public function uploadPdf($files, $customerName, $soNumber, $poNumber) {
-        $uploadedFiles = [];
-
-        foreach ($files as $index => $file) {
-            if (!$file->isValid()) continue;
-
-            // Clean strings to remove spaces/special characters
-            $customerNameClean = Str::slug($customerName, '_');
-            $soNumberClean = Str::slug($soNumber, '_');
-            $poNumberClean = Str::slug($poNumber, '');
-
-            $timestamp = now()->format('Ymd_His');
-            $extension = $file->getClientOriginalExtension();
-
-            $newFileName = "{$customerNameClean}_{$soNumberClean}_{$poNumberClean}_{$timestamp}_{$index}.{$extension}";
-
-            // Save to storage/app/public/pdfs
-            $path = $file->storeAs('pdfs', $newFileName);
-
-            // Only return the filename (without "public/") if needed
-            $uploadedFiles[] = 'pdfs/' . $newFileName;
-        }
-
-        return $uploadedFiles;
-    }
-
-    public function mergePdf($filepaths, $customerName, $soNumber, $poNumber, $status) {
-        $customerNameClean = Str::slug($customerName, '_');
-        $soNumberClean = Str::slug($soNumber, '_');
-        $poNumberClean = Str::slug($poNumber, '');
+    public function mergePdf($files, $drawingTransactionId, $status) {
         $status = Str::slug($status, '_');
 
         $timestamp = now()->format('Ymd_His');
 
-        $newFileName = "{$customerNameClean}_{$soNumberClean}_{$poNumberClean}_{$timestamp}_{$status}.pdf";
+        $newFileName = "{$drawingTransactionId}_{$timestamp}_{$status}.pdf";
 
-        return $this->pdfService->mergeDrawingPdf($filepaths, $newFileName);
+        return $this->pdfService->mergeDrawingPdf($files, $newFileName);
     }
 
-    public function createImages($drawingTransactionId, $filepaths) {
+    public function createRejectedImages($drawingTransactionId, $drawingTransactionStepId, $filepaths) {
         foreach ($filepaths as $filepath) {
             $drawingTransactionImage = new DrawingTransactionImage();
             $drawingTransactionImage->drawing_transaction_id = $drawingTransactionId;
+            $drawingTransactionImage->drawing_transaction_step_id = $drawingTransactionStepId;
             $drawingTransactionImage->filepath = $filepath;
             $drawingTransactionImage->save();
         }
@@ -123,7 +120,6 @@ class DrawingTransactionService
         $drawingTransactionStep->do_at = $drawingTransaction->updated_at;
         $drawingTransactionStep->status = $drawingTransaction->status;
         $drawingTransactionStep->reject_reason = $drawingTransaction->revise_reason;
-        $drawingTransactionStep->filepath = $drawingTransaction->filepath;
         $drawingTransactionStep->save();
     }
 }

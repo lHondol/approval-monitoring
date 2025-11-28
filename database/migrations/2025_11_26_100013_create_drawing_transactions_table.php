@@ -15,13 +15,15 @@ return new class extends Migration
         Schema::create('drawing_transactions', function (Blueprint $table) {
             $table->uuid('id')->primary();
             $table->string('customer_name');
-            $table->string('so_number');
+            $table->string('so_number')->nullable();
             $table->string('po_number');
             $table->string('status');
             $table->timestamp('distributed_at')->nullable();
             $table->text('description')->nullable();
-            $table->text('revise_reason')->nullable(); // take from step reject_reason
-            $table->string('filepath')->nullable(); // filepath will created using job
+            $table->boolean('as_additional_data')->nullable();
+            $table->text('revised_description')->nullable();
+            $table->text('need_revise_reason')->nullable();
+            $table->string('filepath')->nullable();
             $table->timestamps();
         });
     }
