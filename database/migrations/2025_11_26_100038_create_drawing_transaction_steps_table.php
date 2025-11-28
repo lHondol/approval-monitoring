@@ -17,12 +17,12 @@ return new class extends Migration
             ->references('id')
             ->on('drawing_transactions')
             ->cascadeOnDelete();
-            $table->foreignUuid('do_by_user')
+            $table->foreignUuid('done_by_user')
             ->references('id')
             ->on('users')
             ->cascadeOnDelete();
-            $table->dateTime('do_at');
-            $table->string('status');
+            $table->dateTime('done_at');
+            $table->string('action_done');
             $table->string('reject_reason')->nullable();
             $table->timestamps();
         });

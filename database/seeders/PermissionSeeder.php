@@ -13,7 +13,11 @@ class PermissionSeeder extends Seeder
      */
     public function run(): void
     {
+        Permission::create(['name' => 'view_drawing_transaction']);
+        Permission::create(['name' => 'upload_drawing_transaction']);
+        Permission::create(['name' => 'revise_drawing_transaction']);
         Permission::create(['name' => 'first_approve_drawing_transaction']);
         Permission::create(['name' => 'second_approve_drawing_transaction']);
+        Permission::create(['name' => 'reject_drawing_transaction']);
     }
 }

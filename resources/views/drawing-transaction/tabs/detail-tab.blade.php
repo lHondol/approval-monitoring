@@ -29,11 +29,6 @@
     }
 </style>
 <div>
-    @if ($data->as_additional_data)
-        <div class="mb-3 flex justify-end">
-            <span class='ui large green label'>Additional Data</span></div>
-        </div>
-    @endif
     <form class="ui form" method="post" action="{{ route('drawingTransactionCreate') }}" enctype="multipart/form-data">
         @csrf
 
@@ -60,7 +55,7 @@
         </div>
         <div class="field">
             <label class="!text-base"">Description</label>
-            <textarea style="resize: none;" name="description" placeholder="Description" value="{{ $data->description }}" disabled></textarea>
+            <textarea style="resize: none;" name="description" placeholder="Description" disabled>{{ $data->description }}</textarea>
         </div>
         <div class="field">
             <label class="!text-base">Uploaded Files</label>

@@ -1,7 +1,6 @@
 @extends('master.layout')
 
 @section('content')
-    @include('shared.back-button', ['backRoute' => 'drawingTransactionView'])
     <style>
         .pdf-wrapper {
             position: relative;
@@ -32,6 +31,7 @@
             opacity: 1;
         }
     </style>
+    @include('shared.appbar', ["backRoute" => 'drawingTransactionView', 'title' => 'Create New Drawing Transaction'])
     <div>
         <form class="ui form" method="post" action="{{ route('drawingTransactionCreate') }}" enctype="multipart/form-data">
             @csrf

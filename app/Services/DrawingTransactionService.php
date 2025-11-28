@@ -2,9 +2,10 @@
 
 namespace App\Services;
 
-use App\Enums\StatusEnum;
+use App\Enums\ActionDrawingTransactionStep;
+use App\Enums\StatusDrawingTransaction;
 use App\Models\DrawingTransaction;
-use App\Models\DrawingTransactionImage;
+use App\Models\DrawingTransactionRejectedFile;
 use App\Models\DrawingTransactionStep;
 use Carbon\Carbon;
 use Ramsey\Uuid\Uuid;
@@ -54,12 +55,14 @@ class DrawingTransactionService
         ->make(true);
     }
 
+    public function getSteps($drawingTransactionId) {
+        return DrawingTransactionStep::where('drawing_transaction_id', $drawingTransactionId)
+            ->with(['user', 'rejected_file'])
+            ->get();
+    }
+
     public function getDetail($id) {
-        $drawingTransaction = DrawingTransaction::where('id', $id)
-            ->with(['steps' => function ($stepQuery) {
-                $stepQuery->with('rejectedFile');
-            }])
-            ->first();
+        $drawingTransaction = DrawingTransaction::where('id', $id)->first();
         return $drawingTransaction;
     }
 
@@ -72,7 +75,7 @@ class DrawingTransactionService
         $drawingTransaction->customer_name = $data->customer_name;
         $drawingTransaction->po_number = $data->po_number;
 
-        $status = StatusEnum::WAITING_1ST_APPROVAL;
+        $status = StatusDrawingTransaction::WAITING_1ST_APPROVAL;
         $drawingTransaction->status = $status->value;
 
         if (isset($data->description))
@@ -90,7 +93,7 @@ class DrawingTransactionService
         $drawingTransaction->filepath = $mergedFilePath;
         $drawingTransaction->save();
 
-        $this->createStep($drawingTransaction);
+        $this->createStep($drawingTransaction, ActionDrawingTransactionStep::UPLOAD);
     }
 
     public function mergePdf($files, $drawingTransactionId, $status) {
@@ -105,20 +108,20 @@ class DrawingTransactionService
 
     public function createRejectedImages($drawingTransactionId, $drawingTransactionStepId, $filepaths) {
         foreach ($filepaths as $filepath) {
-            $drawingTransactionImage = new DrawingTransactionImage();
-            $drawingTransactionImage->drawing_transaction_id = $drawingTransactionId;
-            $drawingTransactionImage->drawing_transaction_step_id = $drawingTransactionStepId;
-            $drawingTransactionImage->filepath = $filepath;
-            $drawingTransactionImage->save();
+            $drawingTransactionRejectedFile = new DrawingTransactionRejectedFile();
+            $drawingTransactionRejectedFile->drawing_transaction_id = $drawingTransactionId;
+            $drawingTransactionRejectedFile->drawing_transaction_step_id = $drawingTransactionStepId;
+            $drawingTransactionRejectedFile->filepath = $filepath;
+            $drawingTransactionRejectedFile->save();
         }
     }
 
-    public function createStep($drawingTransaction) {
+    public function createStep($drawingTransaction, $action) {
         $drawingTransactionStep = new DrawingTransactionStep();
         $drawingTransactionStep->drawing_transaction_id = $drawingTransaction->id;
-        $drawingTransactionStep->do_by_user = auth()->user()->id;
-        $drawingTransactionStep->do_at = $drawingTransaction->updated_at;
-        $drawingTransactionStep->status = $drawingTransaction->status;
+        $drawingTransactionStep->done_by_user = auth()->user()->id;
+        $drawingTransactionStep->done_at = $drawingTransaction->updated_at;
+        $drawingTransactionStep->action_done = $action;
         $drawingTransactionStep->reject_reason = $drawingTransaction->revise_reason;
         $drawingTransactionStep->save();
     }

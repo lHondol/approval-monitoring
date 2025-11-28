@@ -5,7 +5,7 @@
 
     function navClass($routeName) {
         return isActive($routeName)
-            ? 'text-xl w-full border-r-4 border-b-2 !pl-0'
+            ? 'text-xl w-full border-r-4 border-b-2 border-white !pl-0'
             : '!pl-3';
     }
 @endphp

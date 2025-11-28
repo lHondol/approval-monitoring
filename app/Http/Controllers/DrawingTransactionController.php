@@ -38,6 +38,12 @@ class DrawingTransactionController extends Controller
         return $this->drawingTransactionService->getData();
     }
 
+    public function getSteps(Request $request) {
+        $drawingTransactionId = $request->drawing_transaction_id;
+        $data = $this->drawingTransactionService->getSteps($drawingTransactionId);
+        return view('drawing-transaction.tabs.step-tab', compact('data'));
+    }
+
     public function approval1() {
 
     }

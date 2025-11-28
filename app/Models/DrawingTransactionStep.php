@@ -14,7 +14,11 @@ class DrawingTransactionStep extends Model
         return $this->belongsTo(DrawingTransaction::class);
     }
 
-    public function rejectedFile() {
+    public function rejected_file() {
         return $this->hasOne(DrawingTransactionRejectedFile::class);
+    }
+
+    public function user() {
+        return $this->hasOne(User::class, 'id', 'done_by_user');
     }
 }
