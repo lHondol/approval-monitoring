@@ -23,7 +23,7 @@ return new class extends Migration
             ->cascadeOnDelete();
             $table->dateTime('done_at');
             $table->string('action_done');
-            $table->string('reject_reason')->nullable();
+            $table->string('reason')->nullable();
             $table->timestamps();
         });
     }

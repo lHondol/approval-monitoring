@@ -9,6 +9,7 @@
                 <th>SO Number</th>
                 <th>PO Number</th>
                 <th>Created At</th>
+                <th>Distributed At</th>
                 <th>Status</th>
                 <th>Actions</th>
             </tr>
@@ -21,6 +22,7 @@
                 <th>SO Number</th>
                 <th>PO Number</th>
                 <th>Created At</th>
+                <th>Distributed At</th>
                 <th>Status</th>
                 <th>Actions</th>
             </tr>
@@ -41,6 +43,7 @@
                     { data: 'so_number', name: 'so_number' },
                     { data: 'po_number', name: 'po_number' },
                     { data: 'created_at', name: 'created_at' },
+                    { data: 'distributed_at', name: 'distributed_at' },
                     { data: 'status', name: 'status' },
                     { data: 'actions', name: 'actions' },
                 ],

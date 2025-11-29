@@ -40,12 +40,12 @@
     </div>
 
     <div class="ui top attached menu !mb-8 !border-b">
-        <a class="!text-lg item active !font-bold" data-tab="detail">Detail</a>
+        <a class="!text-lg item !font-bold" data-tab="detail">Detail</a>
         <a class="!text-lg item !font-bold" data-tab="approval">Approval / Rejection</a>
-        <a class="!text-lg item !font-bold" data-tab="steps">Step Histories</a>
+        <a class="!text-lg item !font-bold" data-tab="steps">Activity History</a>
     </div>
 
-    <div class="ui attached tab segment active" data-tab="detail" style="overflow: visible;">
+    <div class="ui attached tab segment" data-tab="detail" style="overflow: visible;">
         @include('drawing-transaction.tabs.detail-tab', ['data' => $data])
     </div>
 
@@ -60,6 +60,28 @@
     </div>
 
     <script>
+
+        const tabItems = document.querySelectorAll(".menu .item");
+
+        // Get last saved tab OR default
+        let activeTab = localStorage.getItem("active_tab") || "detail";
+
+        // Remove all active first
+        document.querySelectorAll(".menu .item").forEach(i => i.classList.remove("active"));
+        document.querySelectorAll(".tab.segment").forEach(i => i.classList.remove("active"));
+
+        // Add active class to saved tab
+        document.querySelector(`.menu .item[data-tab="${activeTab}"]`)?.classList.add("active");
+        document.querySelector(`.tab.segment[data-tab="${activeTab}"]`)?.classList.add("active");
+
+        // Save the clicked tab
+        tabItems.forEach(item => {
+            item.addEventListener("click", () => {
+                const tab = item.getAttribute("data-tab");
+                localStorage.setItem("active_tab", tab);
+            });
+        });
+
         $('.menu .item').tab({
             onVisible: function (tabName) {
                 if (tabName === 'steps') loadStepsTab();
@@ -67,6 +89,11 @@
         });
 
         let stepsTabLoaded = false;
+
+        if (activeTab === "steps") {
+            loadStepsTab();
+        }
+
         function loadStepsTab() {
             if (stepsTabLoaded) return;
             $("#stepsLoader").addClass("active");

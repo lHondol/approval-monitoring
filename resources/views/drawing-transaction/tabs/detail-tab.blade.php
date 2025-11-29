@@ -43,10 +43,14 @@
             </div>
         @endif
 
+        <div class="field flex-1">
+            <label class="!text-base"">Customer Name</label>
+            <input type="text" name="customer_name" placeholder="Customer Name" value="{{ $data->customer_name }}" disabled>
+        </div>
         <div class="flex flex-row gap-5">
             <div class="field flex-1">
-                <label class="!text-base"">Customer Name</label>
-                <input type="text" name="customer_name" placeholder="Customer Name" value="{{ $data->customer_name }}" disabled>
+                <label class="!text-base"">Sales Order Number (SO)</label>
+                <input type="text" name="po_number" placeholder="Sales Order Number" value="{{ $data->so_number }}" disabled>
             </div>
             <div class="field flex-1">
                 <label class="!text-base"">Purchase Order Number (PO)</label>

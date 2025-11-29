@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\DrawingTransaction\ApprovalRequest;
 use App\Http\Requests\DrawingTransaction\CreateRequest;
 use App\Services\DrawingTransactionService;
 use Illuminate\Http\Request;
@@ -44,11 +45,12 @@ class DrawingTransactionController extends Controller
         return view('drawing-transaction.tabs.step-tab', compact('data'));
     }
 
-    public function approval1() {
-
-    }
-
-    public function approval2() {
-
+    public function approval(ApprovalRequest $request) {
+        $data = array_merge(
+            $request->all(),
+            $request->route()->parameters()
+        );
+        $this->drawingTransactionService->approval((object) $data);
+        return redirect()->route('drawingTransactionView');
     }
 }

@@ -37,6 +37,7 @@ class DrawingTransactionService
             'so_number',
             'po_number',
             'created_at',
+            'distributed_at',
             'status',
             'as_additional_data',
         ])->orderBy('created_at', 'desc'))
@@ -45,11 +46,16 @@ class DrawingTransactionService
         })
         ->editColumn('status', function($row) {
             if ($row->as_additional_data)
-                return "<div class='flex gap-3'>{$row->status} <span class='ui green label'>Additional Data</span></div>";
+                return "<div class='flex gap-3'><span class='ui green label'>Additional Data</span> {$row->status}</div>";
             return $row->status;
         })
         ->editColumn('created_at', function($row) {
             return Carbon::parse($row->created_at)->format('d M Y H:i:s');
+        })
+        ->editColumn('distributed_at', function($row) {
+            if ($row->distributed_at)
+                return Carbon::parse($row->distributed_at)->format('d M Y H:i:s');
+            return '';
         })
         ->rawColumns(['status', 'actions'])
         ->make(true);
@@ -116,13 +122,18 @@ class DrawingTransactionService
         }
     }
 
-    public function createStep($drawingTransaction, $action) {
+    public function createStep($drawingTransaction, $action, $reason = null) {
         $drawingTransactionStep = new DrawingTransactionStep();
         $drawingTransactionStep->drawing_transaction_id = $drawingTransaction->id;
         $drawingTransactionStep->done_by_user = auth()->user()->id;
         $drawingTransactionStep->done_at = $drawingTransaction->updated_at;
         $drawingTransactionStep->action_done = $action;
-        $drawingTransactionStep->reject_reason = $drawingTransaction->revise_reason;
+        $drawingTransactionStep->reason = $reason;
         $drawingTransactionStep->save();
+    }
+
+    public function approval($data) {
+        $drawingTransaction = DrawingTransaction::where('id', $data->id)->first();
+        $drawingTransaction->state->next($data);
     }
 }
