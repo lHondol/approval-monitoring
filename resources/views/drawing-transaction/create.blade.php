@@ -32,22 +32,22 @@
         }
     </style>
     @include('shared.appbar', ["backRoute" => 'drawingTransactionView', 'title' => 'Create New Drawing Transaction'])
-    <div>
-        <form class="ui form" method="post" action="{{ route('drawingTransactionCreate') }}" enctype="multipart/form-data">
-            @csrf
+    <div class="flex justify-center">
+        <div class="ui card !w-[800px] !p-8">
+            <form class="ui form" method="post" action="{{ route('drawingTransactionCreate') }}" enctype="multipart/form-data">
+                @csrf
 
-            @if ($errors->any())
-                <div class="ui negative message">
-                    <div class="header">We had some issues</div>
-                    <ul class="list">
-                       @foreach ($errors->all() as $error)
-                            <li>{{ $error }}</li>
-                       @endforeach 
-                    </ul>
-                </div>
-            @endif
+                @if ($errors->any())
+                    <div class="ui negative message">
+                        <div class="header">We had some issues</div>
+                        <ul class="list">
+                        @foreach ($errors->all() as $error)
+                                <li>{{ $error }}</li>
+                        @endforeach 
+                        </ul>
+                    </div>
+                @endif
 
-            <div class="flex flex-row gap-5">
                 <div class="field flex-1">
                     <label class="!text-base"">Customer Name</label>
                     <input type="text" name="customer_name" placeholder="Customer Name">
@@ -56,34 +56,38 @@
                     <label class="!text-base"">Purchase Order Number (PO)</label>
                     <input type="text" name="po_number" placeholder="Purchase Order Number">
                 </div>
-            </div>
-            <div class="field">
-                <label class="!text-base"">Description</label>
-                <textarea style="resize: none;" name="description" placeholder="Description"></textarea>
-            </div>
-            <div class="field">
-                <div class="ui checkbox">
-                    <input type="checkbox" tabindex="0" class="hidden" name="as_additional_data">
-                    <label class="!text-base">As Additional Data</label>
+                <div class="field">
+                    <label class="!text-base"">Description</label>
+                    <textarea style="resize: none;" name="description" placeholder="Description" rows="3"></textarea>
                 </div>
-            </div>
-            <div class="field">
-                <label class="!text-base">Upload Files</label>
+                <div class="field">
+                    <div class="ui checkbox">
+                        <input type="checkbox" tabindex="0" class="hidden" name="as_additional_data">
+                        <label class="!text-base font-bold">As Additional Data</label>
+                    </div>
+                </div>
+                <div class="field hidden" id="additionalDataNoteWrapper">
+                    <label class="!text-base"">Additional Data Note</label>
+                    <textarea style="resize: none;" name="additional_data_note" placeholder="Additional Data Note" rows="3"></textarea>
+                </div>
+                <div class="field">
+                    <label class="!text-base">Upload Files</label>
 
-                <div class="ui">
-                    <input class="ui invisible file input" type="file" name="files[]" multiple id="fileInput" accept="application/pdf">
-                    <label for="fileInput" class="ui icon button">
-                        <i class="file icon"></i>
-                        Upload PDF File
-                    </label>
+                    <div class="ui">
+                        <input class="ui invisible file input" type="file" name="files[]" multiple id="fileInput" accept="application/pdf">
+                        <label for="fileInput" class="ui icon button">
+                            <i class="file icon"></i>
+                            Upload PDF File
+                        </label>
+                    </div>
+                    <!-- Preview container -->
+                    <div id="previewContainer" class="ui small images" 
+                        style="margin-top:15px; padding: 5px; display:flex; gap:10px; flex-wrap:wrap;">
+                    </div>
                 </div>
-                <!-- Preview container -->
-                <div id="previewContainer" class="ui small images" 
-                    style="margin-top:15px; padding: 5px; display:flex; gap:10px; flex-wrap:wrap;">
-                </div>
-            </div>
-            <button class="ui button customButton" type="submit">Submit</button>
-        </form>
+                <button class="ui button customButton" type="submit">Submit</button>
+            </form>
+        </div>
     </div>
 
     <!-- PDF.js -->
@@ -94,6 +98,18 @@
 
     <script>
         document.addEventListener('DOMContentLoaded', function() {
+
+            const asAdditionalData = $('[name="as_additional_data"]');
+            const additionalDataNote = $('#additionalDataNoteWrapper');
+
+            asAdditionalData.on('change', function () {
+                if (asAdditionalData.is(':checked')) {
+                    additionalDataNote.removeClass('hidden');
+                } else {
+                    additionalDataNote.addClass('hidden');
+                }
+            });
+
             const fileInput = document.getElementById('fileInput');
             const previewContainer = document.getElementById('previewContainer');
             fileInput._files = fileInput._files || [];

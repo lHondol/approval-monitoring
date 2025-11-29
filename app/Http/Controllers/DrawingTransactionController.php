@@ -50,7 +50,13 @@ class DrawingTransactionController extends Controller
             $request->all(),
             $request->route()->parameters()
         );
-        $this->drawingTransactionService->approval((object) $data);
+
+        if ($request->action == 'approve') {
+            $this->drawingTransactionService->approve((object) $data);
+        } else if ($request->action == 'reject') {
+            $this->drawingTransactionService->reject((object) $data);
+        }
+
         return redirect()->route('drawingTransactionView');
     }
 }

@@ -30,6 +30,15 @@ class DrawingTransactionService
                 </a>';
     }
 
+    public function renderStatusColor($status) {
+        return match ($status) {
+          StatusDrawingTransaction::WAITING_1ST_APPROVAL->value  => "teal",
+          StatusDrawingTransaction::WAITING_2ND_APPROVAL->value   => "orange",
+          StatusDrawingTransaction::REVISE_NEEDED->value   => "yellow",
+          StatusDrawingTransaction::DISTRIBUTED->value   => "purple",
+        };
+    }
+
     public function getData() {
         return DataTables::of(DrawingTransaction::select([
             'id',
@@ -45,9 +54,13 @@ class DrawingTransactionService
             return $this->renderActionButtons($row);
         })
         ->editColumn('status', function($row) {
+            $renderStatusColor = $this->renderStatusColor($row->status);
             if ($row->as_additional_data)
-                return "<div class='flex gap-3'><span class='ui green label'>Additional Data</span> {$row->status}</div>";
-            return $row->status;
+                return "<div class='flex gap-3'>
+                            <span class='ui green label'>Additional Data</span> 
+                            <span class='ui {$renderStatusColor} label'>{$row->status}</span>
+                        </div>";
+            return "<span class='ui {$renderStatusColor} label'>{$row->status}</span>";
         })
         ->editColumn('created_at', function($row) {
             return Carbon::parse($row->created_at)->format('d M Y H:i:s');
@@ -87,8 +100,10 @@ class DrawingTransactionService
         if (isset($data->description))
             $drawingTransaction->description = $data->description; 
 
-        if (isset($data->as_additional_data))
+        if (isset($data->as_additional_data)) {
             $drawingTransaction->as_additional_data = !!$data->as_additional_data;
+            $drawingTransaction->additional_data_note = $data->additional_data_note;
+        }
 
         $mergedFilePath = $this->mergePdf(
             $data->files, 
@@ -132,8 +147,13 @@ class DrawingTransactionService
         $drawingTransactionStep->save();
     }
 
-    public function approval($data) {
+    public function approve($data) {
         $drawingTransaction = DrawingTransaction::where('id', $data->id)->first();
         $drawingTransaction->state->next($data);
+    }
+
+    public function reject($data) {
+        $drawingTransaction = DrawingTransaction::where('id', $data->id)->first();
+        $drawingTransaction->state->reject($data);
     }
 }

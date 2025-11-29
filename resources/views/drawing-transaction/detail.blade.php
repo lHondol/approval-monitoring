@@ -30,19 +30,12 @@
         }
     </style>
 
-    <div class="flex items-center gap-3">
-        @include('shared.appbar', ["backRoute" => 'drawingTransactionView', 'title' => 'Detail Drawing Transaction'])
-        @if ($data->as_additional_data)
-            <div class="mb-10 flex justify-end">
-                <span class='ui large green label'>Additional Data</span>
-            </div>
-        @endif
-    </div>
-
+    @include('shared.appbar', ["backRoute" => 'drawingTransactionView', 'title' => 'Detail Drawing Transaction'])
+    
     <div class="ui top attached menu !mb-8 !border-b">
-        <a class="!text-lg item !font-bold" data-tab="detail">Detail</a>
-        <a class="!text-lg item !font-bold" data-tab="approval">Approval / Rejection</a>
-        <a class="!text-lg item !font-bold" data-tab="steps">Activity History</a>
+        <a class="!text-lg item !font-bold" href="#detail" data-tab="detail">Detail</a>
+        <a class="!text-lg item !font-bold" href="#approval" data-tab="approval">Approval / Rejection</a>
+        <a class="!text-lg item !font-bold" href="#steps" data-tab="steps">Activity History</a>
     </div>
 
     <div class="ui attached tab segment" data-tab="detail" style="overflow: visible;">
@@ -60,39 +53,53 @@
     </div>
 
     <script>
+        document.addEventListener("DOMContentLoaded", function () {
 
-        const tabItems = document.querySelectorAll(".menu .item");
+            // 1️⃣ First priority: restore tab from validation error
+            let restored = @json(old('active_tab'));
 
-        // Get last saved tab OR default
-        let activeTab = localStorage.getItem("active_tab") || "detail";
+            // 2️⃣ Second priority: use URL hash if no validation error
+            let hash = location.hash.replace('#', '');
 
-        // Remove all active first
-        document.querySelectorAll(".menu .item").forEach(i => i.classList.remove("active"));
-        document.querySelectorAll(".tab.segment").forEach(i => i.classList.remove("active"));
+            // 3️⃣ Final fallback: default tab
+            let activeTab = restored || hash || "detail";
 
-        // Add active class to saved tab
-        document.querySelector(`.menu .item[data-tab="${activeTab}"]`)?.classList.add("active");
-        document.querySelector(`.tab.segment[data-tab="${activeTab}"]`)?.classList.add("active");
+            // Activate tab
+            $('.menu .item').removeClass('active');
+            $('.tab.segment').removeClass('active');
 
-        // Save the clicked tab
-        tabItems.forEach(item => {
-            item.addEventListener("click", () => {
-                const tab = item.getAttribute("data-tab");
-                localStorage.setItem("active_tab", tab);
-            });
+            $(`.menu .item[data-tab="${activeTab}"]`).addClass('active');
+            $(`.tab.segment[data-tab="${activeTab}"]`).addClass('active');
+
+            // Update all forms' hidden fields
+            updateActiveTabInputs(activeTab);
+
+            // Load steps tab if needed
+            if (activeTab === 'steps') {
+                loadStepsTab();
+            }
         });
 
+        // Updates all hidden "active_tab" inputs inside all forms
+        function updateActiveTabInputs(tabName) {
+            document.querySelectorAll('input[name="active_tab"]').forEach(el => {
+                el.value = tabName;
+            });
+        }
+
+        // Semantic UI tab behavior
         $('.menu .item').tab({
             onVisible: function (tabName) {
-                if (tabName === 'steps') loadStepsTab();
+                // Keep hidden input updated
+                updateActiveTabInputs(tabName);
+
+                if (tabName === 'steps') {
+                    loadStepsTab();
+                }
             }
         });
 
         let stepsTabLoaded = false;
-
-        if (activeTab === "steps") {
-            loadStepsTab();
-        }
 
         function loadStepsTab() {
             if (stepsTabLoaded) return;
@@ -100,14 +107,13 @@
 
             $.get("{{ route('drawingTransactionSteps', $data->id) }}", function (html) {
                 $("#stepsTab").html(html);
-                stepsTabLoaded = true; // mark as loaded
+                stepsTabLoaded = true;
             }).always(() => {
                 $("#stepsLoader").removeClass("active");
             });
         }
 
         async function initStepPreview(rejectedFilesData) {
-
             for (const dt of rejectedFilesData) {
                 if (!dt.filepath) continue;
 

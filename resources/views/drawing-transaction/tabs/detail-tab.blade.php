@@ -28,48 +28,99 @@
         opacity: 1;
     }
 </style>
-<div>
-    <form class="ui form" method="post" action="{{ route('drawingTransactionCreate') }}" enctype="multipart/form-data">
-        @csrf
 
-        @if ($errors->any())
-            <div class="ui negative message">
-                <div class="header">We had some issues</div>
-                <ul class="list">
-                    @foreach ($errors->all() as $error)
-                        <li>{{ $error }}</li>
-                    @endforeach 
-                </ul>
-            </div>
-        @endif
+@php
+    use App\Enums\StatusDrawingTransaction;
+    use Carbon\Carbon;
 
-        <div class="field flex-1">
-            <label class="!text-base"">Customer Name</label>
-            <input type="text" name="customer_name" placeholder="Customer Name" value="{{ $data->customer_name }}" disabled>
-        </div>
-        <div class="flex flex-row gap-5">
-            <div class="field flex-1">
-                <label class="!text-base"">Sales Order Number (SO)</label>
-                <input type="text" name="po_number" placeholder="Sales Order Number" value="{{ $data->so_number }}" disabled>
-            </div>
-            <div class="field flex-1">
-                <label class="!text-base"">Purchase Order Number (PO)</label>
-                <input type="text" name="po_number" placeholder="Purchase Order Number" value="{{ $data->po_number }}" disabled>
-            </div>
-        </div>
-        <div class="field">
-            <label class="!text-base"">Description</label>
-            <textarea style="resize: none;" name="description" placeholder="Description" disabled>{{ $data->description }}</textarea>
-        </div>
-        <div class="field">
-            <label class="!text-base">Uploaded Files</label>
+    $renderStatusColor = function ($status) {
+        return match ($status) {
+          StatusDrawingTransaction::WAITING_1ST_APPROVAL->value  => "teal",
+          StatusDrawingTransaction::WAITING_2ND_APPROVAL->value   => "orange",
+          StatusDrawingTransaction::REVISE_NEEDED->value   => "yellow",
+          StatusDrawingTransaction::DISTRIBUTED->value   => "purple",
+        };
+    };
+@endphp
 
-            <!-- Preview container -->
-            <div id="previewContainer" class="ui small images" 
-                style="margin-top:15px; padding: 5px; display:flex; gap:10px; flex-wrap:wrap;">
-            </div>
-        </div>
-    </form>
+<div class="flex justify-center">
+<div class="ui card !w-[800px] !p-8">
+    <table class="ui very basic table" style="width:100%;">
+        <tbody>
+            <tr>
+                <td class="font-bold w-1/3 text-right pr-2">Customer Name</td>
+                <td class="text-center w-[10px]">:</td>
+                <td>{{ $data->customer_name }}</td>
+            </tr>
+            <tr>
+                <td class="font-bold text-right pr-2">Sales Order Number (SO)</td>
+                <td class="text-center w-[10px]">:</td>
+                <td>{{ $data->so_number ?? '-- Not Input Yet --' }}</td>
+            </tr>
+            <tr>
+                <td class="font-bold text-right pr-2">Purchase Order Number (PO)</td>
+                <td class="text-center w-[10px]">:</td>
+                <td>{{ $data->po_number }}</td>
+            </tr>
+            <tr>
+                <td class="font-bold text-right pr-2">Description</td>
+                <td class="text-center w-[10px]">:</td>
+                <td style="white-space: pre-line;">{{ $data->description }}</td>
+            </tr>
+            <tr>
+                <td class="font-bold text-right pr-2">Status</td>
+                <td class="text-center w-[10px]">:</td>
+                <td>
+                    @if ($data->as_additional_data)
+                        <div class='flex gap-3'>
+                            <span class='ui green label'>Additional Data</span> 
+                            <span class="ui label {{ $renderStatusColor($data->status) }}">
+                                {{ $data->status }}
+                            </span>
+                        </div>
+                    @else
+                        <span class="ui label {{ $renderStatusColor($data->status) }}">
+                            {{ $data->status }}
+                        </span>
+                    @endif
+                </td>
+            </tr>
+            @if ($data->as_additional_data)
+                <tr>
+                    <td class="font-bold text-right pr-2">Additional Data Note</td>
+                    <td class="text-center w-[10px]">:</td>
+                    <td style="white-space: pre-line;">{{ $data->additional_data_note }}</td>
+                </tr>
+            @endif  
+            @if ($data->need_revise_note && $data->status === StatusDrawingTransaction::REVISE_NEEDED->value)
+                <tr>
+                    <td class="font-bold text-right pr-2">Need Revise Note</td>
+                    <td class="text-center w-[10px]">:</td>
+                    <td style="white-space: pre-line;">{{ $data->need_revise_note }}</td>
+                </tr>
+            @endif
+            <tr>
+                <td class="font-bold text-right pr-2">Created At</td>
+                <td class="text-center w-[10px]">:</td>
+                <td style="white-space: pre-line;">{{ Carbon::parse($data->created_at)->format('d M Y H:i:s') }}</td>
+            </tr>
+            <tr>
+                <td class="font-bold text-right pr-2">Distributed At</td>
+                <td class="text-center w-[10px]">:</td>
+                <td style="white-space: pre-line;">{{ isset($data->distributed_at) ? Carbon::parse($data->distributed_at)->format('d M Y H:i:s') : '-- Not Distribute Yet --' }}</td>
+            </tr>
+            <tr>
+                <td class="font-bold text-right pr-2">Uploaded Files</td>
+                <td class="text-center w-[10px]">:</td>
+                <td>
+                    <div id="previewContainer" class="flex flex-wrap gap-3 mt-2" style="min-height:150px;"></div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+</div>
+
+
 </div>
 
 <!-- PDF.js -->
@@ -82,15 +133,13 @@
     document.addEventListener('DOMContentLoaded', async function () {
         const previewContainer = document.getElementById('previewContainer');
 
-        let files = @json($data->filepath); 
-        // if it's not an array, convert it to array
+        let files = @json($data->filepath);
         if (!Array.isArray(files)) files = [files];
 
         for (let filePath of files) {
             const fileUrl = "{{ asset('storage') }}/" + filePath;
 
             const typedArray = await fetch(fileUrl).then(res => res.arrayBuffer()).then(buffer => new Uint8Array(buffer));
-
             const pdf = await pdfjsLib.getDocument(typedArray).promise;
             const page = await pdf.getPage(1);
 

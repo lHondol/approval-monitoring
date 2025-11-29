@@ -2,6 +2,7 @@
     <form class="ui form" method="post" action="{{ route('drawingTransactionApproval', $data->id) }}" enctype="multipart/form-data">
         @csrf
 
+        <input type="hidden" name="active_tab" id="active_tab_global">
         @if ($errors->approval->any())
             <div class="ui negative message">
                 <div class="header">We had some issues</div>
@@ -18,8 +19,8 @@
             <input type="text" name="so_number" placeholder="Sales Order Number"">
         </div>
         <div class="field">
-            <label class="!text-base"">Reject Reason (Must be fill if reject)</label>
-            <textarea style="resize: none;" name="reject_reason" placeholder="Reject Reason"></textarea>
+            <label class="!text-base"">Reason (Must be fill if reject)</label>
+            <textarea style="resize: none;" name="reason" placeholder="Reason"></textarea>
         </div>
         <div>
             <button class="ui button customButton" type="submit" name="action" value="approve">Approve</button>
