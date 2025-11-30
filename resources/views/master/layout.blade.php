@@ -7,9 +7,6 @@
 
     <link rel="icon" href="data:,">
 
-    <!-- Custom CSS -->
-    <link rel="stylesheet" href="{{ asset('css/custom.css') }}">
-
     <!-- Tailwind -->
     <script src="https://cdn.tailwindcss.com"></script>
 
@@ -28,9 +25,11 @@
     <script src="https://cdn.datatables.net/buttons/3.2.5/js/dataTables.buttons.js"></script>
     <script src="https://cdn.datatables.net/buttons/3.2.5/js/buttons.semanticui.js"></script>
     <script src="https://cdn.datatables.net/buttons/3.2.5/js/buttons.colVis.min.js"></script>
-    <script src="https://cdn.datatables.net/buttons/3.2.5/js/dataTables.buttons.min.js"></script>
-    <script src="https://cdn.datatables.net/buttons/3.2.5/js/buttons.semanticui.min.js"></script>
+    <link rel="stylesheet" href="https://cdn.datatables.net/fixedcolumns/5.0.2/css/fixedColumns.dataTables.min.css">
+    <script src="https://cdn.datatables.net/fixedcolumns/5.0.2/js/dataTables.fixedColumns.min.js"></script>
 
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="{{ asset('css/custom.css') }}">
 
     <style>
         /* Content */
@@ -50,6 +49,13 @@
     </div>
 
     @stack('scripts')
+
+    <script>
+        $(document).on('mouseenter', '.dt-button-collection', function() {
+            const $menu = $(this);
+            $menu.css('width', 'auto'); // let width fit content
+        });
+    </script>
 
 </body>
 </html>

@@ -21,7 +21,7 @@ return new class extends Migration
             $table->timestamp('distributed_at')->nullable();
             $table->text('description')->nullable();
             $table->boolean('as_additional_data')->nullable();
-            $table->boolean('additional_data_note')->nullable();
+            $table->text('additional_data_note')->nullable();
             $table->text('revised_note')->nullable();
             $table->text('need_revise_note')->nullable();
             $table->string('filepath')->nullable();

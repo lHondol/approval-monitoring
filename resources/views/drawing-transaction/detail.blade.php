@@ -2,6 +2,34 @@
 
 @section('content')
     <style>
+        .pdf-wrapper {
+            position: relative;
+            width: 120px;
+            height: 150px;
+            flex-shrink: 0;
+            cursor: pointer;
+            overflow: hidden;
+            border-radius: 4px;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        .pdf-wrapper:hover {
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
+            cursor: pointer;
+        }
+
+        .pdf-wrapper::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+            pointer-events: none;
+        }
+
+        .pdf-wrapper:hover::after {
+            opacity: 1;
+        }
         /* Remove tab borders & background */
         .ui.tabular.menu .item {
             border: none !important;
@@ -9,10 +37,9 @@
         }
 
         /* Remove active item underline and background */
-        .ui.tabular.menu .item.active {
-            border: none !important;
-            background: transparent !important;
-            color: var(--primary-color) !important;
+        .ui.menu .item.active button.ui.button {
+            background: var(--primary-color) !important;
+            color: white !important;
         }
 
         /* Remove bottom border line under menu */
@@ -30,13 +57,29 @@
         }
     </style>
 
-    @include('shared.appbar', ["backRoute" => 'drawingTransactionView', 'title' => 'Detail Drawing Transaction'])
-    
-    <div class="ui top attached menu !mb-8 !border-b">
-        <a class="!text-lg item !font-bold" href="#detail" data-tab="detail">Detail</a>
-        <a class="!text-lg item !font-bold" href="#approval" data-tab="approval">Approval / Rejection</a>
-        <a class="!text-lg item !font-bold" href="#steps" data-tab="steps">Activity History</a>
+    @include('shared.appbar', ['backRoute' => 'drawingTransactionView', 'title' => 'Detail Drawing Transaction', 'marginButtom' => '!mb-3'])
+
+    <div class="ui menu tabular flex justify-center !mt-0">
+        <div class="item !px-0 !m-0" data-tab="detail">
+            <button class="ui button !text-lg !font-bold !rounded-l-md !rounded-r-none">
+                Detail
+            </button>
+        </div>
+
+        <div class="item !px-0 !m-0" data-tab="approval">
+            <button class="ui button !text-lg !font-bold !rounded-none">
+                Approval
+            </button>
+        </div>
+
+        <div class="item !px-0 !m-0" data-tab="steps">
+            <button class="ui button !text-lg !font-bold !rounded-r-md !rounded-l-none">
+                History
+            </button>
+        </div>
     </div>
+
+    <div class="ui divider"></div>
 
     <div class="ui attached tab segment" data-tab="detail" style="overflow: visible;">
         @include('drawing-transaction.tabs.detail-tab', ['data' => $data])
@@ -54,6 +97,18 @@
 
     <script>
         document.addEventListener("DOMContentLoaded", function () {
+
+            $('.menu .item').on('click', function (e) {
+                e.preventDefault(); // prevent anchor jump behavior if button is inside <a>
+
+                const tab = $(this).data('tab');
+                
+                // Update URL hash
+                window.location.hash = tab;
+
+                // Tell Semantic UI to activate the tab
+                $(this).tab('change tab', tab);
+            });
 
             // 1️⃣ First priority: restore tab from validation error
             let restored = @json(old('active_tab'));

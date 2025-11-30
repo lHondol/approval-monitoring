@@ -52,3 +52,20 @@ body {
     resize: none !important;
     height: fit-content !important;
 }
+
+/* Make the DataTables Buttons dropdown auto width */
+.dt-button-collection {
+    width: auto !important;
+    min-width: 120px; /* optional */
+    max-width: 300px; /* optional to avoid too wide */
+    box-sizing: border-box;
+}
+
+/* Make each item fill container width */
+.dt-button-collection li a {
+    display: block;
+    width: 100%;
+    padding: 0.5em 1em;
+    white-space: nowrap;
+    box-sizing: border-box;
+}

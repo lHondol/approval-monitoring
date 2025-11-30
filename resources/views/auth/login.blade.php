@@ -7,9 +7,6 @@
         <title>{{ config('app.name', 'Laravel') }}</title>
 
         <link rel="icon" href="data:,">
-
-        <!-- Custom CSS -->
-        <link rel="stylesheet" href="{{ asset('css/custom.css') }}">
         
         <!-- Tailwind -->
         <script src="https://cdn.tailwindcss.com"></script>
@@ -18,6 +15,9 @@
         <script src="https://cdn.jsdelivr.net/npm/jquery@3.7.1/dist/jquery.min.js"></script>
         <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/fomantic-ui@2.9.4/dist/semantic.min.css">
         <script src="https://cdn.jsdelivr.net/npm/fomantic-ui@2.9.4/dist/semantic.min.js"></script>
+
+        <!-- Custom CSS -->
+        <link rel="stylesheet" href="{{ asset('css/custom.css') }}">
 
     </head>
     <body class="flex justify-center items-center !bg-[var(--base-bg)]">

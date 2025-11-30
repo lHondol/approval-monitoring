@@ -1,6 +1,6 @@
-<div class="flex flex-col">
+<div class="flex flex-col items-center">
     @foreach ($data as $dt)
-        <div class="ui !my-3 segment flex justify-between gap-3 p-4 rounded shadow-sm border border-gray-200">
+        <div class="w-[800px] ui !my-3 segment flex justify-between gap-3 !p-8 rounded shadow-sm border border-gray-200">
             <div class="flex flex-col flex-wrap justify-center items-start gap-4">
                 <p class="m-0"><strong>Done By:</strong> {{ $dt->user->name }}</p>
                 <p class="m-0"><strong>Done At:</strong> {{ \Carbon\Carbon::parse($dt->done_at)->format('d M Y H:i:s') }}</p>

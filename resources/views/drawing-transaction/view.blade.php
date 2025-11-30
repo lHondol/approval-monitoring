@@ -48,8 +48,14 @@
                     { data: 'actions', name: 'actions' },
                 ],
                 columnDefs: [
-                    { targets: 1, className: 'dt-left' } // force left alignment for SO Number (detected as number)
+                    { targets: 1, className: 'dt-left' }, // force left alignment for SO Number (detected as number)
+                    { targets: -1, width: '10%', className: 'dt-center', orderable: false, searchable: false } // Actions column
                 ],
+                scrollX: true,
+                fixedColumns: {
+                    left: 0,
+                    right: 1
+                },
                 layout: {
                     topStart: {
                         buttons: [
@@ -72,9 +78,17 @@
                 },
             });
         });
+        
+        drawingTransactionsTable.on('draw.dt', function() {
+            $(".ui.dropdown").dropdown();
 
-        $('#drawingTransactions').on('init.dt', function() {
-    $('.dt-length select').addClass('ui dropdown');
-});
+            $('.DTFC_RightWrapper').css('overflow', 'visible');
+
+            // Optional: increase z-index of cloned TDs
+            $('.DTFC_RightWrapper td').css('z-index', 1000);
+   
+                console.log($('.DTFC_RightWrapper'));
+        });
+        
     </script>
 @endpush

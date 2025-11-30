@@ -1,31 +1,7 @@
 <style>
-    .pdf-wrapper {
-        position: relative;
-        width: 120px;
-        height: 150px;
-        flex-shrink: 0;
-        cursor: pointer;
-        overflow: hidden;
-        border-radius: 4px;
-        transition: transform 0.2s ease, box-shadow 0.2s ease;
-    }
-
-    .pdf-wrapper:hover {
-        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
-        cursor: pointer;
-    }
-
-    .pdf-wrapper::after {
-        content: '';
-        position: absolute;
-        inset: 0;
-        opacity: 0;
-        transition: opacity 0.3s ease;
-        pointer-events: none;
-    }
-
-    .pdf-wrapper:hover::after {
-        opacity: 1;
+    .detail-table tr > td {
+        border-top: none !important;
+        border-bottom: none !important;
     }
 </style>
 
@@ -35,92 +11,129 @@
 
     $renderStatusColor = function ($status) {
         return match ($status) {
-          StatusDrawingTransaction::WAITING_1ST_APPROVAL->value  => "teal",
-          StatusDrawingTransaction::WAITING_2ND_APPROVAL->value   => "orange",
-          StatusDrawingTransaction::REVISE_NEEDED->value   => "yellow",
-          StatusDrawingTransaction::DISTRIBUTED->value   => "purple",
+            StatusDrawingTransaction::WAITING_1ST_APPROVAL->value => "teal",
+            StatusDrawingTransaction::WAITING_2ND_APPROVAL->value => "orange",
+            StatusDrawingTransaction::REVISE_NEEDED->value        => "yellow",
+            StatusDrawingTransaction::DISTRIBUTED->value          => "purple",
         };
     };
 @endphp
 
 <div class="flex justify-center">
-<div class="ui card !w-[800px] !p-8">
-    <table class="ui very basic table" style="width:100%;">
-        <tbody>
-            <tr>
-                <td class="font-bold w-1/3 text-right pr-2">Customer Name</td>
-                <td class="text-center w-[10px]">:</td>
-                <td>{{ $data->customer_name }}</td>
-            </tr>
-            <tr>
-                <td class="font-bold text-right pr-2">Sales Order Number (SO)</td>
-                <td class="text-center w-[10px]">:</td>
-                <td>{{ $data->so_number ?? '-- Not Input Yet --' }}</td>
-            </tr>
-            <tr>
-                <td class="font-bold text-right pr-2">Purchase Order Number (PO)</td>
-                <td class="text-center w-[10px]">:</td>
-                <td>{{ $data->po_number }}</td>
-            </tr>
-            <tr>
-                <td class="font-bold text-right pr-2">Description</td>
-                <td class="text-center w-[10px]">:</td>
-                <td style="white-space: pre-line;">{{ $data->description }}</td>
-            </tr>
-            <tr>
-                <td class="font-bold text-right pr-2">Status</td>
-                <td class="text-center w-[10px]">:</td>
-                <td>
-                    @if ($data->as_additional_data)
-                        <div class='flex gap-3'>
-                            <span class='ui green label'>Additional Data</span> 
-                            <span class="ui label {{ $renderStatusColor($data->status) }}">
-                                {{ $data->status }}
-                            </span>
-                        </div>
-                    @else
-                        <span class="ui label {{ $renderStatusColor($data->status) }}">
-                            {{ $data->status }}
-                        </span>
-                    @endif
-                </td>
-            </tr>
+    <div class="ui card !w-[800px] !p-8">
+
+        <div class="mb-4">
+            <div class="font-bold mb-1">Status</div>
+
             @if ($data->as_additional_data)
-                <tr>
-                    <td class="font-bold text-right pr-2">Additional Data Note</td>
-                    <td class="text-center w-[10px]">:</td>
-                    <td style="white-space: pre-line;">{{ $data->additional_data_note }}</td>
-                </tr>
-            @endif  
-            @if ($data->need_revise_note && $data->status === StatusDrawingTransaction::REVISE_NEEDED->value)
-                <tr>
-                    <td class="font-bold text-right pr-2">Need Revise Note</td>
-                    <td class="text-center w-[10px]">:</td>
-                    <td style="white-space: pre-line;">{{ $data->need_revise_note }}</td>
-                </tr>
+                <div class="flex gap-2 items-center">
+                    <span class="ui green label">Additional Data</span>
+                    <span class="ui label {{ $renderStatusColor($data->status) }}">
+                        {{ $data->status }}
+                    </span>
+                </div>
+            @else
+                <div>
+                    <span class="ui label {{ $renderStatusColor($data->status) }}">
+                        {{ $data->status }}
+                    </span>
+                </div>
             @endif
-            <tr>
-                <td class="font-bold text-right pr-2">Created At</td>
-                <td class="text-center w-[10px]">:</td>
-                <td style="white-space: pre-line;">{{ Carbon::parse($data->created_at)->format('d M Y H:i:s') }}</td>
-            </tr>
-            <tr>
-                <td class="font-bold text-right pr-2">Distributed At</td>
-                <td class="text-center w-[10px]">:</td>
-                <td style="white-space: pre-line;">{{ isset($data->distributed_at) ? Carbon::parse($data->distributed_at)->format('d M Y H:i:s') : '-- Not Distribute Yet --' }}</td>
-            </tr>
-            <tr>
-                <td class="font-bold text-right pr-2">Uploaded Files</td>
-                <td class="text-center w-[10px]">:</td>
-                <td>
-                    <div id="previewContainer" class="flex flex-wrap gap-3 mt-2" style="min-height:150px;"></div>
-                </td>
-            </tr>
-        </tbody>
-    </table>
-</div>
+        </div>
 
+        <div class="mb-4">
+            <div class="font-bold mb-1">Customer Name</div>
+            <div class="ui input w-full !cursor-default opacity-70">
+                <div class="w-full px-5 py-2 rounded bg-gray-100 !text-black">
+                    {{ $data->customer_name }}
+                </div>
+            </div>
+        </div>
 
+        <div class="mb-4">
+            <div class="font-bold mb-1">Sales Order Number (SO)</div>
+            <div class="ui input w-full !cursor-default opacity-70">
+                <div class="w-full px-5 py-2 rounded bg-gray-100 !text-black">
+                    {{ $data->so_number ?? '-- Not Input Yet --' }}
+                </div>
+            </div>
+        </div>
+
+        <div class="mb-4">
+            <div class="font-bold mb-1">Purchase Order Number (PO)</div>
+            <div class="ui input w-full !cursor-default opacity-70">
+                <div class="w-full px-5 py-2 rounded bg-gray-100 !text-black">
+                    {{ $data->po_number }}
+                </div>
+            </div>
+        </div>
+
+        @if ($data->as_additional_data)
+            <div class="mb-4">
+                <div class="font-bold mb-1">Additional Data Note</div>
+                <div class="ui input w-full !cursor-default opacity-70">
+                   <div class="w-full px-5 rounded bg-gray-100 !text-black py-2 min-h-[80px]">
+                        {{ $data->additional_data_note }}
+                    </div>
+                </div>
+            </div>
+        @endif
+
+        @if ($data->need_revise_note && $data->status === StatusDrawingTransaction::REVISE_NEEDED->value)
+            <div class="mb-4">
+                <div class="font-bold mb-1">Need Revise Note</div>
+                <div class="ui input w-full !cursor-default opacity-70">
+                    <div class="w-full px-5 rounded bg-gray-100 !text-black py-2 min-h-[80px]">
+                        {{ $data->need_revise_note }}
+                    </div>
+                </div>
+            </div>
+        @endif
+
+        <div class="mb-4">
+            <div class="font-bold mb-1">Description</div>
+            <div class="ui input w-full !cursor-default opacity-70">
+                <div class="w-full px-5 rounded bg-gray-100 !text-black py-2 min-h-[80px]">
+                    {{ $data->description }}
+                </div>
+            </div>
+        </div>
+
+        <div class="mb-4">
+            <div class="font-bold mb-1">Created At</div>
+            <div class="ui input w-full !cursor-default opacity-70">
+                <div class="w-full px-5 py-2 rounded bg-gray-100 !text-black">
+                    {{ Carbon::parse($data->created_at)->format('d M Y H:i:s') }}
+                </div>
+            </div>
+        </div>
+
+        <div class="mb-4">
+            <div class="font-bold mb-1">Distributed At</div>
+            <div class="ui input w-full !cursor-default opacity-70">
+                <div class="w-full px-5 py-2 rounded bg-gray-100 !text-black">
+                    {{ $data->distributed_at
+                        ? Carbon::parse($data->distributed_at)->format('d M Y H:i:s')
+                        : '-- Not Distribute Yet --'
+                    }}
+                </div>
+            </div>
+        </div>
+
+        <div class="mb-4">
+            <div class="font-bold mb-1">Uploaded Files</div>
+
+            <div class="ui input w-full !cursor-default opacity-70">
+                <div class="w-full px-5 py-2 rounded bg-gray-100 !text-black">
+                    <div id="previewContainer"
+                         class="flex flex-wrap gap-3"
+                         style="min-height:150px;">
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
 </div>
 
 <!-- PDF.js -->

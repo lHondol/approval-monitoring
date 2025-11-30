@@ -31,7 +31,7 @@
             opacity: 1;
         }
     </style>
-    @include('shared.appbar', ["backRoute" => 'drawingTransactionView', 'title' => 'Create New Drawing Transaction'])
+    @include('shared.appbar', ['backRoute' => 'drawingTransactionView', 'title' => 'Create New Drawing Transaction'])
     <div class="flex justify-center">
         <div class="ui card !w-[800px] !p-8">
             <form class="ui form" method="post" action="{{ route('drawingTransactionCreate') }}" enctype="multipart/form-data">

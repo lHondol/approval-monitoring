@@ -23,11 +23,17 @@ class DrawingTransactionService
         $this->pdfService = $pdfService;
     }
 
-    private function renderActionButtons($row) {
-        return '<a href="' . route('drawingTransactionDetailForm', $row->id) . '" 
-                class="ui button customButton">
-                    Detail
-                </a>';
+    private function renderActionButtons($row)
+    {
+        return '
+            <div class="ui dropdown icon button !px-5">
+                Actions <i class="dropdown icon"></i>
+                <div class="menu">
+                    <a href="' . route('drawingTransactionDetailForm', $row->id) . '" class="item">Detail</a>
+                    <a href="' . route('drawingTransactionDetailForm', $row->id) . '" class="item">Approval</a>
+                </div>
+            </div>
+        ';
     }
 
     public function renderStatusColor($status) {
@@ -115,6 +121,8 @@ class DrawingTransactionService
         $drawingTransaction->save();
 
         $this->createStep($drawingTransaction, ActionDrawingTransactionStep::UPLOAD);
+
+        return $drawingTransaction;
     }
 
     public function mergePdf($files, $drawingTransactionId, $status) {
@@ -127,14 +135,14 @@ class DrawingTransactionService
         return $this->pdfService->mergeDrawingPdf($files, $newFileName);
     }
 
-    public function createRejectedImages($drawingTransactionId, $drawingTransactionStepId, $filepaths) {
-        foreach ($filepaths as $filepath) {
-            $drawingTransactionRejectedFile = new DrawingTransactionRejectedFile();
-            $drawingTransactionRejectedFile->drawing_transaction_id = $drawingTransactionId;
-            $drawingTransactionRejectedFile->drawing_transaction_step_id = $drawingTransactionStepId;
-            $drawingTransactionRejectedFile->filepath = $filepath;
-            $drawingTransactionRejectedFile->save();
-        }
+    public function createRejectedImages($drawingTransactionId, $drawingTransactionStepId, $filepath) {
+        $drawingTransactionRejectedFile = new DrawingTransactionRejectedFile();
+        $drawingTransactionRejectedFile->drawing_transaction_id = $drawingTransactionId;
+        $drawingTransactionRejectedFile->drawing_transaction_step_id = $drawingTransactionStepId;
+        $drawingTransactionRejectedFile->filepath = $filepath;
+        $drawingTransactionRejectedFile->save();
+
+        return $drawingTransactionRejectedFile;
     }
 
     public function createStep($drawingTransaction, $action, $reason = null) {
@@ -145,6 +153,8 @@ class DrawingTransactionService
         $drawingTransactionStep->action_done = $action;
         $drawingTransactionStep->reason = $reason;
         $drawingTransactionStep->save();
+
+        return $drawingTransactionStep;
     }
 
     public function approve($data) {

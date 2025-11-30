@@ -8,4 +8,5 @@ enum ActionDrawingTransactionStep: string
     case APPROVE1 = 'Approve - 1';
     case APPROVE2 = 'Approve - 2';
     case REJECT = 'Reject';
+    case UPLOAD_REVISED = 'Upload (Revised)';
 }

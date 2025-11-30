@@ -37,13 +37,20 @@ class WaitingFor2ndApprovalState implements DrawingTransactionState
 
     public function reject(object $data = null) {
         $this->drawingTransaction->status = StatusDrawingTransaction::REVISE_NEEDED->value;
-        $this->revise_reason = $data->reason;
+        $this->drawingTransaction->so_number = $data->so_number;
+        $this->drawingTransaction->need_revise_note = $data->reason;
         $this->drawingTransaction->save();
 
-        $this->drawingTransactionService->createStep(
+        $drawingTransactionStep = $this->drawingTransactionService->createStep(
             $this->drawingTransaction, 
             ActionDrawingTransactionStep::REJECT,
             $data->reason
+        );
+
+        $this->drawingTransactionService->createRejectedImages(
+            $this->drawingTransaction->id,
+            $drawingTransactionStep->id,
+            $this->drawingTransaction->filepath
         );
     }
 }
