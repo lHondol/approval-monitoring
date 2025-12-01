@@ -66,12 +66,6 @@
             </button>
         </div>
 
-        <div class="item !px-0 !m-0" data-tab="approval">
-            <button class="ui button !text-lg !font-bold !rounded-none">
-                Approval
-            </button>
-        </div>
-
         <div class="item !px-0 !m-0" data-tab="steps">
             <button class="ui button !text-lg !font-bold !rounded-r-md !rounded-l-none">
                 History
@@ -85,10 +79,6 @@
         @include('drawing-transaction.tabs.detail-tab', ['data' => $data])
     </div>
 
-    <div class="ui attached tab segment" data-tab="approval" style="overflow: visible;">
-        @include('drawing-transaction.tabs.approval-tab')
-    </div>
-
     <div class="ui attached tab segment" data-tab="steps" id="stepsTab" style="overflow: visible;">
         <div class="ui active inverted dimmer !bg-transparent" id="stepsLoader">
             <div class="ui loader"></div>
@@ -96,58 +86,8 @@
     </div>
 
     <script>
-        document.addEventListener("DOMContentLoaded", function () {
-
-            $('.menu .item').on('click', function (e) {
-                e.preventDefault(); // prevent anchor jump behavior if button is inside <a>
-
-                const tab = $(this).data('tab');
-                
-                // Update URL hash
-                window.location.hash = tab;
-
-                // Tell Semantic UI to activate the tab
-                $(this).tab('change tab', tab);
-            });
-
-            // 1️⃣ First priority: restore tab from validation error
-            let restored = @json(old('active_tab'));
-
-            // 2️⃣ Second priority: use URL hash if no validation error
-            let hash = location.hash.replace('#', '');
-
-            // 3️⃣ Final fallback: default tab
-            let activeTab = restored || hash || "detail";
-
-            // Activate tab
-            $('.menu .item').removeClass('active');
-            $('.tab.segment').removeClass('active');
-
-            $(`.menu .item[data-tab="${activeTab}"]`).addClass('active');
-            $(`.tab.segment[data-tab="${activeTab}"]`).addClass('active');
-
-            // Update all forms' hidden fields
-            updateActiveTabInputs(activeTab);
-
-            // Load steps tab if needed
-            if (activeTab === 'steps') {
-                loadStepsTab();
-            }
-        });
-
-        // Updates all hidden "active_tab" inputs inside all forms
-        function updateActiveTabInputs(tabName) {
-            document.querySelectorAll('input[name="active_tab"]').forEach(el => {
-                el.value = tabName;
-            });
-        }
-
-        // Semantic UI tab behavior
         $('.menu .item').tab({
             onVisible: function (tabName) {
-                // Keep hidden input updated
-                updateActiveTabInputs(tabName);
-
                 if (tabName === 'steps') {
                     loadStepsTab();
                 }

@@ -61,11 +61,7 @@ body {
     box-sizing: border-box;
 }
 
-/* Make each item fill container width */
-.dt-button-collection li a {
-    display: block;
-    width: 100%;
-    padding: 0.5em 1em;
-    white-space: nowrap;
-    box-sizing: border-box;
+.dt-scroll-body {
+    overflow-x: auto; /* keep horizontal scrolling */
+    overflow-y: visible; /* allow vertical expansion */
 }

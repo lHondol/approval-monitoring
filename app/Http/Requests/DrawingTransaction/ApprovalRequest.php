@@ -26,7 +26,7 @@ class ApprovalRequest extends FormRequest
             : null;
 
         $isSecondApproval = $transaction &&
-            $transaction->status === \App\Enums\StatusDrawingTransaction::WAITING_2ND_APPROVAL->value;
+            $transaction->status === \App\Enums\StatusDrawingTransaction::WAITING_2ND_APPROVAL->value && !$transaction->so_number;
 
         return [
             'so_number' => $isSecondApproval ? 'required|string' : 'nullable|string',

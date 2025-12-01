@@ -24,7 +24,8 @@ class WaitingFor2ndApprovalState implements DrawingTransactionState
 
     public function next(object $data = null) {
         $this->drawingTransaction->status = StatusDrawingTransaction::DISTRIBUTED->value;
-        $this->drawingTransaction->so_number = $data->so_number;
+        if (isset($data->so_number))
+            $this->drawingTransaction->so_number = $data->so_number;
         $this->drawingTransaction->distributed_at = Carbon::now();
         $this->drawingTransaction->save();
 
@@ -37,7 +38,8 @@ class WaitingFor2ndApprovalState implements DrawingTransactionState
 
     public function reject(object $data = null) {
         $this->drawingTransaction->status = StatusDrawingTransaction::REVISE_NEEDED->value;
-        $this->drawingTransaction->so_number = $data->so_number;
+        if (isset($data->so_number))
+            $this->drawingTransaction->so_number = $data->so_number;
         $this->drawingTransaction->need_revise_note = $data->reason;
         $this->drawingTransaction->save();
 

@@ -25,15 +25,8 @@ class DrawingTransactionService
 
     private function renderActionButtons($row)
     {
-        return '
-            <div class="ui dropdown icon button !px-5">
-                Actions <i class="dropdown icon"></i>
-                <div class="menu">
-                    <a href="' . route('drawingTransactionDetailForm', $row->id) . '" class="item">Detail</a>
-                    <a href="' . route('drawingTransactionDetailForm', $row->id) . '" class="item">Approval</a>
-                </div>
-            </div>
-        ';
+        $data = $row;
+        return view('drawing-transaction.datatables.actions', compact('data'));
     }
 
     public function renderStatusColor($status) {
@@ -62,7 +55,7 @@ class DrawingTransactionService
         ->editColumn('status', function($row) {
             $renderStatusColor = $this->renderStatusColor($row->status);
             if ($row->as_additional_data)
-                return "<div class='flex gap-3'>
+                return "<div class='flex gap-3 whitespace-nowrap'>
                             <span class='ui green label'>Additional Data</span> 
                             <span class='ui {$renderStatusColor} label'>{$row->status}</span>
                         </div>";
@@ -165,5 +158,31 @@ class DrawingTransactionService
     public function reject($data) {
         $drawingTransaction = DrawingTransaction::where('id', $data->id)->first();
         $drawingTransaction->state->reject($data);
+    }
+
+    public function revise($data) {
+        $drawingTransaction = DrawingTransaction::where('id', $data->id)->first();
+
+        $drawingTransaction->customer_name = $data->customer_name;
+        $drawingTransaction->po_number = $data->po_number;
+
+        $status = StatusDrawingTransaction::WAITING_1ST_APPROVAL;
+        $drawingTransaction->status = $status->value;
+
+        if (isset($data->description))
+            $drawingTransaction->description = $data->description;
+
+        $mergedFilePath = $this->mergePdf(
+            $data->files, 
+            $drawingTransaction->id,
+            $status->value
+        );
+
+        $drawingTransaction->filepath = $mergedFilePath;
+        $drawingTransaction->save();
+
+        $this->createStep($drawingTransaction, ActionDrawingTransactionStep::UPLOAD_REVISED);
+
+        return $drawingTransaction;
     }
 }

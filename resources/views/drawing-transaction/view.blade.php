@@ -18,13 +18,13 @@
         </tbody>
         <tfoot>
             <tr>
-                <th>Customer Name</th>
-                <th>SO Number</th>
-                <th>PO Number</th>
-                <th>Created At</th>
-                <th>Distributed At</th>
-                <th>Status</th>
-                <th>Actions</th>
+                <th class="!font-bold">Customer Name</th>
+                <th class="!font-bold">SO Number</th>
+                <th class="!font-bold">PO Number</th>
+                <th class="!font-bold">Created At</th>
+                <th class="!font-bold">Distributed At</th>
+                <th class="!font-bold">Status</th>
+                <th class="!font-bold">Actions</th>
             </tr>
         </tfoot>
     </table>
@@ -53,8 +53,8 @@
                 ],
                 scrollX: true,
                 fixedColumns: {
-                    left: 0,
-                    right: 1
+                    start: 0,
+                    end: 1
                 },
                 layout: {
                     topStart: {
@@ -76,19 +76,17 @@
                         ]
                     }
                 },
+                initComplete: function() {
+                    $(".ui.dropdown").dropdown({
+                        direction: 'auto'
+                    });
+                    const fixedTds = document.querySelectorAll('td.dt-center.dtfc-fixed-end.dtfc-fixed-right');
+                    fixedTds.forEach((td, index) => {
+                        td.style.zIndex = 99999 - index;   // 100, 101, 102, ...
+                        console.log(td, td.style.zIndex);
+                    });
+                }
             });
-        });
-        
-        drawingTransactionsTable.on('draw.dt', function() {
-            $(".ui.dropdown").dropdown();
-
-            $('.DTFC_RightWrapper').css('overflow', 'visible');
-
-            // Optional: increase z-index of cloned TDs
-            $('.DTFC_RightWrapper td').css('z-index', 1000);
-   
-                console.log($('.DTFC_RightWrapper'));
-        });
-        
+        });        
     </script>
 @endpush

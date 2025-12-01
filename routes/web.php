@@ -32,6 +32,9 @@ Route::middleware('auth')
     Route::post('/drawing-transaction/post', 'create')->name('drawingTransactionCreate');
     Route::get('/drawing-transaction/detail/{id}', 'detailForm')->name('drawingTransactionDetailForm');
     Route::get('/drawing-transaction/detail/steps/{drawing_transaction_id}', 'getSteps')->name('drawingTransactionSteps');
+    Route::get('/drawing-transaction/approval/{id}', 'approvalForm')->name('drawingTransactionApprovalForm');
     Route::post('/drawing-transaction/approval/{id}', 'approval')->name('drawingTransactionApproval');
+    Route::get('/drawing-transaction/revise/{id}', 'reviseForm')->name('drawingTransactionReviseForm');
+    Route::post('/drawing-transaction/revise/{id}', 'revise')->name('drawingTransactionRevise');
 });
 

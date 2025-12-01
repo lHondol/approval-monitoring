@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\DrawingTransaction\ApprovalRequest;
 use App\Http\Requests\DrawingTransaction\CreateRequest;
+use App\Http\Requests\DrawingTransaction\ReviseRequest;
 use App\Services\DrawingTransactionService;
 use Illuminate\Http\Request;
 
@@ -45,6 +46,12 @@ class DrawingTransactionController extends Controller
         return view('drawing-transaction.tabs.step-tab', compact('data'));
     }
 
+    public function approvalForm(Request $request) {
+        $id = $request->id;
+        $data = $this->drawingTransactionService->getDetail($id);
+        return view('drawing-transaction.approval', compact('data'));
+    }
+
     public function approval(ApprovalRequest $request) {
         $data = array_merge(
             $request->all(),
@@ -56,6 +63,23 @@ class DrawingTransactionController extends Controller
         } else if ($request->action == 'reject') {
             $this->drawingTransactionService->reject((object) $data);
         }
+
+        return redirect()->route('drawingTransactionView');
+    }
+
+    public function reviseForm(Request $request) {
+        $id = $request->id;
+        $data = $this->drawingTransactionService->getDetail($id);
+        return view('drawing-transaction.revise', compact('data'));
+    }
+
+    public function revise(ReviseRequest $request) {
+        $data = array_merge(
+            $request->all(),
+            $request->route()->parameters()
+        );
+
+        $this->drawingTransactionService->revise((object) $data);
 
         return redirect()->route('drawingTransactionView');
     }
