@@ -87,25 +87,82 @@
     </script>
 
     <script>
-        document.addEventListener('DOMContentLoaded', function() {
-
-            const asAdditionalData = $('[name="as_additional_data"]');
-            const additionalDataNote = $('#additionalDataNoteWrapper');
-
-            asAdditionalData.on('change', function () {
-                if (asAdditionalData.is(':checked')) {
-                    additionalDataNote.removeClass('hidden');
-                } else {
-                    additionalDataNote.addClass('hidden');
-                }
-            });
-
+        document.addEventListener('DOMContentLoaded', async function() {
             const fileInput = document.getElementById('fileInput');
             const previewContainer = document.getElementById('previewContainer');
             fileInput._files = fileInput._files || [];
 
+            // --- STEP 1: Load previous files from server ---
+            const previousFiles = @json($data->filepath ? [$data->filepath] : []);
+            for (let i = 0; i < previousFiles.length; i++) {
+                const fileUrl = "/storage/" + previousFiles[i];
+
+                const typedArray = await fetch(fileUrl)
+                    .then(res => res.arrayBuffer())
+                    .then(buffer => new Uint8Array(buffer));
+
+                const pdf = await pdfjsLib.getDocument(typedArray).promise;
+                const page = await pdf.getPage(1);
+
+                const fixedWidth = 120;
+                const fixedHeight = 150;
+                const viewport = page.getViewport({ scale: 1 });
+                const scale = Math.min(fixedWidth / viewport.width, fixedHeight / viewport.height);
+                const scaledViewport = page.getViewport({ scale });
+
+                const canvas = document.createElement('canvas');
+                canvas.width = fixedWidth;
+                canvas.height = fixedHeight;
+
+                const context = canvas.getContext('2d');
+                context.fillStyle = '#fff';
+                context.fillRect(0, 0, fixedWidth, fixedHeight);
+
+                const offsetX = (fixedWidth - scaledViewport.width) / 2;
+                const offsetY = (fixedHeight - scaledViewport.height) / 2;
+
+                await page.render({
+                    canvasContext: context,
+                    viewport: scaledViewport,
+                    transform: [1, 0, 0, 1, offsetX, offsetY]
+                }).promise;
+
+                const wrapper = document.createElement('div');
+                wrapper.className = 'pdf-wrapper';
+                wrapper.style.width = fixedWidth + 'px';
+                wrapper.style.height = fixedHeight + 'px';
+                wrapper.dataset.previous = fileUrl; // mark as previous
+                wrapper.appendChild(canvas);
+
+                // click opens PDF
+                wrapper.addEventListener('click', () => window.open(fileUrl, '_blank'));
+
+                // remove button
+                const btn = document.createElement('button');
+                btn.type = 'button';
+                btn.className = 'ui red mini circular icon button';
+                btn.style.position = 'absolute';
+                btn.style.top = '5px';
+                btn.style.right = '5px';
+                btn.style.opacity = '0.85';
+                btn.innerHTML = '<i class="close icon"></i>';
+                btn.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    wrapper.remove();
+                });
+
+                wrapper.appendChild(btn);
+                previewContainer.appendChild(wrapper);
+            }
+
+            // --- STEP 2: Handle new uploads ---
             fileInput.addEventListener('change', async function(event) {
                 const newFiles = Array.from(event.target.files);
+
+                // Remove previous previews
+                previewContainer.querySelectorAll('.pdf-wrapper').forEach(w => {
+                    if (!w.dataset.previous) w.remove();
+                });
 
                 for (let file of newFiles) {
                     const index = fileInput._files.length;
@@ -117,7 +174,6 @@
                         const pdf = await pdfjsLib.getDocument(typedArray).promise;
                         const page = await pdf.getPage(1);
 
-                        // Fixed preview size
                         const fixedWidth = 120;
                         const fixedHeight = 150;
                         const viewport = page.getViewport({ scale: 1 });
@@ -127,18 +183,18 @@
                         const canvas = document.createElement('canvas');
                         canvas.width = fixedWidth;
                         canvas.height = fixedHeight;
+
                         const context = canvas.getContext('2d');
-                        context.fillStyle = '#fff'; // white background
+                        context.fillStyle = '#fff';
                         context.fillRect(0, 0, fixedWidth, fixedHeight);
 
-                        // Center the PDF page in canvas
                         const offsetX = (fixedWidth - scaledViewport.width) / 2;
                         const offsetY = (fixedHeight - scaledViewport.height) / 2;
 
                         await page.render({
                             canvasContext: context,
                             viewport: scaledViewport,
-                            transform: [1, 0, 0, 1, offsetX, offsetY] // translate
+                            transform: [1, 0, 0, 1, offsetX, offsetY]
                         }).promise;
 
                         const wrapper = document.createElement('div');
@@ -149,15 +205,14 @@
                         wrapper.className = 'pdf-wrapper';
                         wrapper.appendChild(canvas);
 
-                        // Open in new tab on click
+                        // open in new tab
                         wrapper.addEventListener('click', (e) => {
-                            // Avoid triggering when clicking remove button
                             if (e.target.tagName.toLowerCase() === 'i') return;
                             const pdfUrl = URL.createObjectURL(fileInput._files[index]);
                             window.open(pdfUrl, '_blank');
                         });
 
-                        // Remove button with Semantic UI icon
+                        // remove button
                         const btn = document.createElement('button');
                         btn.type = 'button';
                         btn.className = 'ui red mini circular icon button';
@@ -167,28 +222,35 @@
                         btn.style.opacity = '0.85';
                         btn.innerHTML = '<i class="close icon"></i>';
                         btn.addEventListener('click', (e) => {
-                            e.stopPropagation(); // prevent opening PDF
+                            e.stopPropagation();
                             wrapper.remove();
                             fileInput._files[index] = null;
 
+                            // rebuild input files
                             const dataTransfer = new DataTransfer();
                             fileInput._files.forEach(f => { if(f) dataTransfer.items.add(f); });
                             fileInput.files = dataTransfer.files;
+
+                            // if all new files removed, show previous file
+                            if (!fileInput.files.length) {
+                                previewContainer.querySelectorAll('.pdf-wrapper[data-previous]').forEach(w => w.style.display = 'flex');
+                            }
                         });
 
                         wrapper.appendChild(btn);
                         previewContainer.appendChild(wrapper);
+
+                        // hide previous file preview
+                        previewContainer.querySelectorAll('.pdf-wrapper[data-previous]').forEach(w => w.style.display = 'none');
                     };
                     reader.readAsArrayBuffer(file);
                 }
 
-                // Rebuild input files
+                // rebuild input files
                 const dataTransfer = new DataTransfer();
                 fileInput._files.forEach(f => { if(f) dataTransfer.items.add(f); });
                 fileInput.files = dataTransfer.files;
             });
         });
-
-        $('.ui.checkbox').checkbox();
     </script>
 @endsection

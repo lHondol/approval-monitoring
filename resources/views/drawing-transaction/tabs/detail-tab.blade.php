@@ -1,10 +1,3 @@
-<style>
-    .detail-table tr > td {
-        border-top: none !important;
-        border-bottom: none !important;
-    }
-</style>
-
 @php
     use App\Enums\StatusDrawingTransaction;
     use Carbon\Carbon;
@@ -21,24 +14,26 @@
 
 <div class="flex justify-center">
     <div class="ui card !w-[800px] !p-8">
-
         <div class="mb-4">
             <div class="font-bold mb-1">Status</div>
-
-            @if ($data->as_additional_data)
-                <div class="flex gap-2 items-center">
-                    <span class="ui green label">Additional Data</span>
-                    <span class="ui label {{ $renderStatusColor($data->status) }}">
-                        {{ $data->status }}
-                    </span>
+            <div class="ui input w-full !cursor-default">
+                <div class="w-full px-5 py-5 !flex gap-3 flex-wrap rounded bg-gray-100 !text-black">
+                    @if ($data->as_additional_data)
+                        <div class="flex gap-2 items-center">
+                            <span class="ui green label">Additional Data</span>
+                            <span class="ui label {{ $renderStatusColor($data->status) }}">
+                                {{ $data->status }}
+                            </span>
+                        </div>
+                    @else
+                        <div>
+                            <span class="ui label {{ $renderStatusColor($data->status) }}">
+                                {{ $data->status }}
+                            </span>
+                        </div>
+                    @endif
                 </div>
-            @else
-                <div>
-                    <span class="ui label {{ $renderStatusColor($data->status) }}">
-                        {{ $data->status }}
-                    </span>
-                </div>
-            @endif
+            </div>
         </div>
 
         <div class="mb-4">

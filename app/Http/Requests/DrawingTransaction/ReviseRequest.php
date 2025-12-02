@@ -15,7 +15,6 @@ class ReviseRequest extends FormRequest
             "customer_name" => "required",
             "po_number" => "required",
             "description" => "nullable",
-            'files' => 'required|array|min:1',
             'files.*' => 'sometimes|file|mimes:pdf|max:5120',
         ];
     }
@@ -31,7 +30,6 @@ class ReviseRequest extends FormRequest
     public function messages(): array
     {
         return [
-            'files.required' => 'Please upload at least one file.',
             'files.*.mimes' => 'Each file must be a pdf',
             'files.*.max' => 'Each file must not exceed 5MB.',
         ];

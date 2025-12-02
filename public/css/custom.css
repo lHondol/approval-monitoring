@@ -65,3 +65,8 @@ body {
     overflow-x: auto; /* keep horizontal scrolling */
     overflow-y: visible; /* allow vertical expansion */
 }
+
+.detail-table tr > td {
+    border-top: none !important;
+    border-bottom: none !important;
+}

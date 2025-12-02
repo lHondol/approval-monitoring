@@ -172,13 +172,17 @@ class DrawingTransactionService
         if (isset($data->description))
             $drawingTransaction->description = $data->description;
 
-        $mergedFilePath = $this->mergePdf(
-            $data->files, 
-            $drawingTransaction->id,
-            $status->value
-        );
 
-        $drawingTransaction->filepath = $mergedFilePath;
+        if (isset($data->files)) {
+            $mergedFilePath = $this->mergePdf(
+                $data->files, 
+                $drawingTransaction->id,
+                $status->value
+            );
+
+            $drawingTransaction->filepath = $mergedFilePath;
+        }
+
         $drawingTransaction->save();
 
         $this->createStep($drawingTransaction, ActionDrawingTransactionStep::UPLOAD_REVISED);
