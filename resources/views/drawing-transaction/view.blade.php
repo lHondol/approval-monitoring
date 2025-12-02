@@ -1,7 +1,7 @@
 @extends('master.layout')
 
 @section('content')
-    <div>
+    <div class="table-wrapper">
         <table id="drawingTransactions" class="ui celled table">
         <thead>
             <tr>
@@ -49,13 +49,8 @@
                 ],
                 columnDefs: [
                     { targets: 1, className: 'dt-left' }, // force left alignment for SO Number (detected as number)
-                    { targets: -1, width: '10%', className: 'dt-center', orderable: false, searchable: false } // Actions column
+                    { targets: -1, width: '10%', className: 'dt-center fixed-action-column', orderable: false, searchable: false } // Actions column
                 ],
-                scrollX: true,
-                fixedColumns: {
-                    start: 0,
-                    end: 1
-                },
                 layout: {
                     topStart: {
                         buttons: [
@@ -77,13 +72,19 @@
                     }
                 },
                 initComplete: function() {
-                    $(".ui.dropdown").dropdown({
-                        direction: 'auto'
-                    });
-                    const fixedTds = document.querySelectorAll('td.dt-center.dtfc-fixed-end.dtfc-fixed-right');
+                    $(".ui.dropdown").dropdown({ direction: 'downward' });
+                },
+
+                drawCallback: function() {
+
+                    // Re-init dropdown for newly created rows
+                    $(".ui.dropdown").dropdown({ direction: 'downward' });
+
+                    // Fix z-index for fixed columns
+                    const fixedTds = document.querySelectorAll('td.dt-center');
+                    console.log(fixedTds)
                     fixedTds.forEach((td, index) => {
-                        td.style.zIndex = 99999 - index;   // 100, 101, 102, ...
-                        console.log(td, td.style.zIndex);
+                        td.style.zIndex = 10000 - index;
                     });
                 }
             });

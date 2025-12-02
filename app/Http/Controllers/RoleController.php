@@ -39,15 +39,25 @@ class RoleController extends Controller
         return redirect()->route('roleView');
     }
 
-    public function editForm() {
-
+    public function editForm(Request $request) {
+        $id = $request->id;
+        $data = $this->roleService->getDetail($id, true);
+        $permissions = $this->roleService->getPermissions();
+        return view('role.edit', compact('data', 'permissions'));
     }
 
     public function edit(EditRequest $request) {
-
+        $data = array_merge(
+            $request->all(),
+            $request->route()->parameters()
+        );
+        $this->roleService->edit((object) $data);
+        return redirect()->route('roleView');
     }
 
-    public function remove() {
-
+    public function remove(Request $request) {
+        $id = $request->id;
+        $this->roleService->remove($id);
+        return redirect()->route('roleView');
     }
 }

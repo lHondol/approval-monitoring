@@ -23,22 +23,7 @@ class EditRequest extends FormRequest
     {
         return [
             "name" => "required",
-            'permissions' => 'required|array|min:1',
-        ];
-    }
-
-    public function attributes(): array
-    {
-        return [
-            'permissions' => 'permissions',
-            'permissions.*' => 'permissions',
-        ];
-    }
-
-    public function messages(): array
-    {
-        return [
-            'permissions.required' => 'Please assign at least one permission.',
+            'permissions' => 'required|',
         ];
     }
 }

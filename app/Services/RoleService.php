@@ -49,14 +49,18 @@ class RoleService
         ->make(true);
     }
 
-    public function getDetail($id) {
+    public function getDetail($id, $permissionIdInString = false) {
         $role = Role::with('permissions')->find($id);
 
         if (!$role) {
             return null;
         }
 
-        $permissions = $role->permissions->pluck('name');
+        if ($permissionIdInString) {
+            $permissions = implode(',', $role->permissions->pluck('id')->toArray());
+        } else {
+            $permissions = $role->permissions->pluck('name');
+        }
 
         return (object) [
             'id' => $role->id,
@@ -78,6 +82,33 @@ class RoleService
         $role->save();
 
         $role->syncPermissions(explode(',', $data->permissions));
+
+        return $role;
+    }
+
+    public function edit($data) {
+        $role = Role::where('id', $data->id)->first();
+
+        if (!$role) {
+            return null;
+        }
+
+        $role->name = $data->name;
+        $role->save();
+
+        $role->syncPermissions(explode(',', $data->permissions));
+
+        return $role;
+    }
+
+    public function remove($id) {
+        $role = Role::where('id', $id)->first();
+
+        if (!$role) {
+            return null;
+        }
+
+        $role->delete();
 
         return $role;
     }

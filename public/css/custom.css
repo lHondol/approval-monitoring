@@ -70,3 +70,23 @@ body {
     border-top: none !important;
     border-bottom: none !important;
 }
+
+.multiselect-wrapper .ui.multiple.selection.dropdown > .label {
+    padding: 6px 10px !important;
+    background-color: #21ba45 !important;
+    border-radius: 6px !important;
+    font-size: 14px !important;
+    color: white !important;
+}
+
+.table-wrapper {
+    position: relative;
+    overflow-x: auto;
+}
+
+.fixed-action-column {
+    position: sticky;
+    right: 0;
+    background: white;
+    z-index: 100;
+}
