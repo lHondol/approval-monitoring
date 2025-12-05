@@ -32,7 +32,7 @@
                         <div class="default text">Select Permissions</div>
                         <div class="menu">
                             @foreach ($permissions as $permission)
-                                <div class="item" data-value="{{ $permission->id }}">{{ $permission->name }}</div>
+                                <div class="item" data-value="{{ $permission->id }}">{{ $permission->ui_name }}</div>
                             @endforeach
                         </div>
                     </div>

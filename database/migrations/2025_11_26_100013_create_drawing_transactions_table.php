@@ -20,6 +20,7 @@ return new class extends Migration
             $table->string('status');
             $table->timestamp('distributed_at')->nullable();
             $table->text('description')->nullable();
+            $table->boolean('done_revised')->nullable();
             $table->boolean('as_additional_data')->nullable();
             $table->text('additional_data_note')->nullable();
             $table->text('revised_note')->nullable();

@@ -20,7 +20,7 @@
                     <div class="w-full px-5 py-5 !flex gap-3 flex-wrap rounded bg-gray-100 !text-black">
                         @if ($data->permissions)
                             @foreach ($data->permissions as $permission)
-                                <span class='ui green label'>{{ $permission }}</span>
+                                <span class='ui teal label'>{{ $permission }}</span>
                             @endforeach
                         @else
                             -- No Permission Yet --

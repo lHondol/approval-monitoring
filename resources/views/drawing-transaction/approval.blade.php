@@ -34,8 +34,16 @@
                     <textarea style="resize: none;" name="reason" placeholder="Reason"></textarea>
                 </div>
                 <div>
-                    <button class="ui button customButton" type="submit" name="action" value="approve">Approve</button>
-                    <button class="ui button customButton" style="--btn-color: #e74c3c;" type="submit" name="action" value="reject">Reject</button>
+                    @if (auth()->user()->hasAnyPermission([
+                        'first_approve_drawing_transaction',
+                        'second_approve_drawing_transaction'
+                    ]))
+                        <button class="ui button customButton" type="submit" name="action" value="approve">Approve</button>
+                    @endif
+
+                    @if (auth()->user()->hasPermissionTo('reject_drawing_transaction'))
+                        <button class="ui button customButton" style="--btn-color: #e74c3c;" type="submit" name="action" value="reject">Reject</button>
+                    @endif
                 </div>
             </form>
         </div>

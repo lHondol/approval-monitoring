@@ -1,10 +1,10 @@
 @extends('master.layout')
 
 @section('content')
-    @include('shared.appbar', ['backRoute' => 'roleView', 'title' => 'Edit Role'])
+    @include('shared.appbar', ['backRoute' => 'userView', 'title' => 'Edit User'])
     <div class="flex justify-center">
         <div class="ui card !w-[800px] !p-8">
-            <form class="ui form" method="post" action="{{ route('roleEdit', [$data->id]) }}" enctype="multipart/form-data">
+            <form class="ui form" method="post" action="{{ route('userEdit', [$data->id]) }}" enctype="multipart/form-data">
                 @csrf
 
                 @if ($errors->any())
@@ -18,21 +18,25 @@
                     </div>
                 @endif
 
-                {{-- Role Name --}}
                 <div class="field flex-1">
                     <label class="!text-base">Name</label>
                     <input type="text" name="name" placeholder="Name" value="{{ $data->name }}">
                 </div>
 
+                <div class="field flex-1">
+                    <label class="!text-base">Email</label>
+                    <input type="text" name="email" placeholder="Email" value="{{ $data->email }}">
+                </div>
+
                 <div class="field flex-1 multiselect-wrapper">
-                     <label class="!text-base">Permissions</label>
-                    <div id="permissionsDropdown" class="ui clearable multiple selection dropdown">
-                        <input type="hidden" name="permissions" value="{{ $data->permissions }}">
+                     <label class="!text-base">Role</label>
+                    <div id="rolesDropdown" class="ui clearable selection dropdown">
+                        <input type="hidden" name="role" value="{{ $data->role }}">
                         <i class="dropdown icon"></i>
-                        <div class="default text">Select Permissions</div>
+                        <div class="default text">Select Role</div>
                         <div class="menu">
-                            @foreach ($permissions as $permission)
-                                <div class="item" data-value="{{ $permission->id }}">{{ $permission->ui_name }}</div>
+                            @foreach ($roles as $role)
+                                <div class="item" data-value="{{ $role->id }}">{{ $role->name }}</div>
                             @endforeach
                         </div>
                     </div>
@@ -47,7 +51,7 @@
 @push('scripts')
     <script>
         $(document).ready(function() {
-            $('#permissionsDropdown').dropdown();
+            $('#rolesDropdown').dropdown();
         });
     </script>
 @endpush

@@ -5,7 +5,6 @@ namespace App\Services;
 use App\Enums\ActionDrawingTransactionStep;
 use App\Enums\StatusDrawingTransaction;
 use App\Models\DrawingTransaction;
-use App\Models\DrawingTransactionRejectedFile;
 use App\Models\DrawingTransactionStep;
 use Carbon\Carbon;
 use Ramsey\Uuid\Uuid;
@@ -14,13 +13,21 @@ use Yajra\DataTables\DataTables;
 
 class DrawingTransactionService
 {
-    private $pdfService;
+    private PDFService $pdfService;
+    private DrawingTransactionStepService $drawingTransactionStepService;
+    private DrawingTransactionRejectedImageService $drawingTransactionRejectedImageService;
     /**
      * Create a new class instance.
      */
-    public function __construct(PDFService $pdfService)
+    public function __construct(
+        PDFService $pdfService, 
+        DrawingTransactionStepService $drawingTransactionStepService,
+        DrawingTransactionRejectedImageService $drawingTransactionRejectedImageService
+    )
     {
         $this->pdfService = $pdfService;
+        $this->drawingTransactionStepService = $drawingTransactionStepService;
+        $this->drawingTransactionRejectedImageService = $drawingTransactionRejectedImageService;
     }
 
     private function renderActionButtons($row)
@@ -44,22 +51,33 @@ class DrawingTransactionService
             'customer_name',
             'so_number',
             'po_number',
+            'description',
             'created_at',
             'distributed_at',
             'status',
             'as_additional_data',
-        ])->orderBy('created_at', 'desc'))
+            'done_revised',
+        ]))
         ->addColumn('actions', function($row) {
             return $this->renderActionButtons($row);
         })
         ->editColumn('status', function($row) {
             $renderStatusColor = $this->renderStatusColor($row->status);
-            if ($row->as_additional_data)
-                return "<div class='flex gap-3 whitespace-nowrap'>
-                            <span class='ui green label'>Additional Data</span> 
-                            <span class='ui {$renderStatusColor} label'>{$row->status}</span>
-                        </div>";
-            return "<span class='ui {$renderStatusColor} label'>{$row->status}</span>";
+            $statusHtml = "<div class='flex gap-2 flex-wrap'>";
+
+            if ($row->as_additional_data) {
+                $statusHtml .= "<span class='ui green label'>Additional Data</span>";
+            }
+
+            if ($row->done_revised) {
+                $statusHtml .= "<span class='ui green label'>Revised</span>";
+            }
+
+            $statusHtml .= "<span class='ui label {$renderStatusColor}'>{$row->status}</span>";
+
+            $statusHtml .= "</div>";
+
+            return $statusHtml;
         })
         ->editColumn('created_at', function($row) {
             return Carbon::parse($row->created_at)->format('d M Y H:i:s');
@@ -113,7 +131,7 @@ class DrawingTransactionService
         $drawingTransaction->filepath = $mergedFilePath;
         $drawingTransaction->save();
 
-        $this->createStep($drawingTransaction, ActionDrawingTransactionStep::UPLOAD);
+        $this->drawingTransactionStepService->createStep($drawingTransaction, ActionDrawingTransactionStep::UPLOAD);
 
         return $drawingTransaction;
     }
@@ -128,28 +146,6 @@ class DrawingTransactionService
         return $this->pdfService->mergeDrawingPdf($files, $newFileName);
     }
 
-    public function createRejectedImages($drawingTransactionId, $drawingTransactionStepId, $filepath) {
-        $drawingTransactionRejectedFile = new DrawingTransactionRejectedFile();
-        $drawingTransactionRejectedFile->drawing_transaction_id = $drawingTransactionId;
-        $drawingTransactionRejectedFile->drawing_transaction_step_id = $drawingTransactionStepId;
-        $drawingTransactionRejectedFile->filepath = $filepath;
-        $drawingTransactionRejectedFile->save();
-
-        return $drawingTransactionRejectedFile;
-    }
-
-    public function createStep($drawingTransaction, $action, $reason = null) {
-        $drawingTransactionStep = new DrawingTransactionStep();
-        $drawingTransactionStep->drawing_transaction_id = $drawingTransaction->id;
-        $drawingTransactionStep->done_by_user = auth()->user()->id;
-        $drawingTransactionStep->done_at = $drawingTransaction->updated_at;
-        $drawingTransactionStep->action_done = $action;
-        $drawingTransactionStep->reason = $reason;
-        $drawingTransactionStep->save();
-
-        return $drawingTransactionStep;
-    }
-
     public function approve($data) {
         $drawingTransaction = DrawingTransaction::where('id', $data->id)->first();
         $drawingTransaction->state->next($data);
@@ -162,31 +158,6 @@ class DrawingTransactionService
 
     public function revise($data) {
         $drawingTransaction = DrawingTransaction::where('id', $data->id)->first();
-
-        $drawingTransaction->customer_name = $data->customer_name;
-        $drawingTransaction->po_number = $data->po_number;
-
-        $status = StatusDrawingTransaction::WAITING_1ST_APPROVAL;
-        $drawingTransaction->status = $status->value;
-
-        if (isset($data->description))
-            $drawingTransaction->description = $data->description;
-
-
-        if (isset($data->files)) {
-            $mergedFilePath = $this->mergePdf(
-                $data->files, 
-                $drawingTransaction->id,
-                $status->value
-            );
-
-            $drawingTransaction->filepath = $mergedFilePath;
-        }
-
-        $drawingTransaction->save();
-
-        $this->createStep($drawingTransaction, ActionDrawingTransactionStep::UPLOAD_REVISED);
-
-        return $drawingTransaction;
+        $drawingTransaction->state->next($data);
     }
 }

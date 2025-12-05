@@ -49,30 +49,41 @@
             Dashboard
         </a>
 
-        <a href="{{ route('drawingTransactionView') }}" class="{{ navClass('drawing-transaction*') }}">
-            Drawing Transactions
-        </a>
+        @if (auth()->user()->hasPermissionTo('view_drawing_transaction'))
+            <a href="{{ route('drawingTransactionView') }}" class="{{ navClass('drawing-transaction*') }}">
+                Drawing Transactions
+            </a>
+        @endif
 
         {{-- User Management Menu --}}
-        <div class="relative">
-            <button 
-                class="parentMenu w-full text-left !flex justify-between items-center {{ navParentClass(['users*', 'roles*']) }}" 
-                onclick="let menu = document.getElementById('userManagementMenu'); 
-                        menu.classList.toggle('hidden'); 
-                        document.getElementById('userManagementIcon').classList.toggle('-rotate-90');">
-                <span>User Management</span>
-                <i id="userManagementIcon" class="angle left icon transition-transform duration-200
-                    {{ request()->is('users*') || request()->is('roles*') ? '-rotate-90' : '' }}"></i>
-            </button>
+        @if (auth()->user()->hasAnyPermission([
+            'view_user',
+            'view_role'
+        ]))
+            <div class="relative">
+                <button 
+                    class="parentMenu w-full text-left !flex justify-between items-center {{ navParentClass(['users*', 'roles*']) }}" 
+                    onclick="let menu = document.getElementById('userManagementMenu'); 
+                            menu.classList.toggle('hidden'); 
+                            document.getElementById('userManagementIcon').classList.toggle('-rotate-90');">
+                    <span>User Management</span>
+                    <i id="userManagementIcon" class="angle left icon transition-transform duration-200
+                        {{ request()->is('users*') || request()->is('roles*') ? '-rotate-90' : '' }}"></i>
+                </button>
 
-            <div id="userManagementMenu" class="{{ isParentOpen(['users*', 'roles*']) }}">
-                <a href="{{ route('userView') }}" class="{{ navClass('users*') }}">
-                    Users
-                </a>
-                <a href="{{ route('roleView') }}" class="{{ navClass('roles*') }}">
-                    Roles
-                </a>
+                <div id="userManagementMenu" class="{{ isParentOpen(['users*', 'roles*']) }}">
+                    @if (auth()->user()->hasPermissionTo('view_user'))
+                        <a href="{{ route('userView') }}" class="{{ navClass('users*') }}">
+                            Users
+                        </a>
+                    @endif
+                    @if (auth()->user()->hasPermissionTo('view_role'))
+                        <a href="{{ route('roleView') }}" class="{{ navClass('roles*') }}">
+                            Roles
+                        </a>
+                    @endif
+                </div>
             </div>
-        </div>
+        @endif
     </div>
 </div>

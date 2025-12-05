@@ -24,8 +24,8 @@
         <div class="ui card min-w-[500px]">
             <div class="content min-h-[300px] flex flex-col items-center !p-10">
                 <h1 class="text-2xl font-bold text-[var(--primary-color)] uppercase">{{ config('app.name', 'Laravel') }}</h1>
-                <span>Please log in to continue</span>
-                <form class="ui form w-full p-3" method="post" action="{{ route('login') }}">
+                <span>Silakan registrasi untuk memakai aplikasi</span>
+                <form class="ui form w-full p-3" method="post" action="{{ route('register') }}">
                     @csrf
 
                     @if ($errors->any())
@@ -40,6 +40,10 @@
                     @endif
 
                     <div class="field">
+                        <label class="!text-base">Name</label>
+                        <input type="text" name="name" placeholder="Name">
+                    </div>
+                    <div class="field">
                         <label class="!text-base">Email</label>
                         <input type="email" name="email" placeholder="Email">
                     </div>
@@ -48,23 +52,13 @@
                         <input type="password" name="password" placeholder="Password">
                     </div>
                     <div class="field">
-                        <div class="ui checkbox">
-                            <input type="checkbox" tabindex="0" class="hidden" name="remember_me">
-                            <label class="!text-base">Remember Me</label>
-                        </div>
-                    </div>
-                    <div class="field">
-                        <span>Don't have account yet? <a 
+                        <span>Already have account? <a 
                             style="text-decoration: underline;"
-                        href="{{ route('registerForm') }}">Register Here</a></span>
+                        href="{{ route('loginForm') }}">Login Here</a></span>
                     </div>
-                    <button class="ui button w-full customButton" type="submit">Login</button>
+                    <button class="ui button w-full customButton" type="submit">Register</button>
                 </form>
             </div>
         </div>
     </body>
-
-    <script>
-        $('.ui.checkbox').checkbox();
-    </script>
 </html>

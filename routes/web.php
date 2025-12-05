@@ -17,6 +17,8 @@ Route::controller(AuthController::class)
     Route::middleware('guest')->get('/login', 'loginForm')->name('loginForm');
     Route::middleware('guest')->post('/login', 'login')->name('login');
     Route::middleware('auth')->post('/logout', 'logout')->name('logout');
+    Route::middleware('guest')->get('/register', 'registerForm')->name('registerForm');
+    Route::middleware('guest')->post('/register', 'register')->name('register');
 });
 
 // DASHBOARD

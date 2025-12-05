@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use App\Models\User;
 use Illuminate\Support\Facades\Auth;
 
 class AuthService
@@ -24,5 +25,13 @@ class AuthService
 
     public function logout() {
         Auth::logout();
+    }
+
+    public function register($name, $email, $password) {
+        User::create([
+            "name" => $name,
+            "email" => $email,
+            "password" => $password
+        ]);
     }
 }

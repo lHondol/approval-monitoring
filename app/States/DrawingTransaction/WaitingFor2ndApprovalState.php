@@ -6,20 +6,24 @@ use App\Enums\ActionDrawingTransactionStep;
 use App\Enums\StatusDrawingTransaction;
 use App\Interfaces\DrawingTransactionState;
 use App\Models\DrawingTransaction;
+use App\Services\DrawingTransactionRejectedImageService;
 use App\Services\DrawingTransactionService;
+use App\Services\DrawingTransactionStepService;
 use Carbon\Carbon;
 
 class WaitingFor2ndApprovalState implements DrawingTransactionState
 {
     private DrawingTransaction $drawingTransaction;
-    private DrawingTransactionService $drawingTransactionService;
+    private DrawingTransactionStepService $drawingTransactionStepService;
+    private DrawingTransactionRejectedImageService $drawingTransactionRejectedImageService;
     /**
      * Create a new class instance.
      */
     public function __construct(DrawingTransaction $drawingTransaction)
     {
         $this->drawingTransaction = $drawingTransaction;
-        $this->drawingTransactionService = app(DrawingTransactionService::class);
+        $this->drawingTransactionStepService = app(DrawingTransactionStepService::class);
+        $this->drawingTransactionRejectedImageService = app(DrawingTransactionRejectedImageService::class);
     }
 
     public function next(object $data = null) {
@@ -29,7 +33,7 @@ class WaitingFor2ndApprovalState implements DrawingTransactionState
         $this->drawingTransaction->distributed_at = Carbon::now();
         $this->drawingTransaction->save();
 
-        $this->drawingTransactionService->createStep(
+        $this->drawingTransactionStepService->createStep(
             $this->drawingTransaction, 
             ActionDrawingTransactionStep::APPROVE2,
             $data->reason ?? "Ok, Approved"
@@ -41,15 +45,16 @@ class WaitingFor2ndApprovalState implements DrawingTransactionState
         if (isset($data->so_number))
             $this->drawingTransaction->so_number = $data->so_number;
         $this->drawingTransaction->need_revise_note = $data->reason;
+        $this->drawingTransaction->done_revised = false;
         $this->drawingTransaction->save();
 
-        $drawingTransactionStep = $this->drawingTransactionService->createStep(
+        $drawingTransactionStep = $this->drawingTransactionStepService->createStep(
             $this->drawingTransaction, 
             ActionDrawingTransactionStep::REJECT,
             $data->reason
         );
 
-        $this->drawingTransactionService->createRejectedImages(
+        $this->drawingTransactionRejectedImageService->createRejectedImages(
             $this->drawingTransaction->id,
             $drawingTransactionStep->id,
             $this->drawingTransaction->filepath

@@ -73,20 +73,20 @@ body {
 
 .multiselect-wrapper .ui.multiple.selection.dropdown > .label {
     padding: 6px 10px !important;
-    background-color: #21ba45 !important;
+    background-color: #00b5ad !important;
+    border-color: #00b5ad !important;
     border-radius: 6px !important;
-    font-size: 14px !important;
     color: white !important;
+    box-shadow: none !important;
 }
 
-.table-wrapper {
-    position: relative;
-    overflow-x: auto;
+.multiselect-wrapper .ui.multiple.selection.dropdown {
+    padding: 9.5px 14px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: calc(0.25rem * 3) !important;
 }
 
-.fixed-action-column {
-    position: sticky;
-    right: 0;
-    background: white;
-    z-index: 100;
+.ui.label {
+    margin: 0 !important;
 }

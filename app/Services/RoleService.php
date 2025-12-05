@@ -30,12 +30,12 @@ class RoleService
                 ->orderBy('created_at', 'desc')
         )
                 ->addColumn('permissions', function($role) {
-                    $permissions = $role->permissions->pluck('name');
+                    $permissions = $role->permissions->pluck('ui_name');
 
                     $html = "<div class='flex flex-wrap gap-3'>";
 
                     foreach ($permissions as $permission) {
-                        $html .= "<span class='ui green label'>{$permission}</span>";
+                        $html .= "<span class='ui teal label'>{$permission}</span>";
                     }
 
                     $html .= "</div>";
@@ -59,7 +59,7 @@ class RoleService
         if ($permissionIdInString) {
             $permissions = implode(',', $role->permissions->pluck('id')->toArray());
         } else {
-            $permissions = $role->permissions->pluck('name');
+            $permissions = $role->permissions->pluck('ui_name');
         }
 
         return (object) [
@@ -70,7 +70,7 @@ class RoleService
     }
 
     public function getPermissions() {
-        return Permission::select(['id', 'name'])->get();   
+        return Permission::select(['id', 'ui_name'])->get();   
     }
 
     public function create($data) {

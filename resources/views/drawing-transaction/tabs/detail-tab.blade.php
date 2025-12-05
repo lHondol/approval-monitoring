@@ -18,20 +18,17 @@
             <div class="font-bold mb-1">Status</div>
             <div class="ui input w-full !cursor-default">
                 <div class="w-full px-5 py-5 !flex gap-3 flex-wrap rounded bg-gray-100 !text-black">
-                    @if ($data->as_additional_data)
-                        <div class="flex gap-2 items-center">
+                    <div class="flex gap-2 items-center">
+                        @if ($data->as_additional_data)
                             <span class="ui green label">Additional Data</span>
-                            <span class="ui label {{ $renderStatusColor($data->status) }}">
-                                {{ $data->status }}
-                            </span>
-                        </div>
-                    @else
-                        <div>
-                            <span class="ui label {{ $renderStatusColor($data->status) }}">
-                                {{ $data->status }}
-                            </span>
-                        </div>
-                    @endif
+                        @endif
+                        @if ($data->done_revised)
+                            <span class="ui green label">Revised</span>
+                        @endif
+                        <span class="ui label {{ $renderStatusColor($data->status) }}">
+                            {{ $data->status }}
+                        </span>
+                    </div>
                 </div>
             </div>
         </div>
