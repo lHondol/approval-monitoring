@@ -137,11 +137,9 @@ class DrawingTransactionService
     }
 
     public function mergePdf($files, $drawingTransactionId, $status) {
-        $status = Str::slug($status, '_');
-
         $timestamp = now()->format('Ymd_His');
 
-        $newFileName = "{$drawingTransactionId}_{$timestamp}_{$status}.pdf";
+        $newFileName = "{$drawingTransactionId}_{$timestamp}.pdf";
 
         return $this->pdfService->mergeDrawingPdf($files, $newFileName);
     }

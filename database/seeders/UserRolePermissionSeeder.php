@@ -79,17 +79,17 @@ class UserRolePermissionSeeder extends Seeder
 
         $defaultRole2 = Role::create(['name' => 'R&D Spv']);
         $defaultRole2->givePermissionTo([
-            $defaultPermission1, $defaultPermission4, $defaultPermission6
+            $defaultPermission1, $defaultPermission7, $defaultPermission5
         ]);
 
         $defaultRole3 = Role::create(['name' => 'R&D Manager']);
         $defaultRole3->givePermissionTo([
-            $defaultPermission1, $defaultPermission4, $defaultPermission6
+            $defaultPermission1, $defaultPermission7, $defaultPermission5
         ]);
 
         $defaultRole4 = Role::create(['name' => 'Marketing']);
         $defaultRole4->givePermissionTo([
-            $defaultPermission1, $defaultPermission5, $defaultPermission6
+            $defaultPermission1, $defaultPermission7, $defaultPermission6
         ]);
 
         $defaultRole5 = Role::create(['name' => 'PPIC']);

@@ -37,20 +37,16 @@ class ReviseNeededState implements DrawingTransactionState
             $this->drawingTransaction->description = $data->description;
 
 
-        if (isset($data->files)) {
-            $status = Str::slug("revised_" . $status, '_');
+        $timestamp = now()->format('Ymd_His');
 
-            $timestamp = now()->format('Ymd_His');
+        $newFileName = "{$this->drawingTransaction->id}_{$timestamp}.pdf";
 
-            $newFileName = "{$this->drawingTransaction->id}_{$timestamp}_{$status}.pdf";
+        $mergedFilePath = $this->pdfService->mergeDrawingPdf(
+            $data->files, 
+            $newFileName
+        );
 
-            $mergedFilePath = $this->pdfService->mergeDrawingPdf(
-                $data->files, 
-                $newFileName
-            );
-
-            $this->drawingTransaction->filepath = $mergedFilePath;
-        }
+        $this->drawingTransaction->filepath = $mergedFilePath;
 
         $this->drawingTransaction->save();
 

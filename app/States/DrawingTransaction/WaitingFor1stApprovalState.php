@@ -9,12 +9,14 @@ use App\Models\DrawingTransaction;
 use App\Services\DrawingTransactionRejectedImageService;
 use App\Services\DrawingTransactionService;
 use App\Services\DrawingTransactionStepService;
+use App\Services\PDFService;
 
 class WaitingFor1stApprovalState implements DrawingTransactionState
 {
     private DrawingTransaction $drawingTransaction;
     private DrawingTransactionStepService $drawingTransactionStepService;
     private DrawingTransactionRejectedImageService $drawingTransactionRejectedImageService;
+    private PDFService $pdfService;
     /**
      * Create a new class instance.
      */
@@ -23,6 +25,7 @@ class WaitingFor1stApprovalState implements DrawingTransactionState
         $this->drawingTransaction = $drawingTransaction;
         $this->drawingTransactionStepService = app(DrawingTransactionStepService::class);
         $this->drawingTransactionRejectedImageService = app(DrawingTransactionRejectedImageService::class);
+        $this->pdfService = app(PDFService::class);
     }
 
     public function next(object $data = null) {
@@ -33,6 +36,14 @@ class WaitingFor1stApprovalState implements DrawingTransactionState
             $this->drawingTransaction, 
             ActionDrawingTransactionStep::APPROVE1,
             $data->reason ?? "Ok, Approved"
+        );
+
+        $this->pdfService->signPdf(
+            $this->drawingTransaction->filepath, 
+            12.5, 
+            0, 
+            "APPROVED by", 
+            $this->drawingTransaction->updated_at
         );
     }
 
@@ -52,6 +63,14 @@ class WaitingFor1stApprovalState implements DrawingTransactionState
             $this->drawingTransaction->id,
             $drawingTransactionStep->id,
             $this->drawingTransaction->filepath
+        );
+
+        $this->pdfService->signPdf(
+            $this->drawingTransaction->filepath, 
+            12.5, 
+            0, 
+            "REJECTED by", 
+            $this->drawingTransaction->updated_at
         );
     }
 }

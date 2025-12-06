@@ -45,7 +45,7 @@ class PDFService
                 $size = $pdf->getTemplateSize($templateId);
 
                 // Scale to fit A4
-                $scale = min($a4Width / $size['width'], $a4Height / $size['height']);
+                $scale = min($a4Width / $size['width'], $a4Height / $size['height']) * 1.05;
                 $scaledWidth = $size['width'] * $scale;
                 $scaledHeight = $size['height'] * $scale;
 
@@ -58,19 +58,65 @@ class PDFService
 
                 // Insert the PDF content
                 $pdf->useTemplate($templateId, $x, $y, $scaledWidth, $scaledHeight);
-
-                // ---- Add stamp at top-right of page ----
-                $pdf->SetFont('Helvetica', 'B', 12);
-                $pdf->SetTextColor(255, 0, 0);
-
-                $pdf->SetXY($a4Width - 60, 10); // safe position
-                $pdf->Cell(50, 10, 'Approved', 0, 0, 'C');
             }
         }
 
         // Save file
         $pdf->Output('F', $outputFile);
 
-        return "drawing-pdfs/" . $outputName;
+        return "{$directory}/" . $outputName;
+    }
+
+    public function signPdf($sourcePath, $positionX, $positionY, $stamp, $dateAt)
+    {
+        if (!Storage::disk('public')->exists($sourcePath)) {
+             throw new \Exception("PDF not found: " . $sourcePath);
+        }
+
+        $absolutePath = Storage::disk('public')->path($sourcePath);
+
+        $pdf = new Fpdi();
+        $pdf->SetAutoPageBreak(false);
+
+        $pageCount = $pdf->setSourceFile($absolutePath);
+
+        for ($pageNo = 1; $pageNo <= $pageCount; $pageNo++) {
+
+            // Import the page
+            $templateId = $pdf->importPage($pageNo);
+            $size = $pdf->getTemplateSize($templateId);
+
+            // Make a page with EXACT same size as the original
+            $pdf->AddPage($size['orientation'], [$size['width'], $size['height']]);
+
+            // Render it FULL PAGE (0,0 and full width/height)
+            $pdf->useTemplate($templateId, 0, 0, $size['width'], $size['height']);
+
+            // --------------------------------------------------
+            // Add stamp or signature here if needed
+            // Example:
+            $pdf->SetFont('Helvetica', 'B', 8);
+            $pdf->SetTextColor(255, 0, 0);
+
+            $pdf->SetXY($positionX, $positionY);
+            $pdf->Cell(50, 10, $stamp);
+
+            $userName = auth()->user()->name;
+            $userRole = auth()->user()->roles[0]->name ?? 'Super Admin';
+
+            $pdf->SetXY($positionX, $positionY + 6);
+            $pdf->Cell(50, 6, "{$userName}");
+
+            $pdf->SetXY($positionX, $positionY + 9);
+            $pdf->Cell(50, 6, "{$userRole}");
+
+            $pdf->SetXY($positionX, $positionY + 12);
+            $pdf->Cell(50, 6, "at {$dateAt}");
+            // --------------------------------------------------
+        }
+
+        $pdf->Output('F', $absolutePath);
+
+        return $sourcePath;
     }
 }

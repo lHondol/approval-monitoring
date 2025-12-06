@@ -93,67 +93,67 @@
             fileInput._files = fileInput._files || [];
 
             // --- STEP 1: Load previous files from server ---
-            const previousFiles = @json($data->filepath ? [$data->filepath] : []);
-            for (let i = 0; i < previousFiles.length; i++) {
-                const fileUrl = "/storage/" + previousFiles[i];
+            // const previousFiles = @json($data->filepath ? [$data->filepath] : []);
+            // for (let i = 0; i < previousFiles.length; i++) {
+            //     const fileUrl = "/storage/" + previousFiles[i];
 
-                const typedArray = await fetch(fileUrl)
-                    .then(res => res.arrayBuffer())
-                    .then(buffer => new Uint8Array(buffer));
+            //     const typedArray = await fetch(fileUrl)
+            //         .then(res => res.arrayBuffer())
+            //         .then(buffer => new Uint8Array(buffer));
 
-                const pdf = await pdfjsLib.getDocument(typedArray).promise;
-                const page = await pdf.getPage(1);
+            //     const pdf = await pdfjsLib.getDocument(typedArray).promise;
+            //     const page = await pdf.getPage(1);
 
-                const fixedWidth = 120;
-                const fixedHeight = 150;
-                const viewport = page.getViewport({ scale: 1 });
-                const scale = Math.min(fixedWidth / viewport.width, fixedHeight / viewport.height);
-                const scaledViewport = page.getViewport({ scale });
+            //     const fixedWidth = 120;
+            //     const fixedHeight = 150;
+            //     const viewport = page.getViewport({ scale: 1 });
+            //     const scale = Math.min(fixedWidth / viewport.width, fixedHeight / viewport.height);
+            //     const scaledViewport = page.getViewport({ scale });
 
-                const canvas = document.createElement('canvas');
-                canvas.width = fixedWidth;
-                canvas.height = fixedHeight;
+            //     const canvas = document.createElement('canvas');
+            //     canvas.width = fixedWidth;
+            //     canvas.height = fixedHeight;
 
-                const context = canvas.getContext('2d');
-                context.fillStyle = '#fff';
-                context.fillRect(0, 0, fixedWidth, fixedHeight);
+            //     const context = canvas.getContext('2d');
+            //     context.fillStyle = '#fff';
+            //     context.fillRect(0, 0, fixedWidth, fixedHeight);
 
-                const offsetX = (fixedWidth - scaledViewport.width) / 2;
-                const offsetY = (fixedHeight - scaledViewport.height) / 2;
+            //     const offsetX = (fixedWidth - scaledViewport.width) / 2;
+            //     const offsetY = (fixedHeight - scaledViewport.height) / 2;
 
-                await page.render({
-                    canvasContext: context,
-                    viewport: scaledViewport,
-                    transform: [1, 0, 0, 1, offsetX, offsetY]
-                }).promise;
+            //     await page.render({
+            //         canvasContext: context,
+            //         viewport: scaledViewport,
+            //         transform: [1, 0, 0, 1, offsetX, offsetY]
+            //     }).promise;
 
-                const wrapper = document.createElement('div');
-                wrapper.className = 'pdf-wrapper';
-                wrapper.style.width = fixedWidth + 'px';
-                wrapper.style.height = fixedHeight + 'px';
-                wrapper.dataset.previous = fileUrl; // mark as previous
-                wrapper.appendChild(canvas);
+            //     const wrapper = document.createElement('div');
+            //     wrapper.className = 'pdf-wrapper';
+            //     wrapper.style.width = fixedWidth + 'px';
+            //     wrapper.style.height = fixedHeight + 'px';
+            //     wrapper.dataset.previous = fileUrl; // mark as previous
+            //     wrapper.appendChild(canvas);
 
-                // click opens PDF
-                wrapper.addEventListener('click', () => window.open(fileUrl, '_blank'));
+            //     // click opens PDF
+            //     wrapper.addEventListener('click', () => window.open(fileUrl, '_blank'));
 
-                // remove button
-                const btn = document.createElement('button');
-                btn.type = 'button';
-                btn.className = 'ui red mini circular icon button';
-                btn.style.position = 'absolute';
-                btn.style.top = '5px';
-                btn.style.right = '5px';
-                btn.style.opacity = '0.85';
-                btn.innerHTML = '<i class="close icon"></i>';
-                btn.addEventListener('click', (e) => {
-                    e.stopPropagation();
-                    wrapper.remove();
-                });
+            //     // remove button
+            //     const btn = document.createElement('button');
+            //     btn.type = 'button';
+            //     btn.className = 'ui red mini circular icon button';
+            //     btn.style.position = 'absolute';
+            //     btn.style.top = '5px';
+            //     btn.style.right = '5px';
+            //     btn.style.opacity = '0.85';
+            //     btn.innerHTML = '<i class="close icon"></i>';
+            //     btn.addEventListener('click', (e) => {
+            //         e.stopPropagation();
+            //         wrapper.remove();
+            //     });
 
-                wrapper.appendChild(btn);
-                previewContainer.appendChild(wrapper);
-            }
+            //     wrapper.appendChild(btn);
+            //     previewContainer.appendChild(wrapper);
+            // }
 
             // --- STEP 2: Handle new uploads ---
             fileInput.addEventListener('change', async function(event) {
