@@ -44,9 +44,9 @@ class WaitingFor2ndApprovalState implements DrawingTransactionState
 
         $this->pdfService->signPdf(
             $this->drawingTransaction->filepath, 
-            100, 
-            0, 
-            "APPROVED by",
+            20,
+            255,
+            "APPROVED 2 by",
             $this->drawingTransaction->updated_at
         );
     }
@@ -73,8 +73,8 @@ class WaitingFor2ndApprovalState implements DrawingTransactionState
 
         $this->pdfService->signPdf(
             $this->drawingTransaction->filepath, 
-            100, 
-            0, 
+            20,
+            255,
             "REJECTED by",
             $this->drawingTransaction->updated_at
         );
