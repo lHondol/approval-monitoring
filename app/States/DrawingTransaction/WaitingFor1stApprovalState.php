@@ -9,6 +9,7 @@ use App\Models\DrawingTransaction;
 use App\Services\DrawingTransactionRejectedImageService;
 use App\Services\DrawingTransactionService;
 use App\Services\DrawingTransactionStepService;
+use App\Services\EmailService;
 use App\Services\PDFService;
 
 class WaitingFor1stApprovalState implements DrawingTransactionState
@@ -17,6 +18,7 @@ class WaitingFor1stApprovalState implements DrawingTransactionState
     private DrawingTransactionStepService $drawingTransactionStepService;
     private DrawingTransactionRejectedImageService $drawingTransactionRejectedImageService;
     private PDFService $pdfService;
+    private EmailService $emailService;
     /**
      * Create a new class instance.
      */
@@ -26,6 +28,7 @@ class WaitingFor1stApprovalState implements DrawingTransactionState
         $this->drawingTransactionStepService = app(DrawingTransactionStepService::class);
         $this->drawingTransactionRejectedImageService = app(DrawingTransactionRejectedImageService::class);
         $this->pdfService = app(PDFService::class);
+        $this->emailService = app(EmailService::class);
     }
 
     public function next(object $data = null) {
@@ -45,6 +48,10 @@ class WaitingFor1stApprovalState implements DrawingTransactionState
             "APPROVED 1 by", 
             $this->drawingTransaction->updated_at
         );
+
+        dispatch(function () {
+            $this->emailService->sendRequestApproval2DrawingTransaction($this->drawingTransaction->id);
+        })->afterResponse();
     }
 
     public function reject(object $data = null) {
@@ -72,5 +79,9 @@ class WaitingFor1stApprovalState implements DrawingTransactionState
             "REJECTED by", 
             $this->drawingTransaction->updated_at
         );
+
+        dispatch(function () {
+            $this->emailService->sendRequestReviseDrawingTransaction($this->drawingTransaction->id);
+        })->afterResponse();
     }
 }

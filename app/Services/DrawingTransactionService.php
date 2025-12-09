@@ -147,15 +147,21 @@ class DrawingTransactionService
     public function approve($data) {
         $drawingTransaction = DrawingTransaction::where('id', $data->id)->first();
         $drawingTransaction->state->next($data);
+
+        return $drawingTransaction;
     }
 
     public function reject($data) {
         $drawingTransaction = DrawingTransaction::where('id', $data->id)->first();
         $drawingTransaction->state->reject($data);
+
+        return $drawingTransaction;
     }
 
     public function revise($data) {
         $drawingTransaction = DrawingTransaction::where('id', $data->id)->first();
         $drawingTransaction->state->next($data);
+
+        return $drawingTransaction;
     }
 }

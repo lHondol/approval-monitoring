@@ -26,7 +26,7 @@ class AuthController extends Controller
 
         $attemptOk = $this->authService->login($email, $password, $rememberMe);
 
-        if ($attemptOk) return redirect()->route('dashboard');
+        if ($attemptOk) return redirect()->intended(route('dashboard'));
 
         return back()->withErrors('Invalid email or password');
     }

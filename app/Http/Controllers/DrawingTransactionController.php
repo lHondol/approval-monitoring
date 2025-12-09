@@ -5,14 +5,18 @@ namespace App\Http\Controllers;
 use App\Http\Requests\DrawingTransaction\ApprovalRequest;
 use App\Http\Requests\DrawingTransaction\CreateRequest;
 use App\Http\Requests\DrawingTransaction\ReviseRequest;
+use App\Models\User;
 use App\Services\DrawingTransactionService;
+use App\Services\EmailService;
 use Illuminate\Http\Request;
 
 class DrawingTransactionController extends Controller
 {
     private $drawingTransactionService;
-    public function __construct(DrawingTransactionService $drawingTransactionService) {
+    private $emailService;
+    public function __construct(DrawingTransactionService $drawingTransactionService, EmailService $emailService) {
         $this->drawingTransactionService = $drawingTransactionService;
+        $this->emailService = $emailService;
     }
 
     public function view() {
@@ -26,7 +30,12 @@ class DrawingTransactionController extends Controller
     public function create(CreateRequest $request) {
         $data = $request->all();
         $data['files'] = $request->file('files');
-        $this->drawingTransactionService->create((object) $data);
+        $drawingTransaction = $this->drawingTransactionService->create((object) $data);
+        
+        dispatch(function () use ($drawingTransaction) {
+            $this->emailService->sendRequestApproval1DrawingTransaction($drawingTransaction->id);
+        })->afterResponse();
+
         return redirect()->route('drawingTransactionView');
     }
 
@@ -79,7 +88,11 @@ class DrawingTransactionController extends Controller
             $request->route()->parameters()
         );
 
-        $this->drawingTransactionService->revise((object) $data);
+        $drawingTransaction = $this->drawingTransactionService->revise((object) $data);
+
+        dispatch(function () use ($drawingTransaction) {
+            $this->emailService->sendRequestApproval1DrawingTransaction($drawingTransaction->id);
+        })->afterResponse();
 
         return redirect()->route('drawingTransactionView');
     }
