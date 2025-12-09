@@ -27,7 +27,6 @@ class RoleService
         return DataTables::of(
             Role::with('permissions') // eager load permissions
                 ->select(['id', 'name'])
-                ->orderBy('created_at', 'desc')
         )
                 ->addColumn('permissions', function($role) {
                     $permissions = $role->permissions->pluck('ui_name');

@@ -14,7 +14,10 @@ return new class extends Migration
     {
         Schema::create('drawing_transactions', function (Blueprint $table) {
             $table->uuid('id')->primary();
-            $table->string('customer_name');
+            $table->foreignUuid('customer_id')
+            ->references('id')
+            ->on('customers')
+            ->cascadeOnDelete();
             $table->string('so_number')->nullable();
             $table->string('po_number');
             $table->string('status');

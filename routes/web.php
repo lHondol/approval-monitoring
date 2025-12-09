@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Auth\AuthController;
+use App\Http\Controllers\CustomerController;
 use App\Http\Controllers\DrawingTransactionController;
 use App\Http\Controllers\RoleController;
 use App\Http\Controllers\UserController;
@@ -66,3 +67,17 @@ Route::middleware('auth')
     Route::post('/roles/edit/{id}', 'edit')->name('roleEdit');
     Route::get('/roles/delete/{id}', 'remove')->name('roleDelete');
 });
+
+Route::middleware('auth')
+->controller(CustomerController::class)
+->group(function () {
+    Route::get('/customers', 'view')->name('customerView');
+    Route::get('/customers/data', 'getData')->name('customerData');
+    Route::get('/customers/detail/{id}', 'getDetail')->name('customerDetail');
+    Route::get('/customers/create', 'createForm')->name('customerCreateForm');
+    Route::post('/customers/create', 'create')->name('customerCreate');
+    Route::get('/customers/edit/{id}', 'editForm')->name('customerEditForm');
+    Route::post('/customers/edit/{id}', 'edit')->name('customerEdit');
+    Route::get('/customers/delete/{id}', 'remove')->name('customerDelete');
+});
+

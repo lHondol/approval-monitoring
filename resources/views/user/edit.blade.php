@@ -28,7 +28,7 @@
                     <input type="text" name="email" placeholder="Email" value="{{ $data->email }}">
                 </div>
 
-                <div class="field flex-1 multiselect-wrapper">
+                <div class="field flex-1">
                      <label class="!text-base">Role</label>
                     <div id="rolesDropdown" class="ui clearable selection dropdown">
                         <input type="hidden" name="role" value="{{ $data->role }}">

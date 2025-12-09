@@ -2,6 +2,31 @@
 
 @section('content')
     <div>
+        <div class="flex flex-col gap-3 w-fit">
+            <div id="statusFilterDt" 
+                class="ui clearable selection dropdown" 
+                style="min-width: 180px;">
+                <input type="hidden" name="status">
+                <i class="dropdown icon"></i>
+                <div class="default text">Filter Status</div>
+                <div class="menu">
+                    <div class="item" data-value="Waiting">Waiting For Approval</div>
+                    <div class="item" data-value="Waiting For 1st Approval">Waiting For Approval 1</div>
+                    <div class="item" data-value="Waiting For 2nd Approval">Waiting For Approval 2</div>
+                    <div class="item" data-value="Distributed">Distributed</div>
+                </div>
+            </div>
+            <div class="flex gap-3" id="additionalRevisedFilter">
+                <div class="ui checkbox" id="checkboxAdditionalData">
+                    <input type="checkbox" tabindex="0" class="hidden" name="as_additional_data">
+                    <label>As Additional Data</label>
+                </div>
+                <div class="ui checkbox" id="checkboxDoneRevised">
+                    <input type="checkbox" tabindex="0" class="hidden" name="done_revised">
+                    <label>Revised</label>
+                </div>
+            </div>
+        </div>
         <table id="drawingTransactions" class="ui celled table">
             <thead>
                 <tr>
@@ -36,12 +61,20 @@
 @push('scripts')
     <script src="{{ asset('js/custom.js') }}"></script>
     <script>
+        var drawingTransactionTable = undefined
         $(document).ready(function() {
-            $('#drawingTransactions').DataTable({
+            drawingTransactionTable = $('#drawingTransactions').DataTable({
                 processing: true,
                 serverSide: true,
                 order: [[4, 'desc']],
-                ajax: "{{ route('drawingTransactionData') }}",
+                ajax: {
+                    url: "{{ route('drawingTransactionData') }}",
+                    data: function(d) {
+                        // Add your checkboxes to request
+                        d.additional = $('#checkboxAdditionalData').checkbox('is checked') ? '1' : '';
+                        d.revised = $('#checkboxDoneRevised').checkbox('is checked') ? '1' : '';
+                    }
+                },  
                 columns: [
                     { data: 'customer_name', name: 'customer_name', width: 150, orderable: true },
                     { data: 'so_number', name: 'so_number', width: 150 },
@@ -50,6 +83,8 @@
                     { data: 'created_at', name: 'created_at', width: 130 },
                     { data: 'distributed_at', name: 'distributed_at', width: 130 },
                     { data: 'status', name: 'status', width: 200 },
+                    { data: 'as_additional_data', name: 'as_additional_data', visible: false },
+                    { data: 'done_revised', name: 'done_revised', visible: false },
                     { data: 'actions', name: 'actions', width: 120 },
                 ],
                 columnDefs: [
@@ -96,6 +131,22 @@
                     initDropdownPortal();
                 }
             });
-        });        
+        });
+        
+        $('#statusFilterDt').dropdown({
+            on: 'click',
+            onChange: function(value) {
+                drawingTransactionTable
+                .column('status:name')
+                .search(value)
+                .draw();
+            }
+        });
+
+        $('#checkboxAdditionalData, #checkboxDoneRevised').checkbox({
+            onChange: function() {
+                drawingTransactionTable.draw(); // triggers ajax.data and sends checkbox values
+            }
+        });
     </script>
 @endpush

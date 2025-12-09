@@ -24,7 +24,8 @@ class DrawingTransactionController extends Controller
     }
 
     public function createForm() {
-        return view('drawing-transaction.create');
+        $customers = $this->drawingTransactionService->getCustomers();
+        return view('drawing-transaction.create', compact('customers'));
     }
 
     public function create(CreateRequest $request) {
@@ -77,9 +78,10 @@ class DrawingTransactionController extends Controller
     }
 
     public function reviseForm(Request $request) {
+        $customers = $this->drawingTransactionService->getCustomers();
         $id = $request->id;
         $data = $this->drawingTransactionService->getDetail($id);
-        return view('drawing-transaction.revise', compact('data'));
+        return view('drawing-transaction.revise', compact('data', 'customers'));
     }
 
     public function revise(ReviseRequest $request) {

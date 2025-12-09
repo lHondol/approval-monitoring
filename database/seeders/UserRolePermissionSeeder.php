@@ -71,10 +71,33 @@ class UserRolePermissionSeeder extends Seeder
             'ui_name' => 'Can Delete Role', 
             'name' => 'delete_role',
         ]);
+        $defaultPermission15 = Permission::create([
+            'ui_name' => 'Can View Customer', 
+            'name' => 'view_customer',
+        ]);
+        $defaultPermission16 = Permission::create([
+            'ui_name' => 'Can Create Customer', 
+            'name' => 'create_customer',
+        ]);
+        $defaultPermission17 = Permission::create([
+            'ui_name' => 'Can Edit Customer', 
+            'name' => 'edit_customer',
+        ]);
+        $defaultPermission18 = Permission::create([
+            'ui_name' => 'Can Delete Customer', 
+            'name' => 'delete_customer',
+        ]);
 
         $defaultRole1 = Role::create(['name' => 'R&D Staff']);
         $defaultRole1->givePermissionTo([
-            $defaultPermission1, $defaultPermission2, $defaultPermission3, $defaultPermission4
+            $defaultPermission1, 
+            $defaultPermission2, 
+            $defaultPermission3, 
+            $defaultPermission4,
+            $defaultPermission15,
+            $defaultPermission16,
+            $defaultPermission17,
+            $defaultPermission18,
         ]);
 
         $defaultRole2 = Role::create(['name' => 'R&D Spv']);
@@ -163,6 +186,11 @@ class UserRolePermissionSeeder extends Seeder
             $defaultPermission11,
             $defaultPermission12,
             $defaultPermission13,
+            $defaultPermission14,
+            $defaultPermission15,
+            $defaultPermission16,
+            $defaultPermission17,
+            $defaultPermission18,
         ]);
     }
 }

@@ -4,9 +4,11 @@ namespace App\Services;
 
 use App\Enums\ActionDrawingTransactionStep;
 use App\Enums\StatusDrawingTransaction;
+use App\Models\Customer;
 use App\Models\DrawingTransaction;
 use App\Models\DrawingTransactionStep;
 use Carbon\Carbon;
+use GuzzleHttp\Psr7\Request;
 use Ramsey\Uuid\Uuid;
 use Str;
 use Yajra\DataTables\DataTables;
@@ -47,17 +49,24 @@ class DrawingTransactionService
 
     public function getData() {
         return DataTables::of(DrawingTransaction::select([
-            'id',
-            'customer_name',
-            'so_number',
-            'po_number',
-            'description',
-            'created_at',
-            'distributed_at',
-            'status',
-            'as_additional_data',
-            'done_revised',
-        ]))
+            'drawing_transactions.id',
+            'drawing_transactions.so_number',
+            'drawing_transactions.po_number',
+            'drawing_transactions.description',
+            'drawing_transactions.created_at',
+            'drawing_transactions.distributed_at',
+            'drawing_transactions.status',
+            'drawing_transactions.as_additional_data',
+            'drawing_transactions.done_revised',
+            'drawing_transactions.customer_id',
+        ])->with('customer'))
+        ->addColumn('customer_name', function($row) {
+            return $row->customer?->name ?? '';
+        })
+        ->orderColumn('customer_name', function($query, $order) {
+            $query->leftJoin('customers', 'customers.id', '=', 'drawing_transactions.customer_id')
+                  ->orderBy('customers.name', $order);
+        })    
         ->addColumn('actions', function($row) {
             return $this->renderActionButtons($row);
         })
@@ -79,6 +88,27 @@ class DrawingTransactionService
 
             return $statusHtml;
         })
+        ->filter(function($query) {
+            $additional = request()->get('additional') == '1';
+            $revised = request()->get('revised') == '1';
+        
+            if ($additional && $revised) {
+                // OR logic
+                $query->where(function($q) {
+                    $q->where('drawing_transactions.as_additional_data', true)
+                      ->orWhere('drawing_transactions.done_revised', true);
+                });
+            } elseif ($additional) {
+                $query->where('drawing_transactions.as_additional_data', true);
+            } elseif ($revised) {
+                $query->where('drawing_transactions.done_revised', true);
+            }
+        })
+        ->filterColumn('status', function($query, $keyword) {
+            if ($keyword !== '') {
+                $query->where('drawing_transactions.status', 'LIKE', "%{$keyword}%");
+            }
+        })
         ->editColumn('created_at', function($row) {
             return Carbon::parse($row->created_at)->format('d M Y H:i:s');
         })
@@ -98,7 +128,7 @@ class DrawingTransactionService
     }
 
     public function getDetail($id) {
-        $drawingTransaction = DrawingTransaction::where('id', $id)->first();
+        $drawingTransaction = DrawingTransaction::with('customer')->where('id', $id)->first();
         return $drawingTransaction;
     }
 
@@ -108,7 +138,7 @@ class DrawingTransactionService
         $uuid =  Uuid::uuid4()->toString();
         $drawingTransaction->id =$uuid;
 
-        $drawingTransaction->customer_name = $data->customer_name;
+        $drawingTransaction->customer_id = $data->customer;
         $drawingTransaction->po_number = $data->po_number;
 
         $status = StatusDrawingTransaction::WAITING_1ST_APPROVAL;
@@ -142,6 +172,10 @@ class DrawingTransactionService
         $newFileName = "{$drawingTransactionId}_{$timestamp}.pdf";
 
         return $this->pdfService->mergeDrawingPdf($files, $newFileName);
+    }
+
+    public function getCustomers() {
+        return Customer::select(['id', 'name'])->get();   
     }
 
     public function approve($data) {

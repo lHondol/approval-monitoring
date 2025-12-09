@@ -12,7 +12,7 @@ class ReviseRequest extends FormRequest
     public function rules(): array
     {
         return [
-            "customer_name" => "required",
+            "customer" => "required",
             "po_number" => "required",
             "description" => "nullable",
             'files' => 'required|array|min:1',

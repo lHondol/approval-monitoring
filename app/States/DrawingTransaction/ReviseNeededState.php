@@ -26,7 +26,7 @@ class ReviseNeededState implements DrawingTransactionState
     }
 
     public function next(object $data = null) {
-        $this->drawingTransaction->customer_name = $data->customer_name;
+        $this->drawingTransaction->customer_id = $data->customer;
         $this->drawingTransaction->po_number = $data->po_number;
 
         $status = StatusDrawingTransaction::WAITING_1ST_APPROVAL->value;

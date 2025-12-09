@@ -18,7 +18,6 @@
                     </div>
                 @endif
 
-                {{-- Role Name --}}
                 <div class="field flex-1">
                     <label class="!text-base">Name</label>
                     <input type="text" name="name" placeholder="Name" value="{{ $data->name }}">

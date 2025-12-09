@@ -29,8 +29,7 @@ class UserService
             'name',
             'email',
         ])
-        ->whereNot('name', 'Super Admin')
-        ->orderBy('created_at', 'desc'))
+        ->whereNot('name', 'Super Admin'))
         ->addColumn('actions', function($row) {
             return $this->renderActionButtons($row);
         })

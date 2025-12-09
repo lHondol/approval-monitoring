@@ -3,7 +3,7 @@
 // ==============================
 function initDropdownPortal() {
     // Initialize each dropdown
-    $(".ui.dropdown").each(function () {
+    $(".ui.dropdown.action-dropdown").each(function () {
         const dropdown = $(this);
 
         dropdown.off("click.portal").on("click.portal", function (e) {
@@ -26,7 +26,7 @@ function initDropdownPortal() {
 
             const target = $(e.target);
             if (
-                target.closest(".ui.dropdown").length ||
+                target.closest(".ui.dropdown.action-dropdown").length ||
                 target.closest(".dropdown-portal").length
             )
                 return;
@@ -36,7 +36,7 @@ function initDropdownPortal() {
             });
 
             // Optionally, reset the original dropdowns
-            $(".ui.dropdown").each(function () {
+            $(".ui.dropdown.action-dropdown").each(function () {
                 const dropdown = $(this);
                 if (dropdown.data("portal-open")) {
                     dropdown.find(".menu").css("visibility", "visible");
@@ -53,7 +53,7 @@ const closeAllClones = () => {
         const cloned = $(this);
 
         // Find the original dropdown linked to this clone
-        const original = $(".ui.dropdown").filter(function () {
+        const original = $(".ui.dropdown.action-dropdown").filter(function () {
             return (
                 $(this).data("portal-element") &&
                 $(this).data("portal-element")[0] === cloned[0]

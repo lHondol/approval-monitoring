@@ -22,7 +22,7 @@ class CreateRequest extends FormRequest
     public function rules(): array
     {
         return [
-            "customer_name" => "required",
+            "customer" => "required",
             "po_number" => "required",
             "description" => "nullable",
             "additional_data_note" => $this->has('as_additional_data')

@@ -31,4 +31,8 @@ class DrawingTransaction extends Model
           StatusDrawingTransaction::DISTRIBUTED->value   => new DistributedState($this),
         };
     }
+
+    public function customer() {
+        return $this->belongsTo(Customer::class);
+    }
 }

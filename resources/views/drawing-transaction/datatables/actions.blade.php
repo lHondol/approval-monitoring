@@ -1,4 +1,4 @@
-<div class="ui dropdown icon button !px-5 whitespace-nowrap">
+<div class="ui dropdown action-dropdown icon button !px-5 whitespace-nowrap">
     Actions <i class="dropdown icon"></i>
     @php
         use App\Enums\StatusDrawingTransaction;

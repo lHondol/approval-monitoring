@@ -49,8 +49,17 @@
                 @endif
 
                 <div class="field flex-1">
-                    <label class="!text-base"">Customer Name</label>
-                    <input type="text" name="customer_name" placeholder="Customer Name" value="{{ $data->customer_name }}">
+                     <label class="!text-base">Customer</label>
+                    <div id="customersDropdown" class="ui clearable selection dropdown">
+                        <input type="hidden" name="customer" value="{{ $data->customer->id }}">
+                        <i class="dropdown icon"></i>
+                        <div class="default text">Select Role</div>
+                        <div class="menu">
+                            @foreach ($customers as $customer)
+                                <div class="item" data-value="{{ $customer->id }}">{{ $customer->name }}</div>
+                            @endforeach
+                        </div>
+                    </div>
                 </div>
                 <div class="field flex-1">
                     <label class="!text-base"">Purchase Order Number (PO)</label>
@@ -251,6 +260,10 @@
                 fileInput._files.forEach(f => { if(f) dataTransfer.items.add(f); });
                 fileInput.files = dataTransfer.files;
             });
+        });
+
+        $(document).ready(function() {
+            $('#customersDropdown').dropdown();
         });
     </script>
 @endsection

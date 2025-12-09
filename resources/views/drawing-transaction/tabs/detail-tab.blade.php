@@ -37,7 +37,7 @@
             <div class="font-bold mb-1">Customer Name</div>
             <div class="ui input w-full !cursor-default opacity-70">
                 <div class="w-full px-5 py-2 rounded bg-gray-100 !text-black">
-                    {{ $data->customer_name }}
+                    {{ $data->customer->name }}
                 </div>
             </div>
         </div>

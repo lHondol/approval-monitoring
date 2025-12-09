@@ -50,8 +50,14 @@
         </a>
 
         @if (auth()->user()->hasPermissionTo('view_drawing_transaction'))
-            <a href="{{ route('drawingTransactionView') }}" class="{{ navClass('drawing-transaction*') }}">
+            <a href="{{ route('drawingTransactionView') }}" class="{{ navClass('drawing-transactions*') }}">
                 Drawing Transactions
+            </a>
+        @endif
+
+        @if (auth()->user()->hasPermissionTo('view_customer'))
+            <a href="{{ route('customerView') }}" class="{{ navClass('customers*') }}">
+                Customers
             </a>
         @endif
 
