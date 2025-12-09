@@ -24,7 +24,7 @@ class CustomerService
 
     public function getData() {
         return DataTables::of(
-            Customer::select(['id', 'name'])->orderBy('created_at', 'desc')
+            Customer::select(['id', 'name'])
         )
         ->addColumn('actions', function($row) {
             return $this->renderActionButtons($row);

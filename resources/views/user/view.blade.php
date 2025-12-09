@@ -7,6 +7,7 @@
             <tr>
                 <th>Name</th>
                 <th>Email</th>
+                <th>Role</th>
                 <th>Actions</th>
             </tr>
         </thead>
@@ -15,6 +16,7 @@
             <tr>
                 <th class="!font-bold">Name</th>
                 <th class="!font-bold">Email</th>
+                <th class="!font-bold">Role</th>
                 <th class="!font-bold">Actions</th>
             </tr>
         </tfoot>
@@ -34,6 +36,7 @@
                 columns: [
                     { data: 'name', name: 'name', },
                     { data: 'email', name: 'email' },
+                    { data: 'role', name: 'role' },
                     { data: 'actions', name: 'actions', width: 120 },
                 ],
                 scrollX: true,

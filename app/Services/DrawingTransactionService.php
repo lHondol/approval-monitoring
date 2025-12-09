@@ -117,7 +117,7 @@ class DrawingTransactionService
                 return Carbon::parse($row->distributed_at)->format('d M Y H:i:s');
             return '';
         })
-        ->rawColumns(['status', 'actions'])
+        ->rawColumns(['customer_name', 'status', 'actions'])
         ->make(true);
     }
 

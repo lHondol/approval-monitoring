@@ -28,19 +28,26 @@ class RoleService
             Role::with('permissions') // eager load permissions
                 ->select(['id', 'name'])
         )
-                ->addColumn('permissions', function($role) {
-                    $permissions = $role->permissions->pluck('ui_name');
+        ->addColumn('permissions', function($role) {
+            $permissions = $role->permissions->pluck('ui_name');
 
-                    $html = "<div class='flex flex-wrap gap-3'>";
+            $html = "<div class='flex flex-wrap gap-3'>";
 
-                    foreach ($permissions as $permission) {
-                        $html .= "<span class='ui teal label'>{$permission}</span>";
-                    }
+            foreach ($permissions as $permission) {
+                $html .= "<span class='ui teal label'>{$permission}</span>";
+            }
 
-                    $html .= "</div>";
+            $html .= "</div>";
 
-                    return $html;
-                })
+            return $html;
+        })
+        ->filterColumn('permissions', function($query, $keyword) {
+            if ($keyword !== '') {
+                $query->whereHas('permissions', function($q) use ($keyword) {
+                    $q->where('ui_name', 'LIKE', "%{$keyword}%");
+                });
+            }
+        })
         ->addColumn('actions', function($row) {
             return $this->renderActionButtons($row);
         })

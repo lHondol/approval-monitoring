@@ -25,15 +25,28 @@ class UserService
 
     public function getData() {
         return DataTables::of(User::select([
-            'id',
-            'name',
-            'email',
+            'users.id',
+            'users.name',
+            'users.email',
         ])
-        ->whereNot('name', 'Super Admin'))
+        ->with('roles')
+        ->whereNot('users.name', 'Super Admin'))
+        ->orderColumn('role', function($query, $order) {
+            $query->leftJoin('model_has_roles', function($join) {
+                      $join->on('users.id', '=', 'model_has_roles.model_id')
+                           ->where('model_has_roles.model_type', User::class);
+                  })
+                  ->leftJoin('roles', 'roles.id', '=', 'model_has_roles.role_id')
+                  ->orderBy('roles.name', $order)
+                  ->groupBy('users.id', 'roles.name');
+        })
+        ->addColumn('role', function($row) {
+            return $row->roles[0]?->name ?? '';
+        })
         ->addColumn('actions', function($row) {
             return $this->renderActionButtons($row);
         })
-        ->rawColumns(['actions'])
+        ->rawColumns(['role', 'actions'])
         ->make(true);
     }
 
