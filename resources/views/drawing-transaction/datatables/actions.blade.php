@@ -21,7 +21,7 @@
                 ($user->hasPermissionTo('reject_drawing_transaction') && $canSecondApprove);
         @endphp
 
-        @if (auth()->user()->hasPermissionTo('view_drawing_transaction'))
+        @if (auth()->user()->hasAnyPermission(['view_drawing_transaction', 'view_distributed_drawing_transaction']))
             <a href="{{ route('drawingTransactionDetail', $data->id) }}" class="item">Detail</a>
         @endif
 

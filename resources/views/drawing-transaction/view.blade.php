@@ -17,6 +17,10 @@
                 </div>
             </div>
             <div class="flex gap-3" id="additionalRevisedFilter">
+                <div class="ui checkbox" id="checkboxRevisionData">
+                    <input type="checkbox" tabindex="0" class="hidden" name="as_revision_data">
+                    <label>As Revision Data</label>
+                </div>
                 <div class="ui checkbox" id="checkboxAdditionalData">
                     <input type="checkbox" tabindex="0" class="hidden" name="as_additional_data">
                     <label>As Additional Data</label>
@@ -70,7 +74,7 @@
                 ajax: {
                     url: "{{ route('drawingTransactionData') }}",
                     data: function(d) {
-                        // Add your checkboxes to request
+                        d.revision = $('#checkboxRevisionData').checkbox('is checked') ? '1' : '';
                         d.additional = $('#checkboxAdditionalData').checkbox('is checked') ? '1' : '';
                         d.revised = $('#checkboxDoneRevised').checkbox('is checked') ? '1' : '';
                     }
@@ -83,6 +87,7 @@
                     { data: 'created_at', name: 'created_at', width: 130 },
                     { data: 'distributed_at', name: 'distributed_at', width: 130 },
                     { data: 'status', name: 'status', width: 200 },
+                    { data: 'as_revision_data', name: 'as_revision_data', visible: false },
                     { data: 'as_additional_data', name: 'as_additional_data', visible: false },
                     { data: 'done_revised', name: 'done_revised', visible: false },
                     { data: 'actions', name: 'actions', width: 120 },
@@ -143,7 +148,7 @@
             }
         });
 
-        $('#checkboxAdditionalData, #checkboxDoneRevised').checkbox({
+        $('#checkboxRevisionData, #checkboxAdditionalData, #checkboxDoneRevised').checkbox({
             onChange: function() {
                 drawingTransactionTable.draw(); // triggers ajax.data and sends checkbox values
             }

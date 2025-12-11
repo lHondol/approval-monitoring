@@ -28,6 +28,9 @@ class CreateRequest extends FormRequest
             "additional_data_note" => $this->has('as_additional_data')
                 ? 'required|string'
                 : 'nullable|string',
+            "revision_data_note" => $this->has('as_revision_data')
+                ? 'required|string'
+                : 'nullable|string',
             'files' => 'required|array|min:1',
             'files.*' => 'sometimes|file|mimes:pdf|max:5120',
         ];

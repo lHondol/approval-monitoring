@@ -43,6 +43,8 @@ class DrawingTransactionController extends Controller
     public function getDetail(Request $request) {
         $id = $request->id;
         $data = $this->drawingTransactionService->getDetail($id);
+        if (!$data)
+            return redirect()->back();
         return view('drawing-transaction.detail', compact('data'));
     }
 

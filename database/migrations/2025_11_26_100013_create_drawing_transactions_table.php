@@ -26,6 +26,8 @@ return new class extends Migration
             $table->boolean('done_revised')->nullable();
             $table->boolean('as_additional_data')->nullable();
             $table->text('additional_data_note')->nullable();
+            $table->boolean('as_revision_data')->nullable();
+            $table->text('revision_data_note')->nullable();
             $table->text('revised_note')->nullable();
             $table->text('need_revise_note')->nullable();
             $table->string('filepath')->nullable();

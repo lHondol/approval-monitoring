@@ -71,6 +71,16 @@
                 </div>
                 <div class="field">
                     <div class="ui checkbox">
+                        <input type="checkbox" tabindex="0" class="hidden" name="as_revision_data">
+                        <label class="!text-base font-bold">As Revision Data</label>
+                    </div>
+                </div>
+                <div class="field hidden" id="revisionDataNoteWrapper">
+                    <label class="!text-base"">Revision Data Note</label>
+                    <textarea style="resize: none;" name="revision_data_note" placeholder="Revision Data Note" rows="3"></textarea>
+                </div>
+                <div class="field">
+                    <div class="ui checkbox">
                         <input type="checkbox" tabindex="0" class="hidden" name="as_additional_data">
                         <label class="!text-base font-bold">As Additional Data</label>
                     </div>
@@ -116,6 +126,17 @@
                     additionalDataNote.removeClass('hidden');
                 } else {
                     additionalDataNote.addClass('hidden');
+                }
+            });
+
+            const asRevisionData = $('[name="as_revision_data"]');
+            const revisionDataNote = $('#revisionDataNoteWrapper');
+
+            asRevisionData.on('change', function () {
+                if (asRevisionData.is(':checked')) {
+                    revisionDataNote.removeClass('hidden');
+                } else {
+                    revisionDataNote.addClass('hidden');
                 }
             });
 

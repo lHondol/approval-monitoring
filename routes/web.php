@@ -31,53 +31,153 @@ Route::middleware('auth')->get('/dashboard', function () {
 Route::middleware('auth')
 ->controller(DrawingTransactionController::class)
 ->group(function () {
-    Route::get('/drawing-transactions', 'view')->name('drawingTransactionView');
-    Route::get('/drawing-transactions/data', 'getData')->name('drawingTransactionData');
-    Route::get('/drawing-transactions/create', 'createForm')->name('drawingTransactionCreateForm');
-    Route::post('/drawing-transactions/create', 'create')->name('drawingTransactionCreate');
-    Route::get('/drawing-transactions/detail/{id}', 'getDetail')->name('drawingTransactionDetail');
-    Route::get('/drawing-transactions/detail/steps/{drawing_transaction_id}', 'getSteps')->name('drawingTransactionSteps');
-    Route::get('/drawing-transactions/approval/{id}', 'approvalForm')->name('drawingTransactionApprovalForm');
-    Route::post('/drawing-transactions/approval/{id}', 'approval')->name('drawingTransactionApproval');
-    Route::get('/drawing-transactions/revise/{id}', 'reviseForm')->name('drawingTransactionReviseForm');
-    Route::post('/drawing-transactions/revise/{id}', 'revise')->name('drawingTransactionRevise');
+
+    // View
+    Route::middleware('permission:view_drawing_transaction|view_distributed_drawing_transaction')
+        ->get('/drawing-transactions', 'view')
+        ->name('drawingTransactionView');
+
+    Route::middleware('permission:view_drawing_transaction|view_distributed_drawing_transaction')
+        ->get('/drawing-transactions/data', 'getData')
+        ->name('drawingTransactionData');
+
+    Route::middleware('permission:view_drawing_transaction|view_distributed_drawing_transaction')
+        ->get('/drawing-transactions/detail/{id}', 'getDetail')
+        ->name('drawingTransactionDetail');
+
+    Route::middleware('permission:view_drawing_transaction|view_distributed_drawing_transaction')
+        ->get('/drawing-transactions/detail/steps/{drawing_transaction_id}', 'getSteps')
+        ->name('drawingTransactionSteps');
+
+    // Create
+    Route::middleware('permission:create_drawing_transaction')
+        ->get('/drawing-transactions/create', 'createForm')
+        ->name('drawingTransactionCreateForm');
+
+    Route::middleware('permission:create_drawing_transaction')
+        ->post('/drawing-transactions/create', 'create')
+        ->name('drawingTransactionCreate');
+
+    // Revise
+    Route::middleware('permission:revise_drawing_transaction')
+        ->get('/drawing-transactions/revise/{id}', 'reviseForm')
+        ->name('drawingTransactionReviseForm');
+
+    Route::middleware('permission:revise_drawing_transaction')
+        ->post('/drawing-transactions/revise/{id}', 'revise')
+        ->name('drawingTransactionRevise');
+
+    // Approval (first & second)
+    Route::middleware('permission:first_approve_drawing_transaction|second_approve_drawing_transaction')
+        ->get('/drawing-transactions/approval/{id}', 'approvalForm')
+        ->name('drawingTransactionApprovalForm');
+
+    Route::middleware('permission:first_approve_drawing_transaction|second_approve_drawing_transaction')
+        ->post('/drawing-transactions/approval/{id}', 'approval')
+        ->name('drawingTransactionApproval');
+
 });
+
 
 Route::middleware('auth')
 ->controller(UserController::class)
 ->group(function () {
-    Route::get('/users', 'view')->name('userView');
-    Route::get('/users/data', 'getData')->name('userData');
-    Route::get('/users/detail/{id}', 'getDetail')->name('userDetail');
-    Route::get('/users/edit/{id}', 'editForm')->name('userEditForm');
-    Route::post('/users/edit/{id}', 'edit')->name('userEdit');
-    Route::get('/users/delete/{id}', 'remove')->name('userDelete');
-});
 
+    Route::middleware('permission:view_user')
+        ->get('/users', 'view')
+        ->name('userView');
+
+    Route::middleware('permission:view_user')
+        ->get('/users/data', 'getData')
+        ->name('userData');
+
+    Route::middleware('permission:view_user')
+        ->get('/users/detail/{id}', 'getDetail')
+        ->name('userDetail');
+
+    Route::middleware('permission:edit_user')
+        ->get('/users/edit/{id}', 'editForm')
+        ->name('userEditForm');
+
+    Route::middleware('permission:edit_user')
+        ->post('/users/edit/{id}', 'edit')
+        ->name('userEdit');
+
+    Route::middleware('permission:delete_user')
+        ->get('/users/delete/{id}', 'remove')
+        ->name('userDelete');
+});
 
 Route::middleware('auth')
 ->controller(RoleController::class)
 ->group(function () {
-    Route::get('/roles', 'view')->name('roleView');
-    Route::get('/roles/data', 'getData')->name('roleData');
-    Route::get('/roles/detail/{id}', 'getDetail')->name('roleDetail');
-    Route::get('/roles/create', 'createForm')->name('roleCreateForm');
-    Route::post('/roles/create', 'create')->name('roleCreate');
-    Route::get('/roles/edit/{id}', 'editForm')->name('roleEditForm');
-    Route::post('/roles/edit/{id}', 'edit')->name('roleEdit');
-    Route::get('/roles/delete/{id}', 'remove')->name('roleDelete');
+
+    Route::middleware('permission:view_role')
+        ->get('/roles', 'view')
+        ->name('roleView');
+
+    Route::middleware('permission:view_role')
+        ->get('/roles/data', 'getData')
+        ->name('roleData');
+
+    Route::middleware('permission:view_role')
+        ->get('/roles/detail/{id}', 'getDetail')
+        ->name('roleDetail');
+
+    Route::middleware('permission:create_role')
+        ->get('/roles/create', 'createForm')
+        ->name('roleCreateForm');
+
+    Route::middleware('permission:create_role')
+        ->post('/roles/create', 'create')
+        ->name('roleCreate');
+
+    Route::middleware('permission:edit_role')
+        ->get('/roles/edit/{id}', 'editForm')
+        ->name('roleEditForm');
+
+    Route::middleware('permission:edit_role')
+        ->post('/roles/edit/{id}', 'edit')
+        ->name('roleEdit');
+
+    Route::middleware('permission:delete_role')
+        ->get('/roles/delete/{id}', 'remove')
+        ->name('roleDelete');
 });
 
 Route::middleware('auth')
 ->controller(CustomerController::class)
 ->group(function () {
-    Route::get('/customers', 'view')->name('customerView');
-    Route::get('/customers/data', 'getData')->name('customerData');
-    Route::get('/customers/detail/{id}', 'getDetail')->name('customerDetail');
-    Route::get('/customers/create', 'createForm')->name('customerCreateForm');
-    Route::post('/customers/create', 'create')->name('customerCreate');
-    Route::get('/customers/edit/{id}', 'editForm')->name('customerEditForm');
-    Route::post('/customers/edit/{id}', 'edit')->name('customerEdit');
-    Route::get('/customers/delete/{id}', 'remove')->name('customerDelete');
-});
 
+    Route::middleware('permission:view_customer')
+        ->get('/customers', 'view')
+        ->name('customerView');
+
+    Route::middleware('permission:view_customer')
+        ->get('/customers/data', 'getData')
+        ->name('customerData');
+
+    Route::middleware('permission:view_customer')
+        ->get('/customers/detail/{id}', 'getDetail')
+        ->name('customerDetail');
+
+    Route::middleware('permission:create_customer')
+        ->get('/customers/create', 'createForm')
+        ->name('customerCreateForm');
+
+    Route::middleware('permission:create_customer')
+        ->post('/customers/create', 'create')
+        ->name('customerCreate');
+
+    Route::middleware('permission:edit_customer')
+        ->get('/customers/edit/{id}', 'editForm')
+        ->name('customerEditForm');
+
+    Route::middleware('permission:edit_customer')
+        ->post('/customers/edit/{id}', 'edit')
+        ->name('customerEdit');
+
+    Route::middleware('permission:delete_customer')
+        ->get('/customers/delete/{id}', 'remove')
+        ->name('customerDelete');
+});

@@ -48,6 +48,12 @@ class DrawingTransactionService
     }
 
     public function getData() {
+        
+        $status = [];
+        if (auth()->user()->hasPermissionTo('view_distributed_drawing_transaction')) {
+           $status[] = 'Distributed';
+        }
+
         return DataTables::of(DrawingTransaction::select([
             'drawing_transactions.id',
             'drawing_transactions.so_number',
@@ -56,10 +62,13 @@ class DrawingTransactionService
             'drawing_transactions.created_at',
             'drawing_transactions.distributed_at',
             'drawing_transactions.status',
+            'drawing_transactions.as_revision_data',
             'drawing_transactions.as_additional_data',
             'drawing_transactions.done_revised',
             'drawing_transactions.customer_id',
-        ])->with('customer'))
+        ])->with('customer')->when(count($status) > 0, function ($query) use ($status) {
+            $query->whereIn('status', $status);
+        }))
         ->addColumn('customer_name', function($row) {
             return $row->customer?->name ?? '';
         })
@@ -73,6 +82,10 @@ class DrawingTransactionService
         ->editColumn('status', function($row) {
             $renderStatusColor = $this->renderStatusColor($row->status);
             $statusHtml = "<div class='flex gap-2 flex-wrap'>";
+
+            if ($row->as_revision_data) {
+                $statusHtml .= "<span class='ui yellow label'>Revision Data</span>";
+            }
 
             if ($row->as_additional_data) {
                 $statusHtml .= "<span class='ui green label'>Additional Data</span>";
@@ -89,19 +102,31 @@ class DrawingTransactionService
             return $statusHtml;
         })
         ->filter(function($query) {
+            $revision   = request()->get('revision') == '1';
             $additional = request()->get('additional') == '1';
-            $revised = request()->get('revised') == '1';
-        
-            if ($additional && $revised) {
-                // OR logic
-                $query->where(function($q) {
-                    $q->where('drawing_transactions.as_additional_data', true)
-                      ->orWhere('drawing_transactions.done_revised', true);
+            $revised    = request()->get('revised') == '1';
+            
+            $conditions = [];
+            
+            if ($revision) {
+                $conditions[] = ['drawing_transactions.as_revision_data', true];
+            }
+            
+            if ($additional) {
+                $conditions[] = ['drawing_transactions.as_additional_data', true];
+            }
+            
+            if ($revised) {
+                $conditions[] = ['drawing_transactions.done_revised', true];
+            }
+            
+            // Apply OR only if user checks at least one checkbox
+            if (!empty($conditions)) {
+                $query->where(function($q) use ($conditions) {
+                    foreach ($conditions as $cond) {
+                        $q->orWhere($cond[0], $cond[1]);
+                    }
                 });
-            } elseif ($additional) {
-                $query->where('drawing_transactions.as_additional_data', true);
-            } elseif ($revised) {
-                $query->where('drawing_transactions.done_revised', true);
             }
         })
         ->filterColumn('status', function($query, $keyword) {
@@ -129,6 +154,11 @@ class DrawingTransactionService
 
     public function getDetail($id) {
         $drawingTransaction = DrawingTransaction::with('customer')->where('id', $id)->first();
+        if (auth()->user()->hasPermissionTo('view_distributed_drawing_transaction')) {
+            if ($drawingTransaction->status !== 'distributed') {
+                return null;
+            }
+        }
         return $drawingTransaction;
     }
 
@@ -150,6 +180,11 @@ class DrawingTransactionService
         if (isset($data->as_additional_data)) {
             $drawingTransaction->as_additional_data = !!$data->as_additional_data;
             $drawingTransaction->additional_data_note = $data->additional_data_note;
+        }
+
+        if (isset($data->as_revision_data)) {
+            $drawingTransaction->as_revision_data = !!$data->as_revision_data;
+            $drawingTransaction->revision_data_note = $data->additional_data_note;
         }
 
         $mergedFilePath = $this->mergePdf(

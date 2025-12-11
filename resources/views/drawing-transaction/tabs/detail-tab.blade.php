@@ -19,6 +19,9 @@
             <div class="ui input w-full !cursor-default">
                 <div class="w-full px-5 py-5 !flex gap-3 flex-wrap rounded bg-gray-100 !text-black">
                     <div class="flex gap-2 items-center">
+                        @if ($data->as_revision_data)
+                            <span class="ui yellow label">Revision Data</span>
+                        @endif
                         @if ($data->as_additional_data)
                             <span class="ui green label">Additional Data</span>
                         @endif
@@ -59,6 +62,17 @@
                 </div>
             </div>
         </div>
+
+        @if ($data->as_revision_data)
+            <div class="mb-4">
+                <div class="font-bold mb-1">Revision Data Note</div>
+                <div class="ui input w-full !cursor-default opacity-70">
+                   <div class="w-full px-5 rounded bg-gray-100 !text-black py-2 min-h-[80px]">
+                        {{ $data->revision_data_note }}
+                    </div>
+                </div>
+            </div>
+        @endif
 
         @if ($data->as_additional_data)
             <div class="mb-4">

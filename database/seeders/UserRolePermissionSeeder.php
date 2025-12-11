@@ -87,6 +87,10 @@ class UserRolePermissionSeeder extends Seeder
             'ui_name' => 'Can Delete Customer', 
             'name' => 'delete_customer',
         ]);
+        $defaultPermission19 = Permission::create([
+            'ui_name' => 'Can View Distributed Drawing Transaction', 
+            'name' => 'view_distributed_drawing_transaction',
+        ]);
 
         $defaultRole1 = Role::create(['name' => 'R&D Staff']);
         $defaultRole1->givePermissionTo([
@@ -117,12 +121,12 @@ class UserRolePermissionSeeder extends Seeder
 
         $defaultRole5 = Role::create(['name' => 'PPIC']);
         $defaultRole5->givePermissionTo([
-            $defaultPermission1
+            $defaultPermission19
         ]);
 
         $defaultRole6 = Role::create(['name' => 'Produksi']);
         $defaultRole6->givePermissionTo([
-            $defaultPermission1
+            $defaultPermission19
         ]);
 
         $user1 = User::create([
@@ -167,12 +171,9 @@ class UserRolePermissionSeeder extends Seeder
         ]);
         $user6->assignRole($defaultRole6);
 
-        $superAdmin = User::create([
-            "name" => "Super Admin",
-            "email" => "superadmin@email.com",
-            "password" => bcrypt('superadminpassword')
-        ]);
-        $superAdmin->givePermissionTo([
+
+        $superAdminRole = Role::create(['name' => 'Super Admin']);
+        $superAdminRole->givePermissionTo([
             $defaultPermission1,
             $defaultPermission2,
             $defaultPermission3,
@@ -192,5 +193,11 @@ class UserRolePermissionSeeder extends Seeder
             $defaultPermission17,
             $defaultPermission18,
         ]);
+        $superAdmin = User::create([
+            "name" => "Super Admin",
+            "email" => "superadmin@email.com",
+            "password" => bcrypt('superadminpassword')
+        ]);
+        $superAdmin->assignRole($superAdminRole);
     }
 }
