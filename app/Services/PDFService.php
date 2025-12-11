@@ -30,8 +30,8 @@ class PDFService
         $pdf->SetAutoPageBreak(false);
 
         // A4 size
-        $a4Width = 210;
-        $a4Height = 297;
+        $a4Width = 297;
+        $a4Height = 210;
 
         foreach ($sourceFiles as $file) {
 
@@ -58,7 +58,7 @@ class PDFService
                 $y = ($a4Height - $scaledHeight) / 2;
 
                 // A4 page
-                $pdf->AddPage('P', [$a4Width, $a4Height]);
+                $pdf->AddPage('L', [$a4Width, $a4Height]);
 
                 // Insert the PDF content
                 $pdf->useTemplate($templateId, $x, $y, $scaledWidth, $scaledHeight);
@@ -80,7 +80,8 @@ class PDFService
         $absolutePath = Storage::disk('public')->path($sourcePath);
     
         // Use rotation-capable FPDI class
-        $pdf = new PdfWithRotation();
+        // $pdf = new PdfWithRotation();
+        $pdf = new Fpdi();
         $pdf->SetAutoPageBreak(false);
     
         $pageCount = $pdf->setSourceFile($absolutePath);
@@ -119,7 +120,7 @@ class PDFService
             // ---------------------------
     
             // Rotate 90° clockwise around block center
-            $pdf->Rotate(-90, $positionX, $positionY);
+            // $pdf->Rotate(-90, $positionX, $positionY);
     
             // Place text normally (inside rotated context)
             $pdf->SetFont('Helvetica', 'B', 8);
@@ -128,8 +129,8 @@ class PDFService
             $pdf->SetXY($positionX, $positionY);
             $pdf->MultiCell($blockWidth, $lineHeight, $text);
     
-            // Stop rotating
-            $pdf->Rotate(0);
+            // // Stop rotating
+            // $pdf->Rotate(0);
         }
     
         // Save file back to same path

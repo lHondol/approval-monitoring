@@ -155,7 +155,7 @@ class DrawingTransactionService
     public function getDetail($id) {
         $drawingTransaction = DrawingTransaction::with('customer')->where('id', $id)->first();
         if (auth()->user()->hasPermissionTo('view_distributed_drawing_transaction')) {
-            if ($drawingTransaction->status !== 'distributed') {
+            if ($drawingTransaction->status !== 'Distributed') {
                 return null;
             }
         }
