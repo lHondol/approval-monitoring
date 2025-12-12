@@ -8,6 +8,7 @@ use App\Models\Customer;
 use App\Models\DrawingTransaction;
 use App\Models\DrawingTransactionStep;
 use Carbon\Carbon;
+use Exception;
 use GuzzleHttp\Psr7\Request;
 use Ramsey\Uuid\Uuid;
 use Str;
@@ -187,11 +188,15 @@ class DrawingTransactionService
             $drawingTransaction->revision_data_note = $data->additional_data_note;
         }
 
-        $mergedFilePath = $this->mergePdf(
-            $data->files, 
-            $uuid,
-            $status->value
-        );
+        try {
+            $mergedFilePath = $this->mergePdf(
+                $data->files, 
+                $uuid,
+                $status->value
+            );
+        } catch (Exception $execption) {
+            return null;
+        }
 
         $drawingTransaction->filepath = $mergedFilePath;
         $drawingTransaction->save();
@@ -229,7 +234,10 @@ class DrawingTransactionService
 
     public function revise($data) {
         $drawingTransaction = DrawingTransaction::where('id', $data->id)->first();
-        $drawingTransaction->state->next($data);
+        $isCreated = $drawingTransaction->state->next($data);
+
+        if (!$isCreated)
+            return null;
 
         return $drawingTransaction;
     }

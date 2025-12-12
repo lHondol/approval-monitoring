@@ -8,6 +8,7 @@ use App\Interfaces\DrawingTransactionState;
 use App\Models\DrawingTransaction;
 use App\Services\DrawingTransactionStepService;
 use App\Services\PDFService;
+use Exception;
 use Str;
 
 class ReviseNeededState implements DrawingTransactionState
@@ -41,16 +42,22 @@ class ReviseNeededState implements DrawingTransactionState
 
         $newFileName = "{$this->drawingTransaction->id}_{$timestamp}.pdf";
 
-        $mergedFilePath = $this->pdfService->mergeDrawingPdf(
-            $data->files, 
-            $newFileName
-        );
+        try {
+            $mergedFilePath = $this->pdfService->mergeDrawingPdf(
+                $data->files, 
+                $newFileName
+            );
+        } catch (Exception $execption) {
+            return null;
+        }
 
         $this->drawingTransaction->filepath = $mergedFilePath;
 
         $this->drawingTransaction->save();
 
         $this->drawingTransactionStepService->createStep($this->drawingTransaction, ActionDrawingTransactionStep::UPLOAD_REVISED);
+
+        return $this->drawingTransaction;
     }
 
     public function reject(object $data = null) {

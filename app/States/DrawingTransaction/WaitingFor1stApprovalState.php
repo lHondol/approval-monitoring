@@ -52,6 +52,8 @@ class WaitingFor1stApprovalState implements DrawingTransactionState
         dispatch(function () {
             $this->emailService->sendRequestApproval2DrawingTransaction($this->drawingTransaction->id);
         })->afterResponse();
+
+        return $this->drawingTransaction;
     }
 
     public function reject(object $data = null) {
@@ -83,5 +85,7 @@ class WaitingFor1stApprovalState implements DrawingTransactionState
         dispatch(function () {
             $this->emailService->sendRequestReviseDrawingTransaction($this->drawingTransaction->id);
         })->afterResponse();
+
+        return $this->drawingTransaction;
     }
 }

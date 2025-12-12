@@ -3,6 +3,7 @@
 use App\Http\Controllers\Auth\AuthController;
 use App\Http\Controllers\CustomerController;
 use App\Http\Controllers\DrawingTransactionController;
+use App\Http\Controllers\PasswordController;
 use App\Http\Controllers\RoleController;
 use App\Http\Controllers\UserController;
 use Illuminate\Support\Facades\Route;
@@ -181,6 +182,18 @@ Route::middleware('auth')
     Route::middleware('permission:delete_customer')
         ->get('/customers/delete/{id}', 'remove')
         ->name('customerDelete');
+});
+
+
+Route::middleware('auth')
+->controller(PasswordController::class)
+->group(function () {
+
+    Route::get('/password/change', 'changePasswordForm')
+        ->name('passwordChangeForm');
+
+    Route::post('/password/change', 'changePassword')
+        ->name('passwordChange');
 });
 
 Route::get('/run-commands', function () {

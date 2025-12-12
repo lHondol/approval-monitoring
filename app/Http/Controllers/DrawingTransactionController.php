@@ -32,6 +32,9 @@ class DrawingTransactionController extends Controller
         $data = $request->all();
         $data['files'] = $request->file('files');
         $drawingTransaction = $this->drawingTransactionService->create((object) $data);
+
+        if (!$drawingTransaction)
+            return redirect()->back()->withErrors(['files' => 'file(s) version not supported']);
         
         dispatch(function () use ($drawingTransaction) {
             $this->emailService->sendRequestApproval1DrawingTransaction($drawingTransaction->id);
@@ -93,6 +96,9 @@ class DrawingTransactionController extends Controller
         );
 
         $drawingTransaction = $this->drawingTransactionService->revise((object) $data);
+
+        if (!$drawingTransaction)
+            return redirect()->back()->withErrors(['files' => 'file(s) version not supported']);
 
         dispatch(function () use ($drawingTransaction) {
             $this->emailService->sendRequestApproval1DrawingTransaction($drawingTransaction->id);

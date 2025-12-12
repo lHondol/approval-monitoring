@@ -89,6 +89,10 @@
                         </div>
                     </div>
                 @endif
+
+                <a href="{{ route('passwordChangeForm') }}" class="{{ navClass('password*') }}">
+                    Change Password
+                </a>
             </div>
         </div>
 

@@ -65,6 +65,12 @@
     </body>
 
     <script>
-        $('.ui.checkbox').checkbox();
+        $(function () {
+            $('.ui.checkbox').checkbox();
+
+            @if (session('passwordChanged'))
+                alert(@json(session('passwordChanged')));
+            @endif
+        });
     </script>
 </html>
