@@ -185,15 +185,26 @@ Route::middleware('auth')
 });
 
 
-Route::middleware('auth')
-->controller(PasswordController::class)
+Route::controller(PasswordController::class)
 ->group(function () {
 
     Route::get('/password/change', 'changePasswordForm')
-        ->name('passwordChangeForm');
+        ->name('passwordChangeForm')->middleware('auth');
 
     Route::post('/password/change', 'changePassword')
-        ->name('passwordChange');
+        ->name('passwordChange')->middleware('auth');;
+
+    Route::get('/password/forgot', 'forgotPasswordForm')
+        ->name('passwordForgotForm');
+
+    Route::post('/password/reset-link', 'sendResetLink')
+        ->name('passwordSendResetLink');
+
+    // Route::get('/password/reset/{token}', 'showResetForm')
+    //     ->name('passwordReset');
+
+    // Route::post('/password/reset', 'resetPassword')
+    //     ->name('passwordUpdate');
 });
 
 Route::get('/run-commands', function () {

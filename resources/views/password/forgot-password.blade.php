@@ -24,8 +24,8 @@
         <div class="ui card min-w-[500px]">
             <div class="content min-h-[300px] flex flex-col items-center !p-10">
                 <h1 class="text-2xl font-bold text-[var(--primary-color)] uppercase">{{ config('app.name', 'Laravel') }}</h1>
-                <span>Please register to use the app</span>
-                <form class="ui form w-full p-3" method="post" action="{{ route('register') }}">
+                <span>Forgot password</span>
+                <form class="ui form w-full p-3" method="post" action="{{ route('passwordSendResetLink') }}">
                     @csrf
 
                     @if ($errors->any())
@@ -40,25 +40,25 @@
                     @endif
 
                     <div class="field">
-                        <label class="!text-base">Name</label>
-                        <input type="text" name="name" placeholder="Name">
-                    </div>
-                    <div class="field">
                         <label class="!text-base">Email</label>
                         <input type="email" name="email" placeholder="Email">
                     </div>
                     <div class="field">
-                        <label class="!text-base">Password</label>
-                        <input type="password" name="password" placeholder="Password">
-                    </div>
-                    <div class="field">
-                        <span>Already have account? <a 
+                        <span>Remember the password? <a 
                             style="text-decoration: underline;"
                         href="{{ route('loginForm') }}">Login Here</a></span>
                     </div>
-                    <button class="ui button w-full customButton" type="submit">Register</button>
+                    <button class="ui button w-full customButton" type="submit">Send Reset Link</button>
                 </form>
             </div>
         </div>
     </body>
+
+    <script>
+        $(function () {
+            @if (session('sentResetLink'))
+                alert(@json(session('sentResetLink')));
+            @endif
+        });
+    </script>
 </html>

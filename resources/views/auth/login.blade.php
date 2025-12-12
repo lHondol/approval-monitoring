@@ -53,10 +53,13 @@
                             <label class="!text-base">Remember Me</label>
                         </div>
                     </div>
-                    <div class="field">
+                    <div class="field flex flex-col gap-2">
                         <span>Don't have account yet? <a 
                             style="text-decoration: underline;"
                         href="{{ route('registerForm') }}">Register Here</a></span>
+                        <span>Forgot password? <a 
+                            style="text-decoration: underline;"
+                        href="{{ route('passwordForgotForm') }}">Reset Here</a></span>
                     </div>
                     <button class="ui button w-full customButton" type="submit">Login</button>
                 </form>

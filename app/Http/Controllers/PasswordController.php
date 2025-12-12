@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\Password\ChangePasswordRequest;
+use App\Http\Requests\Password\SendResetLinkRequest;
 use App\Services\AuthService;
 use App\Services\PasswordService;
 use Illuminate\Http\Request;
@@ -31,5 +32,16 @@ class PasswordController extends Controller
         $this->authService->logout();
 
         return redirect()->route('loginForm')->with('passwordChanged', 'Password berhasil diganti, mohon login ulang');
+    }
+
+    public function forgotPasswordForm()
+    {
+        return view('password.forgot-password');
+    }
+
+    public function sendResetLink(SendResetLinkRequest $request) {
+        $email = $request->email;
+        $this->passwordService->sendResetLink($email);
+        return back()->with('sentResetLink', 'Password reset link terkirim, silahkan check email');
     }
 }
