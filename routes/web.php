@@ -6,6 +6,7 @@ use App\Http\Controllers\DrawingTransactionController;
 use App\Http\Controllers\RoleController;
 use App\Http\Controllers\UserController;
 use Illuminate\Support\Facades\Route;
+use Illuminate\Support\Facades\Artisan;
 
 // DEFAULT
 Route::get('/', function () {
@@ -180,4 +181,19 @@ Route::middleware('auth')
     Route::middleware('permission:delete_customer')
         ->get('/customers/delete/{id}', 'remove')
         ->name('customerDelete');
+});
+
+Route::get('/run-commands', function () {
+    // Optional: add a secret key for security
+    if (request()->get('key') !== env('ARTISAN_KEY')) {
+        abort(403, 'Unauthorized');
+    }
+
+    // Run storage:link
+    Artisan::call('storage:link');
+
+    // Run optimize:clear
+    Artisan::call('optimize:clear');
+
+    return 'Commands executed: storage:link and optimize:clear';
 });
