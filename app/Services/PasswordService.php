@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
@@ -47,11 +48,37 @@ class PasswordService
         // Send email with token (example)
         Mail::raw(
             "Klik link berikut untuk reset password Anda:\n" .
-            url('/reset-password/' . $token . '?email=' . urlencode($email)),
+            url('/password/reset/' . $token . '?email=' . urlencode($email)),
             function ($message) use ($email) {
                 $message->to($email);
                 $message->subject('Reset Password');
             }
         );
+    }
+
+    public function resetPassword($token, $email, $password) {
+        $record = DB::table('password_reset_tokens')
+            ->where('email', $email)
+            ->where('token', $token)
+            ->first();
+
+        if (!$record) {
+            return -1;
+        }
+
+        // Optional: Token expiry (60 minutes)
+        if (Carbon::parse($record->created_at)->addMinutes(60)->isPast()) {
+            return 0;
+        }
+
+        // Reset password
+        User::where('email', $email)->update([
+            'password' => bcrypt($password)
+        ]);
+
+        // Delete token
+        DB::table('password_reset_tokens')->where('email', $email)->delete();
+
+        return 1;
     }
 }

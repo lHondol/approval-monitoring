@@ -33,6 +33,8 @@ class EmailService
         
         $users = $users->get();
 
+        info("users", [$users]);
+
         foreach ($users as $user) {
             $approvalUrl = config('app.url') . "/drawing-transactions/approval/{$drawingTransactionId}";
             $name = $user->name;

@@ -3,9 +3,13 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\Password\ChangePasswordRequest;
+use App\Http\Requests\Password\ResetPasswordRequest;
 use App\Http\Requests\Password\SendResetLinkRequest;
+use App\Models\User;
 use App\Services\AuthService;
 use App\Services\PasswordService;
+use Carbon\Carbon;
+use DB;
 use Illuminate\Http\Request;
 
 class PasswordController extends Controller
@@ -36,12 +40,34 @@ class PasswordController extends Controller
 
     public function forgotPasswordForm()
     {
-        return view('password.forgot-password');
+        return view('password.forgot');
     }
 
     public function sendResetLink(SendResetLinkRequest $request) {
         $email = $request->email;
         $this->passwordService->sendResetLink($email);
         return back()->with('sentResetLink', 'Password reset link terkirim, silahkan check email');
+    }
+
+    public function showResetForm(Request $request)
+    {
+        return view('password.reset', ['token' => $request->token, 'email' => $request->email]);
+    }
+
+    public function resetPassword(ResetPasswordRequest $request)
+    {
+        $status = $this->passwordService->resetPassword(
+            $request->token,
+            $request->email,
+            $request->password
+        );
+
+        if ($status == -1)
+            return back()->withErrors(['email' => 'Token tidak valid atau email salah.']);
+        else if ($status == 0)
+            return back()->withErrors(['email' => 'Token sudah kadaluarsa.']);
+
+        return redirect()->route('loginForm')
+            ->with('passwordChanged', 'Password berhasil diganti, silakan login ulang.');
     }
 }

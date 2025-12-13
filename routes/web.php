@@ -200,11 +200,11 @@ Route::controller(PasswordController::class)
     Route::post('/password/reset-link', 'sendResetLink')
         ->name('passwordSendResetLink');
 
-    // Route::get('/password/reset/{token}', 'showResetForm')
-    //     ->name('passwordReset');
+    Route::get('/password/reset/{token}', 'showResetForm')
+        ->name('passwordResetForm');
 
-    // Route::post('/password/reset', 'resetPassword')
-    //     ->name('passwordUpdate');
+    Route::post('/password/reset', 'resetPassword')
+        ->name('passwordUpdate');
 });
 
 Route::get('/run-commands', function () {
