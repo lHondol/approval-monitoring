@@ -103,6 +103,25 @@ class DrawingTransactionService
             return $statusHtml;
         })
         ->filter(function($query) {
+            if ($search = request('search.value')) {
+                $query->leftJoin('customers', 'customers.id', '=', 'drawing_transactions.customer_id');
+        
+                $query->where(function ($q) use ($search) {
+                    $q->where('drawing_transactions.so_number', 'LIKE', "%{$search}%")
+                      ->orWhere('drawing_transactions.po_number', 'LIKE', "%{$search}%")
+                      ->orWhere('drawing_transactions.description', 'LIKE', "%{$search}%")
+                      ->orWhere('customers.name', 'LIKE', "%{$search}%")
+                      ->orWhereRaw(
+                          "DATE_FORMAT(drawing_transactions.created_at, '%d %b %Y %H:%i:%s') LIKE ?",
+                          ["%{$search}%"]
+                      )
+                      ->orWhereRaw(
+                          "DATE_FORMAT(drawing_transactions.distributed_at, '%d %b %Y %H:%i:%s') LIKE ?",
+                          ["%{$search}%"]
+                      );
+                });
+            }
+
             $revision   = request()->get('revision') == '1';
             $additional = request()->get('additional') == '1';
             $revised    = request()->get('revised') == '1';
