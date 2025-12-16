@@ -71,6 +71,70 @@ class PDFService
         return "{$directory}/" . $outputName;
     }
 
+    public function mergeDrawingPdfWithNote($sourceFiles, $outputName, $positionX, $positionY, $note)
+    {
+        $directory = 'drawing-pdfs';
+
+        if (!Storage::disk('public')->exists($directory)) {
+            Storage::disk('public')->makeDirectory($directory);
+        }
+
+        $outputFile = storage_path("app/public/drawing-pdfs/" . $outputName);
+
+        $pdf = new Fpdi();
+        $pdf->SetAutoPageBreak(false);
+
+        // A4 size
+        $a4Width = 297;
+        $a4Height = 210;
+
+        foreach ($sourceFiles as $file) {
+
+            // Uploaded file → use getRealPath()
+            $sourcePath = $file->getRealPath();
+
+            $pageCount = $pdf->setSourceFile($sourcePath);
+
+            for ($pageNo = 1; $pageNo <= $pageCount; $pageNo++) {
+
+                $templateId = $pdf->importPage($pageNo);
+                $size = $pdf->getTemplateSize($templateId);
+
+                // $scaleRatio = 1.05;
+                $scaleRatio = 1;
+
+                // Scale to fit A4
+                $scale = min($a4Width / $size['width'], $a4Height / $size['height']) * $scaleRatio;
+                $scaledWidth = $size['width'] * $scale;
+                $scaledHeight = $size['height'] * $scale;
+
+                // Center on A4
+                $x = ($a4Width - $scaledWidth) / 2;
+                $y = ($a4Height - $scaledHeight) / 2;
+
+                // A4 page
+                $pdf->AddPage('L', [$a4Width, $a4Height]);
+
+                // Insert the PDF content
+                $pdf->useTemplate($templateId, $x, $y, $scaledWidth, $scaledHeight);
+
+                // Place text normally (inside rotated context)
+                $blockWidth = 50;
+                $lineHeight = 4;
+                $pdf->SetFont('Helvetica', 'B', 8);
+                $pdf->SetTextColor(255, 0, 0);
+        
+                $pdf->SetXY($positionX, $positionY);
+                $pdf->MultiCell($blockWidth, $lineHeight, $note);
+            }
+        }
+
+        // Save file
+        $pdf->Output('F', $outputFile);
+
+        return "{$directory}/" . $outputName;
+    }
+
     public function signPdf($sourcePath, $positionX, $positionY, $stamp, $dateAt)
     {
         if (!Storage::disk('public')->exists($sourcePath)) {

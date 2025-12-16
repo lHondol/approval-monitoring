@@ -204,15 +204,24 @@ class DrawingTransactionService
 
         if (isset($data->as_revision_data)) {
             $drawingTransaction->as_revision_data = !!$data->as_revision_data;
-            $drawingTransaction->revision_data_note = $data->additional_data_note;
+            $drawingTransaction->revision_data_note = $data->revision_data_note;
         }
 
         try {
-            $mergedFilePath = $this->mergePdf(
-                $data->files, 
-                $uuid,
-                $status->value
-            );
+            if (isset($data->as_additional_data) || isset($data->as_revision_data)) {
+                $note = ($data->additional_data_note ?? '') . "\n" . ($data->revision_data_note ?? '');
+                $note = trim($note);
+                $mergedFilePath = $this->mergePdfWithNote(
+                    $data->files, 
+                    $uuid,
+                    $note
+                );
+            } else {
+                $mergedFilePath = $this->mergePdf(
+                    $data->files, 
+                    $uuid
+                );
+            }
         } catch (Exception $execption) {
             return null;
         }
@@ -225,12 +234,20 @@ class DrawingTransactionService
         return $drawingTransaction;
     }
 
-    public function mergePdf($files, $drawingTransactionId, $status) {
+    public function mergePdf($files, $drawingTransactionId) {
         $timestamp = now()->format('Ymd_His');
 
         $newFileName = "{$drawingTransactionId}_{$timestamp}.pdf";
 
         return $this->pdfService->mergeDrawingPdf($files, $newFileName);
+    }
+
+    public function mergePdfWithNote($files, $drawingTransactionId, $note) {
+        $timestamp = now()->format('Ymd_His');
+
+        $newFileName = "{$drawingTransactionId}_{$timestamp}.pdf";
+
+        return $this->pdfService->mergeDrawingPdfWithNote($files, $newFileName, 255, 58, $note);
     }
 
     public function getCustomers() {
