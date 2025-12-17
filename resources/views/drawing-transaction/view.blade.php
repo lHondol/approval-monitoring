@@ -106,7 +106,7 @@
                     }
                 ],
                 scrollX: true,
-                fixedColumns: { start: 1, end: 2 },
+                fixedColumns: isMdUp() ? { start: 1, end: 2 } : { start: 0, end: 1 },
                 layout: {
                     topStart: {
                         buttons: [
@@ -153,5 +153,9 @@
                 drawingTransactionTable.draw(); // triggers ajax.data and sends checkbox values
             }
         });
+
+        function isMdUp() {
+            return window.innerWidth >= 768;
+        }
     </script>
 @endpush

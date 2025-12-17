@@ -40,7 +40,7 @@
         }
     </style>
 </head>
-<body class="min-h-screen flex">
+<body class="min-h-screen flex flex-col md:flex-row">
 
     @include('master.sidebar')
 
