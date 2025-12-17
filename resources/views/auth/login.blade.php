@@ -21,9 +21,9 @@
 
     </head>
     <body class="flex justify-center items-center !bg-[var(--base-bg)]">
-        <div class="ui card min-w-[500px]">
+        <div class="ui card md:min-w-[500px]">
             <div class="content min-h-[300px] flex flex-col items-center !p-10">
-                <h1 class="text-2xl font-bold text-[var(--primary-color)] uppercase">{{ config('app.name', 'Laravel') }}</h1>
+                <h1 class="text-2xl font-bold text-[var(--primary-color)] uppercase text-center">{{ config('app.name', 'Laravel') }}</h1>
                 <span>Please log in to continue</span>
                 <form class="ui form w-full p-3" method="post" action="{{ route('login') }}">
                     @csrf
