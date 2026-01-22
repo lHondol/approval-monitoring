@@ -224,6 +224,9 @@ Route::get('/app-update', function () {
     // Run Seeder
     Artisan::call('db:seed --class=UserRolePermissionV2Seeder');
 
+    // Update V1 Distributed Status
+    Artisan::call('app:update-distributed-drawing-transaction-status');
+
     // Run storage:link
     Artisan::call('storage:link');
 
