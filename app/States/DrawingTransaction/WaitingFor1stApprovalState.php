@@ -18,7 +18,6 @@ class WaitingFor1stApprovalState implements DrawingTransactionState
     private DrawingTransactionStepService $drawingTransactionStepService;
     private DrawingTransactionRejectedImageService $drawingTransactionRejectedImageService;
     private PDFService $pdfService;
-    private EmailService $emailService;
     /**
      * Create a new class instance.
      */
@@ -28,7 +27,6 @@ class WaitingFor1stApprovalState implements DrawingTransactionState
         $this->drawingTransactionStepService = app(DrawingTransactionStepService::class);
         $this->drawingTransactionRejectedImageService = app(DrawingTransactionRejectedImageService::class);
         $this->pdfService = app(PDFService::class);
-        $this->emailService = app(EmailService::class);
     }
 
     public function next(object $data = null) {
@@ -49,8 +47,14 @@ class WaitingFor1stApprovalState implements DrawingTransactionState
             $this->drawingTransaction->updated_at
         );
 
-        dispatch(function () {
-            $this->emailService->sendRequestApproval2DrawingTransaction($this->drawingTransaction->id);
+        $transactionId = $this->drawingTransaction->id;
+        $soNumber = $this->drawingTransaction->so_number;
+
+        dispatch(function () use ($transactionId, $soNumber) {
+            app(EmailService::class)->sendRequestApproval2DrawingTransaction(
+                $transactionId, 
+                $soNumber
+            );
         })->afterResponse();
 
         return $this->drawingTransaction;
@@ -82,8 +86,14 @@ class WaitingFor1stApprovalState implements DrawingTransactionState
             $this->drawingTransaction->updated_at
         );
 
-        dispatch(function () {
-            $this->emailService->sendRequestReviseDrawingTransaction($this->drawingTransaction->id);
+        $transactionId = $this->drawingTransaction->id;
+        $soNumber = $this->drawingTransaction->so_number;
+
+        dispatch(function () use ($transactionId, $soNumber) {
+            app(EmailService::class)->sendRequestReviseDrawingTransaction(
+                $transactionId,
+                $soNumber
+            );
         })->afterResponse();
 
         return $this->drawingTransaction;

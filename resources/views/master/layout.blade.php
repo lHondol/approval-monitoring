@@ -17,6 +17,10 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/fomantic-ui@2.9.4/dist/semantic.min.css">
     <script src="https://cdn.jsdelivr.net/npm/fomantic-ui@2.9.4/dist/semantic.min.js"></script>
     
+    <!-- Formatic Calendar CSS & JS -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/fomantic-ui-calendar@2.8.8/dist/calendar.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/fomantic-ui-calendar@2.8.8/dist/calendar.min.js"></script>
+    
     <!-- DataTables -->
     <link rel="stylesheet" href="https://cdn.datatables.net/2.3.5/css/dataTables.semanticui.css">
     <link rel="stylesheet" href="https://cdn.datatables.net/buttons/3.2.5/css/buttons.semanticui.css">

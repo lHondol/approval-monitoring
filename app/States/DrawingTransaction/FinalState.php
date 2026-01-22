@@ -5,7 +5,7 @@ namespace App\States\DrawingTransaction;
 use App\Interfaces\DrawingTransactionState;
 use App\Models\DrawingTransaction;
 
-class DistributedState implements DrawingTransactionState
+class FinalState implements DrawingTransactionState
 {
     private DrawingTransaction $drawingTransaction;
     /**

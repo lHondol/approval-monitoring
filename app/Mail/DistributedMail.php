@@ -9,7 +9,7 @@ use Illuminate\Mail\Mailables\Content;
 use Illuminate\Mail\Mailables\Envelope;
 use Illuminate\Queue\SerializesModels;
 
-class NeedReviseMail extends Mailable
+class DistributedMail extends Mailable
 {
     use Queueable, SerializesModels;
     private string $link;
@@ -32,7 +32,7 @@ class NeedReviseMail extends Mailable
     public function envelope(): Envelope
     {
         return new Envelope(
-            subject: 'Permintaan Revisi Dokumen',
+            subject: 'Notice Distribusi Dokumen',
         );
     }
 
@@ -42,7 +42,7 @@ class NeedReviseMail extends Mailable
     public function content(): Content
     {
         return new Content(
-            view: 'emails.need-revise',
+            view: 'emails.notice-distributed',
             with: [
                 'link' => $this->link,
                 'name' => $this->name,

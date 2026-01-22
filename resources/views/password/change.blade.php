@@ -1,7 +1,7 @@
 @extends('master.layout')
 
 @section('content')
-    @include('shared.appbar', ['backRoute' => 'customerView', 'title' => 'Create New Customer', 'hideBackButton' => true])
+    @include('shared.appbar', ['title' => 'Change User Password', 'hideBackButton' => true])
     <div class="flex justify-center">
         <div class="ui card !w-[800px] !p-8">
             <form class="ui form" method="post" action="{{ route('passwordChange') }}">

@@ -36,7 +36,9 @@
                 <div>
                     @if (auth()->user()->hasAnyPermission([
                         'first_approve_drawing_transaction',
-                        'second_approve_drawing_transaction'
+                        'second_approve_drawing_transaction',
+                        'bom_approve_distributed_drawing_transaction',
+                        'costing_approve_distributed_drawing_transaction'
                     ]))
                         <button class="ui button customButton" type="submit" name="action" value="approve">Approve</button>
                     @endif

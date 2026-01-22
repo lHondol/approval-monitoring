@@ -14,16 +14,17 @@ class WaitingApprovalMail extends Mailable
     use Queueable, SerializesModels;
     private string $link;
     private string $name;
+    private string $so_number;
 
     /**
      * Create a new message instance.
      */
-    public function __construct(string $link, string $name)
+    public function __construct(string $link, string $name, string $so_number)
     {
         $this->link = $link;
         $this->name = $name;
+        $this->so_number = $so_number;
     }
-
     /**
      * Get the message envelope.
      */
@@ -43,7 +44,8 @@ class WaitingApprovalMail extends Mailable
             view: 'emails.waiting-approval',
             with: [
                 'link'=> $this->link,
-                'name' => $this->name
+                'name' => $this->name,
+                'so_number' => $this->so_number
             ]
         );
     }

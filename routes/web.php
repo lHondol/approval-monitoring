@@ -4,6 +4,7 @@ use App\Http\Controllers\Auth\AuthController;
 use App\Http\Controllers\CustomerController;
 use App\Http\Controllers\DrawingTransactionController;
 use App\Http\Controllers\PasswordController;
+use App\Http\Controllers\ReportingController;
 use App\Http\Controllers\RoleController;
 use App\Http\Controllers\UserController;
 use Illuminate\Support\Facades\Route;
@@ -70,11 +71,11 @@ Route::middleware('auth')
         ->name('drawingTransactionRevise');
 
     // Approval (first & second)
-    Route::middleware('permission:first_approve_drawing_transaction|second_approve_drawing_transaction')
+    Route::middleware('permission:first_approve_drawing_transaction|second_approve_drawing_transaction|bom_approve_distributed_drawing_transaction|costing_approve_distributed_drawing_transaction')
         ->get('/drawing-transactions/approval/{id}', 'approvalForm')
         ->name('drawingTransactionApprovalForm');
 
-    Route::middleware('permission:first_approve_drawing_transaction|second_approve_drawing_transaction')
+    Route::middleware('permission:first_approve_drawing_transaction|second_approve_drawing_transaction|bom_approve_distributed_drawing_transaction|costing_approve_distributed_drawing_transaction')
         ->post('/drawing-transactions/approval/{id}', 'approval')
         ->name('drawingTransactionApproval');
 
@@ -184,7 +185,6 @@ Route::middleware('auth')
         ->name('customerDelete');
 });
 
-
 Route::controller(PasswordController::class)
 ->group(function () {
 
@@ -207,11 +207,22 @@ Route::controller(PasswordController::class)
         ->name('passwordUpdate');
 });
 
-Route::get('/run-commands', function () {
+Route::controller(ReportingController::class)
+->group(function () {
+    Route::get('/reportings', 'view')
+        ->name('reportingView')->middleware('auth');
+    Route::post('/reportings/export', 'export')
+        ->name('reportingExport')->middleware('auth');
+});
+
+Route::get('/app-update', function () {
     // Optional: add a secret key for security
-    if (request()->get('key') !== env('ARTISAN_KEY')) {
+    if (!request()->has('key') || (request()->get('key') !== env('ARTISAN_KEY'))) {
         abort(403, 'Unauthorized');
     }
+
+    // Run Seeder
+    Artisan::call('db:seed --class=UserRolePermissionV2Seeder');
 
     // Run storage:link
     Artisan::call('storage:link');

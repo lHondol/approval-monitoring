@@ -15,17 +15,24 @@
             $canSecondApprove =
                 $user->hasPermissionTo('second_approve_drawing_transaction') &&
                 $status === StatusDrawingTransaction::WAITING_2ND_APPROVAL->value;
-
+            $canBomApprove = 
+                $user->hasPermissionTo(permission: 'bom_approve_distributed_drawing_transaction') &&
+                $status === StatusDrawingTransaction::DISTRIBUTED_WAITING_BOM_APPROVAL->value;
+            $canCostingApprove = 
+                $user->hasPermissionTo(permission: 'costing_approve_distributed_drawing_transaction') &&
+                $status === StatusDrawingTransaction::DISTRIBUTED_WAITING_COSTING_APPROVAL->value;
             $canReject =
                 ($user->hasPermissionTo('reject_drawing_transaction') && $canFirstApprove) ||
-                ($user->hasPermissionTo('reject_drawing_transaction') && $canSecondApprove);
+                ($user->hasPermissionTo('reject_drawing_transaction') && $canSecondApprove) || 
+                ($user->hasPermissionTo('reject_drawing_transaction') && $canBomApprove) || 
+                ($user->hasPermissionTo('reject_drawing_transaction') && $canCostingApprove);
         @endphp
 
         @if (auth()->user()->hasAnyPermission(['view_drawing_transaction', 'view_distributed_drawing_transaction']))
             <a href="{{ route('drawingTransactionDetail', $data->id) }}" class="item">Detail</a>
         @endif
 
-        @if ($canFirstApprove || $canSecondApprove || $canReject)
+        @if ($canFirstApprove || $canSecondApprove || $canBomApprove || $canCostingApprove || $canReject)
             <a href="{{ route('drawingTransactionApprovalForm', $data->id) }}" class="item">Approval</a>
         @endif
         

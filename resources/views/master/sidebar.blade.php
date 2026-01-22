@@ -70,6 +70,12 @@
                 </a>
 
                 @if (auth()->user()->hasAnyPermission(['view_drawing_transaction', 'view_distributed_drawing_transaction']))
+                    <a href="{{ route('reportingView') }}" class="{{ navClass('reportings*') }}">
+                        Reportings
+                    </a>
+                @endif
+
+                @if (auth()->user()->hasAnyPermission(['view_drawing_transaction', 'view_distributed_drawing_transaction']))
                     <a href="{{ route('drawingTransactionView') }}" class="{{ navClass('drawing-transactions*') }}">
                         Drawing Transactions
                     </a>

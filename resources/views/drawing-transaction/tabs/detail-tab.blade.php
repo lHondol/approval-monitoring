@@ -5,9 +5,13 @@
     $renderStatusColor = function ($status) {
         return match ($status) {
             StatusDrawingTransaction::WAITING_1ST_APPROVAL->value => "teal",
-            StatusDrawingTransaction::WAITING_2ND_APPROVAL->value => "orange",
-            StatusDrawingTransaction::REVISE_NEEDED->value        => "yellow",
-            StatusDrawingTransaction::DISTRIBUTED->value          => "purple",
+            StatusDrawingTransaction::WAITING_2ND_APPROVAL->value => "teal",
+            StatusDrawingTransaction::REVISE_NEEDED->value => "amber",
+            StatusDrawingTransaction::DISTRIBUTED_WAITING_BOM_APPROVAL->value => "blue",
+            StatusDrawingTransaction::DISTRIBUTED_WAITING_COSTING_APPROVAL->value => "blue",
+            StatusDrawingTransaction::DISTRIBUTED_BOM_REJECTED->value => "red",
+            StatusDrawingTransaction::DISTRIBUTED_COSTING_REJECTED->value => "red",
+            StatusDrawingTransaction::DISTRIBUTED_COSTING_DONE->value => "green",
         };
     };
 @endphp

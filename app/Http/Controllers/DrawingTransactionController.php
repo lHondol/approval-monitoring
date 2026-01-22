@@ -37,7 +37,7 @@ class DrawingTransactionController extends Controller
             return redirect()->back()->withErrors(['files' => 'file(s) version not supported']);
         
         dispatch(function () use ($drawingTransaction) {
-            $this->emailService->sendRequestApproval1DrawingTransaction($drawingTransaction->id);
+            $this->emailService->sendRequestApproval1DrawingTransaction($drawingTransaction->id, $drawingTransaction->so_number);
         })->afterResponse();
 
         return redirect()->route('drawingTransactionView');

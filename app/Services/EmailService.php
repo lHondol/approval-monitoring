@@ -2,7 +2,9 @@
 
 namespace App\Services;
 
+use App\Mail\DistributedMail;
 use App\Mail\NeedReviseMail;
+use App\Mail\RejectionMail;
 use App\Mail\WaitingApprovalMail;
 use App\Models\User;
 use Illuminate\Support\Facades\Mail;
@@ -17,7 +19,7 @@ class EmailService
         //
     }
 
-    public function sendRequestApproval1DrawingTransaction($drawingTransactionId) {
+    public function sendRequestApproval1DrawingTransaction($drawingTransactionId, $so_number) {
         $permissions = [
             'first_approve_drawing_transaction',
             'reject_drawing_transaction',
@@ -30,20 +32,16 @@ class EmailService
                 $query->where('name', $perm);
             });
         }
-        
-        $users = $users->get();
-
-        info("users", [$users]);
 
         foreach ($users as $user) {
             $approvalUrl = config('app.url') . "/drawing-transactions/approval/{$drawingTransactionId}";
             $name = $user->name;
             $email = $user->email;
-            Mail::to($email)->send(new WaitingApprovalMail($approvalUrl, $name));
+            Mail::to($email)->send(new WaitingApprovalMail($approvalUrl, $name, $so_number));
         }
     }
 
-    public function sendRequestApproval2DrawingTransaction($drawingTransactionId) {
+    public function sendRequestApproval2DrawingTransaction($drawingTransactionId, $so_number) {
         $permissions = [
             'second_approve_drawing_transaction',
             'reject_drawing_transaction',
@@ -63,11 +61,101 @@ class EmailService
             $approvalUrl = config('app.url') . "/drawing-transactions/approval/{$drawingTransactionId}";
             $name = $user->name;
             $email = $user->email;
-            Mail::to($email)->send(new WaitingApprovalMail($approvalUrl, $name));
+            Mail::to($email)->send(new WaitingApprovalMail($approvalUrl, $name, $so_number));
         }
     }
 
-    public function sendRequestReviseDrawingTransaction($drawingTransactionId) {
+    public function sendRequestApprovalBOMDrawingTransaction($drawingTransactionId, $so_number) {
+        $permissions = [
+            'bom_approve_distributed_drawing_transaction',
+            'reject_drawing_transaction',
+        ];
+        
+        $users = User::query();
+        
+        foreach ($permissions as $perm) {
+            $users->whereHas('roles.permissions', function ($query) use ($perm) {
+                $query->where('name', $perm);
+            });
+        }
+
+        foreach ($users as $user) {
+            $approvalUrl = config('app.url') . "/drawing-transactions/approval/{$drawingTransactionId}";
+            $name = $user->name;
+            $email = $user->email;
+            Mail::to($email)->send(new WaitingApprovalMail($approvalUrl, $name, $so_number));
+        }
+    }
+
+    public function sendRequestApprovalCostingDrawingTransaction($drawingTransactionId, $so_number) {
+        $permissions = [
+            'costing_approve_distributed_drawing_transaction',
+            'reject_drawing_transaction',
+        ];
+        
+        $users = User::query();
+        
+        foreach ($permissions as $perm) {
+            $users->whereHas('roles.permissions', function ($query) use ($perm) {
+                $query->where('name', $perm);
+            });
+        }
+
+        foreach ($users as $user) {
+            $approvalUrl = config('app.url') . "/drawing-transactions/approval/{$drawingTransactionId}";
+            $name = $user->name;
+            $email = $user->email;
+            Mail::to($email)->send(new WaitingApprovalMail($approvalUrl, $name, $so_number));
+        }
+    }
+
+    public function sendRejectNoticeDrawingTransaction($drawingTransactionId, $so_number) {
+        $permissions = [
+            'create_drawing_transaction'
+        ];
+        
+        $users = User::query();
+        
+        foreach ($permissions as $perm) {
+            $users->whereHas('roles.permissions', function ($query) use ($perm) {
+                $query->where('name', $perm);
+            });
+        }
+        
+        $users = $users->get();
+
+        foreach ($users as $user) {
+            $transactionUrl = config('app.url') . "/drawing-transactions/detail/{$drawingTransactionId}";
+            $name = $user->name;
+            $email = $user->email;
+            Mail::to($email)->send(new RejectionMail($transactionUrl, $name, $so_number));
+        }
+    }
+
+    public function sendDistributedNoticeDrawingTransaction($drawingTransactionId, $so_number) {
+        $permissions = [
+            'view_distributed_drawing_transaction'
+        ];
+        
+        $users = User::query();
+        
+        foreach ($permissions as $perm) {
+            $users->whereHas('roles.permissions', function ($query) use ($perm) {
+                $query->where('name', $perm);
+            });
+        }
+        
+        $users = $users->get();
+
+        foreach ($users as $user) {
+            $transactionUrl = config('app.url') . "/drawing-transactions/detail/{$drawingTransactionId}";
+            $name = $user->name;
+            $email = $user->email;
+            Mail::to($email)->send(new DistributedMail($transactionUrl, $name, $so_number));
+        }
+    }
+
+    public function sendRequestReviseDrawingTransaction($drawingTransactionId, $so_number) {
         $permissions = [
             'revise_drawing_transaction'
         ];
@@ -86,7 +174,7 @@ class EmailService
             $reviseUrl = config('app.url') . "/drawing-transactions/revise/{$drawingTransactionId}";
             $name = $user->name;
             $email = $user->email;
-            Mail::to($email)->send(new NeedReviseMail($reviseUrl, $name));
+            Mail::to($email)->send(new NeedReviseMail($reviseUrl, $name, $so_number));
         }
     }
 }

@@ -135,7 +135,8 @@ class PDFService
         return "{$directory}/" . $outputName;
     }
 
-    public function signPdf($sourcePath, $positionX, $positionY, $stamp, $dateAt)
+    // $otherTexts -> [[posX, posY, text], [posX, posY, text], [posX, posY, text], ...]
+    public function signPdf($sourcePath, $positionX, $positionY, $stamp, $dateAt, $otherTexts = [])
     {
         if (!Storage::disk('public')->exists($sourcePath)) {
             throw new \Exception("PDF not found: " . $sourcePath);
@@ -160,13 +161,69 @@ class PDFService
         $blockWidth = 50;
         $lineHeight = 4;
     
-        // Count how tall the block will be
-        $lineCount = substr_count($text, "\n") + 1;
-        $blockHeight = $lineCount * $lineHeight;
+        for ($pageNo = 1; $pageNo <= $pageCount; $pageNo++) {
     
-        // Compute block center (for rotation)
-        $centerX = $positionX + ($blockWidth / 2);
-        $centerY = $positionY + ($blockHeight / 2);
+            $templateId = $pdf->importPage($pageNo);
+            $size = $pdf->getTemplateSize($templateId);
+    
+            // Create page same as original
+            $pdf->AddPage($size['orientation'], [$size['width'], $size['height']]);
+    
+            // Draw original PDF page
+            $pdf->useTemplate($templateId, 0, 0, $size['width'], $size['height']);
+    
+            // ---------------------------
+            //       ROTATED TEXT
+            // ---------------------------
+    
+            // Rotate 90° clockwise around block center
+            // $pdf->Rotate(-90, $positionX, $positionY);
+    
+            // Place text normally (inside rotated context)
+            $pdf->SetFont('Helvetica', 'B', 8);
+            $pdf->SetTextColor(255, 0, 0);
+    
+            if (count($otherTexts) > 0) {
+                foreach ($otherTexts as $otherText) {
+                    $otherPosX = $otherText["posX"];
+                    $otherPosY = $otherText["posY"];
+                    $otherText = $otherText["text"];
+                    $pdf->SetXY($otherPosX, $otherPosY);
+                    $pdf->MultiCell($blockWidth, $lineHeight, $otherText);
+                }
+            }
+
+            $pdf->SetXY($positionX, $positionY);
+            $pdf->MultiCell($blockWidth, $lineHeight, $text);
+    
+            // // Stop rotating
+            // $pdf->Rotate(0);
+        }
+    
+        // Save file back to same path
+        $pdf->Output('F', $absolutePath);
+    
+        return $sourcePath;
+    }
+
+    public function writeTextPdf($sourcePath, $positionX, $positionY, $text)
+    {
+        if (!Storage::disk('public')->exists($sourcePath)) {
+            throw new \Exception("PDF not found: " . $sourcePath);
+        }
+    
+        $absolutePath = Storage::disk('public')->path($sourcePath);
+    
+        // Use rotation-capable FPDI class
+        // $pdf = new PdfWithRotation();
+        $pdf = new Fpdi();
+        $pdf->SetAutoPageBreak(false);
+    
+        $pageCount = $pdf->setSourceFile($absolutePath);
+    
+        // Block width & line height for MultiCell
+        $blockWidth = 50;
+        $lineHeight = 4;
     
         for ($pageNo = 1; $pageNo <= $pageCount; $pageNo++) {
     
