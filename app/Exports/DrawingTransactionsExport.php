@@ -29,12 +29,22 @@ class DrawingTransactionsExport implements FromCollection, WithHeadings
             ->orderBy('created_at', 'desc')
             ->get()
             ->map(function ($transaction) {
+                $latestSteps = $transaction->steps
+                    ->groupBy('action_done')
+                    ->map(fn($steps) => $steps->sortByDesc('done_at')->first());
+                
                 return [
                     'Customer Name'       => $transaction->customer->name ?? '',
                     'SO Number'           => $transaction->so_number ?? '',
                     'PO Number'           => $transaction->po_number,
                     'Description'         => $transaction->description,
                     'Created At'          => $transaction->created_at->format('Y-m-d H:i:s'),
+                    
+                    // Approval details (latest only)
+                    'Upload Done At'     => optional($latestSteps['Upload'] ?? null)?->done_at?->format('Y-m-d H:i:s'),
+                    'Approve 1 Done At'  => optional($latestSteps['Approve - 1'] ?? null)?->done_at?->format('Y-m-d H:i:s'),
+                    'Approve 2 Done At'  => optional($latestSteps['Approve - 2'] ?? null)?->done_at?->format('Y-m-d H:i:s'),
+                    
                     'Distributed At'      => optional($transaction->distributed_at)->format('Y-m-d H:i:s'),
                     'Status'              => $transaction->status,
                     'As Additional Data'  => $transaction->as_additional_data ? 'Yes' : 'No',
@@ -51,6 +61,9 @@ class DrawingTransactionsExport implements FromCollection, WithHeadings
             'PO Number',
             'Description',
             'Created At',
+            'Upload Done At',
+            'Approve 1 Done At',
+            'Approve 2 Done At',
             'Distributed At',
             'Status',
             'As Additional Data',
