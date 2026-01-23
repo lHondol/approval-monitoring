@@ -67,6 +67,23 @@ class DrawingTransactionService
             ]);
         }
 
+        if (auth()->user()->hasAllPermissions(['view_drawing_transaction', 'bom_approve_distributed_drawing_transaction'])) {
+            $status = array_merge($status, [
+                StatusDrawingTransaction::DISTRIBUTED_COSTING_DONE,
+                StatusDrawingTransaction::DISTRIBUTED_WAITING_BOM_APPROVAL,
+                StatusDrawingTransaction::DISTRIBUTED_BOM_REJECTED,
+                StatusDrawingTransaction::DISTRIBUTED_COSTING_REJECTED
+            ]);
+        }
+
+        if (auth()->user()->hasAllPermissions(['view_drawing_transaction', 'costing_approve_distributed_drawing_transaction'])) {
+            $status = array_merge($status, [
+                StatusDrawingTransaction::DISTRIBUTED_COSTING_DONE,
+                StatusDrawingTransaction::DISTRIBUTED_WAITING_COSTING_APPROVAL,
+                StatusDrawingTransaction::DISTRIBUTED_COSTING_REJECTED
+            ]);
+        }
+
         return DataTables::of(DrawingTransaction::select([
             'drawing_transactions.id',
             'drawing_transactions.so_number',
@@ -186,7 +203,8 @@ class DrawingTransactionService
 
     public function getDetail($id) {
         $drawingTransaction = DrawingTransaction::with('customer')->where('id', $id)->first();
-        if (auth()->user()->hasPermissionTo('view_distributed_drawing_transaction')) {
+        if (auth()->user()->hasPermissionTo('view_distributed_drawing_transaction')
+            && !auth()->user()->hasPermissionTo('view_drawing_transaction')) {
             if (!str_contains($drawingTransaction->status, 'Distributed')) {
                 return null;
             }

@@ -21,8 +21,7 @@ class EmailService
 
     public function sendRequestApproval1DrawingTransaction($drawingTransactionId, $so_number) {
         $permissions = [
-            'first_approve_drawing_transaction',
-            'reject_drawing_transaction',
+            'first_approve_drawing_transaction'
         ];
         
         $users = User::query();
@@ -45,8 +44,7 @@ class EmailService
 
     public function sendRequestApproval2DrawingTransaction($drawingTransactionId, $so_number) {
         $permissions = [
-            'second_approve_drawing_transaction',
-            'reject_drawing_transaction',
+            'second_approve_drawing_transaction'
         ];
         
         $users = User::query();
@@ -69,8 +67,7 @@ class EmailService
 
     public function sendRequestApprovalBOMDrawingTransaction($drawingTransactionId, $so_number) {
         $permissions = [
-            'bom_approve_distributed_drawing_transaction',
-            'reject_drawing_transaction',
+            'bom_approve_distributed_drawing_transaction'
         ];
         
         $users = User::query();
@@ -93,8 +90,7 @@ class EmailService
 
     public function sendRequestApprovalCostingDrawingTransaction($drawingTransactionId, $so_number) {
         $permissions = [
-            'costing_approve_distributed_drawing_transaction',
-            'reject_drawing_transaction',
+            'costing_approve_distributed_drawing_transaction'
         ];
         
         $users = User::query();
@@ -117,7 +113,7 @@ class EmailService
 
     public function sendRejectNoticeDrawingTransaction($drawingTransactionId, $so_number) {
         $permissions = [
-            'create_drawing_transaction'
+            'bom_approve_distributed_drawing_transaction'
         ];
         
         $users = User::query();
