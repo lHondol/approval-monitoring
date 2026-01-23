@@ -55,11 +55,15 @@ class DrawingTransactionService
     public function getData() {
         
         $status = [];
-        if (auth()->user()->hasPermissionTo('view_distributed_drawing_transaction')) {
+        
+        if (auth()->user()->hasPermissionTo('view_distributed_drawing_transaction') &&
+            !auth()->user()->hasPermissionTo('view_drawing_transaction')) {
            $status = array_merge($status, [
-                'Distributed, Costing Done',
-                'Distributed, Waiting for BOM Approval',
-                'Distributed, Waiting for Costing Approval'
+                StatusDrawingTransaction::DISTRIBUTED_COSTING_DONE,
+                StatusDrawingTransaction::DISTRIBUTED_WAITING_BOM_APPROVAL,
+                StatusDrawingTransaction::DISTRIBUTED_WAITING_COSTING_APPROVAL,
+                StatusDrawingTransaction::DISTRIBUTED_BOM_REJECTED,
+                StatusDrawingTransaction::DISTRIBUTED_COSTING_REJECTED
             ]);
         }
 

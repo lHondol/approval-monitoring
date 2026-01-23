@@ -43,7 +43,7 @@ class WaitingForCostingApprovalState implements DrawingTransactionState
     }
 
     public function reject(object $data = null) {
-        $this->drawingTransaction->status = StatusDrawingTransaction::REVISE_NEEDED->value;
+        $this->drawingTransaction->status = StatusDrawingTransaction::DISTRIBUTED_COSTING_REJECTED->value;
         $this->drawingTransaction->save();
 
         $drawingTransactionStep = $this->drawingTransactionStepService->createStep(
