@@ -72,7 +72,8 @@ class DrawingTransactionService
                 StatusDrawingTransaction::DISTRIBUTED_COSTING_DONE,
                 StatusDrawingTransaction::DISTRIBUTED_WAITING_BOM_APPROVAL,
                 StatusDrawingTransaction::DISTRIBUTED_BOM_REJECTED,
-                StatusDrawingTransaction::DISTRIBUTED_COSTING_REJECTED
+                StatusDrawingTransaction::DISTRIBUTED_COSTING_REJECTED,
+                StatusDrawingTransaction::DISTRIBUTED_WAITING_COSTING_APPROVAL
             ]);
         }
 
