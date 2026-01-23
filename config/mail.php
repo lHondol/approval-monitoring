@@ -1,5 +1,7 @@
 <?php
 
+use Illuminate\Support\Env;
+
 return [
 
     /*
@@ -47,6 +49,13 @@ return [
             'password' => env('MAIL_PASSWORD'),
             'timeout' => null,
             'local_domain' => env('MAIL_EHLO_DOMAIN', parse_url((string) env('APP_URL', 'http://localhost'), PHP_URL_HOST)),
+            'stream' => [
+                'ssl' => [
+                    'allow_self_signed' => env('ALLOW_SELF_SIGNED'),
+                    'verify_peer' => env('VERIFY_PEER'),
+                    'verify_peer_name' => env('VERIFY_PEER_NAME'),
+                ],
+            ],
         ],
 
         'ses' => [
