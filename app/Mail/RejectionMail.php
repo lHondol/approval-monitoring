@@ -19,7 +19,7 @@ class RejectionMail extends Mailable
     /**
      * Create a new message instance.
      */
-    public function __construct(string $link, string $name, string $so_number)
+    public function __construct(string $link, string $name, string | null $so_number)
     {
         $this->link = $link;
         $this->name = $name;
