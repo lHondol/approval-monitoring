@@ -33,6 +33,8 @@ class EmailService
             });
         }
 
+        $users = $users->get();
+
         foreach ($users as $user) {
             $approvalUrl = config('app.url') . "/drawing-transactions/approval/{$drawingTransactionId}";
             $name = $user->name;
@@ -79,6 +81,8 @@ class EmailService
             });
         }
 
+        $users = $users->get();
+
         foreach ($users as $user) {
             $approvalUrl = config('app.url') . "/drawing-transactions/approval/{$drawingTransactionId}";
             $name = $user->name;
@@ -100,6 +104,8 @@ class EmailService
                 $query->where('name', $perm);
             });
         }
+
+        $users = $users->get();
 
         foreach ($users as $user) {
             $approvalUrl = config('app.url') . "/drawing-transactions/approval/{$drawingTransactionId}";

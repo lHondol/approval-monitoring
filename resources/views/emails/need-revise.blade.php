@@ -6,7 +6,11 @@
 <body style="font-family: Arial, sans-serif; line-height: 1.6; color: #333;">
     <p>Yth. Ibu/Bapak {{ $name }},</p>
 
-    <p>Terdapat dokumen dengan <b>SO Number: {{ $so_number }}</b> yang memerlukan tindakan Anda untuk <strong>revisi</strong>.</p>
+    @if ()
+        <p>Terdapat dokumen yang memerlukan tindakan Anda untuk <strong>revisi</strong>.</p>
+    @else
+        <p>Terdapat dokumen dengan <b>SO Number: {{ $so_number }}</b> yang memerlukan tindakan Anda untuk <strong>revisi</strong>.</p>
+    @endif
 
     <p>Silahkan klik link di bawah ini untuk menuju ke situs proses revisi:</p>
 

@@ -13,10 +13,8 @@ use Illuminate\Http\Request;
 class DrawingTransactionController extends Controller
 {
     private $drawingTransactionService;
-    private $emailService;
     public function __construct(DrawingTransactionService $drawingTransactionService, EmailService $emailService) {
         $this->drawingTransactionService = $drawingTransactionService;
-        $this->emailService = $emailService;
     }
 
     public function view() {
@@ -35,9 +33,9 @@ class DrawingTransactionController extends Controller
 
         if (!$drawingTransaction)
             return redirect()->back()->withErrors(['files' => 'file(s) version not supported']);
-        
+
         dispatch(function () use ($drawingTransaction) {
-            $this->emailService->sendRequestApproval1DrawingTransaction($drawingTransaction->id, $drawingTransaction->so_number);
+            app(EmailService::class)->sendRequestApproval1DrawingTransaction($drawingTransaction->id, $drawingTransaction->so_number);
         })->afterResponse();
 
         return redirect()->route('drawingTransactionView');
@@ -101,7 +99,7 @@ class DrawingTransactionController extends Controller
             return redirect()->back()->withErrors(['files' => 'file(s) version not supported']);
 
         dispatch(function () use ($drawingTransaction) {
-            $this->emailService->sendRequestApproval1DrawingTransaction($drawingTransaction->id);
+            app(EmailService::class)->sendRequestApproval1DrawingTransaction($drawingTransaction->id, $drawingTransaction->so_number);
         })->afterResponse();
 
         return redirect()->route('drawingTransactionView');

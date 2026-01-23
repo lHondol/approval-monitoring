@@ -14,7 +14,7 @@ class NeedReviseMail extends Mailable
     use Queueable, SerializesModels;
     private string $link;
     private string $name;
-    private string $so_number;
+    private string | null $so_number;
 
     /**
      * Create a new message instance.
