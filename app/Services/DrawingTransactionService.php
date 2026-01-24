@@ -42,10 +42,10 @@ class DrawingTransactionService
     public function renderStatusColor($status) {
         return match ($status) {
             StatusDrawingTransaction::WAITING_1ST_APPROVAL->value => "teal",
-            StatusDrawingTransaction::WAITING_2ND_APPROVAL->value => "teal",
-            StatusDrawingTransaction::REVISE_NEEDED->value => "amber",
+            StatusDrawingTransaction::WAITING_2ND_APPROVAL->value => "orange",
+            StatusDrawingTransaction::REVISE_NEEDED->value => "yellow",
             StatusDrawingTransaction::DISTRIBUTED_WAITING_BOM_APPROVAL->value => "blue",
-            StatusDrawingTransaction::DISTRIBUTED_WAITING_COSTING_APPROVAL->value => "blue",
+            StatusDrawingTransaction::DISTRIBUTED_WAITING_COSTING_APPROVAL->value => "purple",
             StatusDrawingTransaction::DISTRIBUTED_BOM_REJECTED->value => "red",
             StatusDrawingTransaction::DISTRIBUTED_COSTING_REJECTED->value => "red",
             StatusDrawingTransaction::DISTRIBUTED_COSTING_DONE->value => "green",
@@ -56,33 +56,59 @@ class DrawingTransactionService
         
         $status = [];
         
-        if (auth()->user()->hasPermissionTo('view_distributed_drawing_transaction') &&
-            !auth()->user()->hasPermissionTo('view_drawing_transaction')) {
-           $status = array_merge($status, [
-                StatusDrawingTransaction::DISTRIBUTED_COSTING_DONE,
-                StatusDrawingTransaction::DISTRIBUTED_WAITING_BOM_APPROVAL,
-                StatusDrawingTransaction::DISTRIBUTED_WAITING_COSTING_APPROVAL,
-                StatusDrawingTransaction::DISTRIBUTED_BOM_REJECTED,
-                StatusDrawingTransaction::DISTRIBUTED_COSTING_REJECTED
-            ]);
+        $distributedStatuses = [
+            StatusDrawingTransaction::DISTRIBUTED_COSTING_DONE,
+            StatusDrawingTransaction::DISTRIBUTED_WAITING_BOM_APPROVAL,
+            StatusDrawingTransaction::DISTRIBUTED_WAITING_COSTING_APPROVAL,
+            StatusDrawingTransaction::DISTRIBUTED_BOM_REJECTED,
+            StatusDrawingTransaction::DISTRIBUTED_COSTING_REJECTED,
+        ];
+
+        $approvalStatuses = [
+            StatusDrawingTransaction::WAITING_1ST_APPROVAL,
+            StatusDrawingTransaction::WAITING_2ND_APPROVAL,
+            StatusDrawingTransaction::REVISE_NEEDED,
+        ];
+
+        $user = auth()->user();
+
+        /**
+         * Case 1:
+         * Can view distributed, but NOT normal drawing transaction
+         */
+        if (
+            $user->hasPermissionTo('view_distributed_drawing_transaction') &&
+            !$user->hasPermissionTo('view_drawing_transaction')
+        ) {
+            $status = array_merge($status, $distributedStatuses);
         }
 
-        if (auth()->user()->hasAllPermissions(['view_drawing_transaction', 'bom_approve_distributed_drawing_transaction'])) {
-            $status = array_merge($status, [
-                StatusDrawingTransaction::DISTRIBUTED_COSTING_DONE,
-                StatusDrawingTransaction::DISTRIBUTED_WAITING_BOM_APPROVAL,
-                StatusDrawingTransaction::DISTRIBUTED_BOM_REJECTED,
-                StatusDrawingTransaction::DISTRIBUTED_COSTING_REJECTED,
-                StatusDrawingTransaction::DISTRIBUTED_WAITING_COSTING_APPROVAL
-            ]);
+        /**
+         * Case 2:
+         * Can view drawing transaction + first/second approval
+         */
+        if (
+            $user->hasPermissionTo('view_drawing_transaction') &&
+            $user->hasAnyPermission([
+                'first_approve_drawing_transaction',
+                'second_approve_drawing_transaction',
+            ])
+        ) {
+            $status = array_merge($status, $approvalStatuses, $distributedStatuses);
         }
 
-        if (auth()->user()->hasAllPermissions(['view_drawing_transaction', 'costing_approve_distributed_drawing_transaction'])) {
-            $status = array_merge($status, [
-                StatusDrawingTransaction::DISTRIBUTED_COSTING_DONE,
-                StatusDrawingTransaction::DISTRIBUTED_WAITING_COSTING_APPROVAL,
-                StatusDrawingTransaction::DISTRIBUTED_COSTING_REJECTED
-            ]);
+        /**
+         * Case 3:
+         * BOM or Costing approver (same status result)
+         */
+        if (
+            $user->hasPermissionTo('view_drawing_transaction') &&
+            $user->hasAnyPermission([
+                'bom_approve_distributed_drawing_transaction',
+                'costing_approve_distributed_drawing_transaction',
+            ])
+        ) {
+            $status = array_merge($status, $distributedStatuses);
         }
 
         return DataTables::of(DrawingTransaction::select([
