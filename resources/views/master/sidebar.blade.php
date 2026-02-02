@@ -87,6 +87,12 @@
                     </a>
                 @endif
 
+                @if (auth()->user()->hasPermissionTo('view_area'))
+                    <a href="{{ route('areaView') }}" class="{{ navClass('areas*') }}">
+                        Areas
+                    </a>
+                @endif
+
                 @if (auth()->user()->hasAnyPermission(['view_user', 'view_role']))
                     <div class="relative">
                         <button

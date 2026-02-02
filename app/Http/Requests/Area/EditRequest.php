@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Requests\Role;
+namespace App\Http\Requests\Area;
 
 use Illuminate\Foundation\Http\FormRequest;
 
@@ -23,7 +23,7 @@ class EditRequest extends FormRequest
     {
         return [
             "name" => "required",
-            'permissions' => 'required',
+            'users' => 'required',
         ];
     }
 }

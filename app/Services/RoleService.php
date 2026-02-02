@@ -80,7 +80,7 @@ class RoleService
     }
 
     public function create($data) {
-        $role = new role();
+        $role = new Role();
         
         $uuid =  Uuid::uuid4()->toString();
         $role->id =$uuid;

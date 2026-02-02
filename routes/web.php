@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\AreaController;
 use App\Http\Controllers\Auth\AuthController;
 use App\Http\Controllers\CustomerController;
 use App\Http\Controllers\DrawingTransactionController;
@@ -207,6 +208,43 @@ Route::controller(PasswordController::class)
         ->name('passwordUpdate');
 });
 
+Route::middleware('auth')
+->controller(AreaController::class)
+->group(function () {
+
+    Route::middleware('permission:view_area')
+        ->get('/areas', 'view')
+        ->name('areaView');
+
+    Route::middleware('permission:view_area')
+        ->get('/areas/data', 'getData')
+        ->name('areaData');
+
+    Route::middleware('permission:view_area')
+        ->get('/areas/detail/{id}', 'getDetail')
+        ->name('areaDetail');
+
+    Route::middleware('permission:create_area')
+        ->get('/areas/create', 'createForm')
+        ->name('areaCreateForm');
+
+    Route::middleware('permission:create_area')
+        ->post('/areas/create', 'create')
+        ->name('areaCreate');
+
+    Route::middleware('permission:edit_area')
+        ->get('/areas/edit/{id}', 'editForm')
+        ->name('areaEditForm');
+
+    Route::middleware('permission:edit_area')
+        ->post('/areas/edit/{id}', 'edit')
+        ->name('areaEdit');
+
+    Route::middleware('permission:delete_area')
+        ->get('/areas/delete/{id}', 'remove')
+        ->name('areaDelete');
+});
+
 Route::controller(ReportingController::class)
 ->group(function () {
     Route::get('/reportings', 'view')
@@ -223,6 +261,7 @@ Route::get('/app-update', function () {
 
     // Run Seeder
     Artisan::call('db:seed --class=UserRolePermissionV2Seeder');
+    Artisan::call('db:seed --class=UserRolePermissionV3Seeder');
 
     // Update V1 Distributed Status
     Artisan::call('app:update-distributed-drawing-transaction-status');

@@ -48,4 +48,8 @@ class User extends Authenticatable
             'password' => 'hashed',
         ];
     }
+
+    public function areas() {
+        return $this->belongsToMany(Area::class , 'area_user');
+    }
 }
