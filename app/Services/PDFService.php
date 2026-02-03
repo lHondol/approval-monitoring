@@ -16,15 +16,13 @@ class PDFService
         //
     }
 
-    public function mergeDrawingPdf($sourceFiles, $outputName)
+    public function mergePdf($sourceFiles, $outputName, $directory="drawing-pdfs")
     {
-        $directory = 'drawing-pdfs';
-
         if (!Storage::disk('public')->exists($directory)) {
             Storage::disk('public')->makeDirectory($directory);
         }
 
-        $outputFile = storage_path("app/public/drawing-pdfs/" . $outputName);
+        $outputFile = storage_path("app/public/$directory/" . $outputName);
 
         $pdf = new Fpdi();
         $pdf->SetAutoPageBreak(false);
@@ -71,15 +69,13 @@ class PDFService
         return "{$directory}/" . $outputName;
     }
 
-    public function mergeDrawingPdfWithNote($sourceFiles, $outputName, $positionX, $positionY, $note)
+    public function mergePdfWithNote($sourceFiles, $outputName, $positionX, $positionY, $note, $directory="drawing-pdfs")
     {
-        $directory = 'drawing-pdfs';
-
         if (!Storage::disk('public')->exists($directory)) {
             Storage::disk('public')->makeDirectory($directory);
         }
 
-        $outputFile = storage_path("app/public/drawing-pdfs/" . $outputName);
+        $outputFile = storage_path("app/public/$directory/" . $outputName);
 
         $pdf = new Fpdi();
         $pdf->SetAutoPageBreak(false);

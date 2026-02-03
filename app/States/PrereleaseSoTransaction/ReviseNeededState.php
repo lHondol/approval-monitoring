@@ -1,0 +1,68 @@
+<?php
+
+namespace App\States\PrereleaseSoTransaction;
+
+use App\Enums\ActionPrereleaseSoTransactionStep;
+use App\Enums\StatusPrereleaseSoTransaction;
+use App\Interfaces\PrereleaseSoTransactionState;
+use App\Models\PrereleaseSoTransaction;
+use App\Services\PrereleaseSoTransactionStepService;
+use App\Services\PDFService;
+use Exception;
+use Str;
+
+class ReviseNeededState implements PrereleaseSoTransactionState
+{
+    private PrereleaseSoTransaction $prereleaseSoTransaction;
+    private PDFService $pdfService;
+    private PrereleaseSoTransactionStepService $prereleaseSoTransactionStepService;
+    /**
+     * Create a new class instance.
+     */
+    public function __construct(PrereleaseSoTransaction $prereleaseSoTransaction)
+    {
+        $this->prereleaseSoTransaction = $prereleaseSoTransaction;
+        $this->pdfService = app(PDFService::class);
+        $this->prereleaseSoTransactionStepService = app(PrereleaseSoTransactionStepService::class);
+    }
+
+    public function next(object $data = null) {
+        $this->prereleaseSoTransaction->customer_id = $data->customer;
+        $this->prereleaseSoTransaction->area_id = $data->area;
+        $this->prereleaseSoTransaction->so_number = $data->so_number;
+        $this->prereleaseSoTransaction->po_number = $data->po_number;
+
+        $status = StatusPrereleaseSoTransaction::WAITING_SALES_AREA_APPROVAL->value;
+        $this->prereleaseSoTransaction->status = $status;
+        $this->prereleaseSoTransaction->done_revised = true;
+
+        if (isset($data->description))
+            $this->prereleaseSoTransaction->description = $data->description;
+
+
+        $timestamp = now()->format('Ymd_His');
+
+        $newFileName = "{$this->prereleaseSoTransaction->id}_{$timestamp}.pdf";
+
+        try {
+            $mergedFilePath = $this->pdfService->mergePdf(
+                $data->files, 
+                $newFileName
+            );
+        } catch (Exception $execption) {
+            return null;
+        }
+
+        $this->prereleaseSoTransaction->filepath = $mergedFilePath;
+
+        $this->prereleaseSoTransaction->save();
+
+        $this->prereleaseSoTransactionStepService->createStep($this->prereleaseSoTransaction, ActionPrereleaseSoTransactionStep::UPLOAD_REVISED);
+
+        return $this->prereleaseSoTransaction;
+    }
+
+    public function reject(object $data = null) {
+
+    }
+}
