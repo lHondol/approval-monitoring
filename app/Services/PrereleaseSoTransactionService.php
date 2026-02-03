@@ -44,9 +44,9 @@ class PrereleaseSoTransactionService
         return match ($status) {
             StatusPrereleaseSoTransaction::WAITING_SALES_AREA_APPROVAL->value => "teal",
             StatusPrereleaseSoTransaction::WAITING_RND_DRAWING_APPROVAL->value => "orange",
-            StatusPrereleaseSoTransaction::WAITING_RND_BOM_APPROVAL->value => "cyan",
+            StatusPrereleaseSoTransaction::WAITING_RND_BOM_APPROVAL->value => "pink",
             StatusPrereleaseSoTransaction::WAITING_ACCOUNTING_APPROVAL->value => "blue",
-            StatusPrereleaseSoTransaction::WAITING_ACCOUNTING_APPROVAL->value => "purple",
+            StatusPrereleaseSoTransaction::WAITING_IT_APPROVAL->value => "purple",
             StatusPrereleaseSoTransaction::FINALIZED->value => "green",
             StatusPrereleaseSoTransaction::REVISE_NEEDED->value => "yellow",
         };
@@ -55,6 +55,19 @@ class PrereleaseSoTransactionService
     public function getData() {
         
         $status = [];
+
+        $nonAreaPermissions = [
+            'rnd_drawing_approve_prerelease_so_transaction', 
+            'rnd_bom_approve_prerelease_so_transaction', 
+            'accounting_approve_prerelease_so_transaction', 
+            'it_approve_prerelease_so_transaction', 
+        ];
+
+        $filterByArea = null;
+        if (auth()->user()->hasPermissionTo('sales_area_approve_prerelease_so_transaction') &&
+            !auth()->user()->hasAnyPermission($nonAreaPermissions)) {
+            $filterByArea = true;
+        }
 
         return DataTables::of(PrereleaseSoTransaction::select([
             'prerelease_so_transactions.id',
@@ -68,8 +81,16 @@ class PrereleaseSoTransactionService
             'prerelease_so_transactions.as_additional_data',
             'prerelease_so_transactions.done_revised',
             'prerelease_so_transactions.customer_id',
-        ])->with('customer')->when(count($status) > 0, function ($query) use ($status) {
+            'prerelease_so_transactions.area_id',
+        ])->with(['customer', 'area'])
+        ->when(count($status) > 0, function ($query) use ($status) {
             $query->whereIn('status', $status);
+        })->when($filterByArea, function ($query) {
+            $userId = auth()->user()->id;
+        
+            $query->whereHas('area.users', function ($q) use ($userId) {
+                $q->where('users.id', $userId);
+            });
         }))
         ->addColumn('customer_name', function($row) {
             return $row->customer?->name ?? '';
@@ -214,6 +235,8 @@ class PrereleaseSoTransactionService
             $prereleaseSoTransaction->revision_data_note = $data->revision_data_note;
         }
 
+        $createdAt = Carbon::now();
+
         try {
             // if (isset($data->as_additional_data) || isset($data->as_revision_data)) {
             //     $note = ($data->additional_data_note ?? '') . "\n" . ($data->revision_data_note ?? '');
@@ -224,9 +247,10 @@ class PrereleaseSoTransactionService
             //         $note
             //     );
             // } else {
-                $mergedFilePath = $this->mergePdf(
+                $mergedFilePath = $this->mergePdfWithCreatedAt(
                     $data->files, 
-                    $uuid
+                    $uuid,
+                    $createdAt
                 );
             // }
         } catch (Exception $execption) {
@@ -234,6 +258,8 @@ class PrereleaseSoTransactionService
         }
 
         $prereleaseSoTransaction->filepath = $mergedFilePath;
+        $prereleaseSoTransaction->created_at = $createdAt;
+        $prereleaseSoTransaction->updated_at = $createdAt;
         $prereleaseSoTransaction->save();
 
         $this->preleaseSoTransactionStepService->createStep($prereleaseSoTransaction, ActionPrereleaseSoTransactionStep::UPLOAD);
@@ -249,12 +275,15 @@ class PrereleaseSoTransactionService
         return $this->pdfService->mergePdf($files, $newFileName, "prerelease-so-pdfs");
     }
 
-    public function mergePdfWithNote($files, $prereleaseSoTransactionId, $note) {
+    public function mergePdfWithCreatedAt($files, $prereleaseSoTransactionId, $createdAt) {
         $timestamp = now()->format('Ymd_His');
+        $createdAt = $createdAt->format('d M Y H:i:s');
+
+        $note = "Created At: {$createdAt}";
 
         $newFileName = "{$prereleaseSoTransactionId}_{$timestamp}.pdf";
 
-        return $this->pdfService->mergePdfWithNote($files, $newFileName, 255, 58, $note, "prerelease-so-pdfs");
+        return $this->pdfService->mergePdfWithNote($files, $newFileName, 10, 10, $note, "prerelease-so-pdfs");
     }
 
     public function getCustomers() {

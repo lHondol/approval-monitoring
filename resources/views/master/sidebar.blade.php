@@ -81,6 +81,12 @@
                     </a>
                 @endif
 
+                @if (auth()->user()->hasAnyPermission(['view_prerelease_so_transaction']))
+                    <a href="{{ route('prereleaseSoTransactionView') }}" class="{{ navClass('prerelase-so-transactions*') }}">
+                        Prerelease So Transactions
+                    </a>
+                @endif
+
                 @if (auth()->user()->hasPermissionTo('view_customer'))
                     <a href="{{ route('customerView') }}" class="{{ navClass('customers*') }}">
                         Customers

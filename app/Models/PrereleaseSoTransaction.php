@@ -8,6 +8,7 @@ use App\States\DrawingTransaction\WaitingForBomApprovalState;
 use App\States\PrereleaseSoTransaction\FinalState;
 use App\States\PrereleaseSoTransaction\ReviseNeededState;
 use App\States\PrereleaseSoTransaction\WaitingForAccountingApprovalState;
+use App\States\PrereleaseSoTransaction\WaitingForITApprovalState;
 use App\States\PrereleaseSoTransaction\WaitingForRnDBomApprovalState;
 use App\States\PrereleaseSoTransaction\WaitingForRnDDrawingApprovalState;
 use App\States\PrereleaseSoTransaction\WaitingForSalesAreaApprovalState;
@@ -38,7 +39,7 @@ class PrereleaseSoTransaction extends Model
             StatusPrereleaseSoTransaction::WAITING_RND_DRAWING_APPROVAL->value   => new WaitingForRnDDrawingApprovalState($this),
             StatusPrereleaseSoTransaction::WAITING_RND_BOM_APPROVAL->value   => new WaitingForRnDBomApprovalState($this),
             StatusPrereleaseSoTransaction::WAITING_ACCOUNTING_APPROVAL->value   => new WaitingForAccountingApprovalState($this),
-            StatusPrereleaseSoTransaction::WAITING_IT_APPROVAL->value   => new FinalState($this),
+            StatusPrereleaseSoTransaction::WAITING_IT_APPROVAL->value   => new WaitingForITApprovalState($this),
             StatusPrereleaseSoTransaction::FINALIZED->value   => new FinalState($this),
             StatusPrereleaseSoTransaction::REVISE_NEEDED->value   => new ReviseNeededState($this),
         };
@@ -46,5 +47,9 @@ class PrereleaseSoTransaction extends Model
 
     public function customer() {
         return $this->belongsTo(Customer::class);
+    }
+
+    public function area() {
+        return $this->belongsTo(Area::class);
     }
 }

@@ -1,7 +1,7 @@
 <div class="ui dropdown action-dropdown icon button !px-5 whitespace-nowrap">
     Actions <i class="dropdown icon"></i>
     @php
-        use App\Enums\StatusDrawingTransaction;
+        use App\Enums\StatusPrereleaseSoTransaction;
     @endphp
     <div class="menu">
         @php
@@ -40,12 +40,12 @@
             <a href="{{ route('prereleaseSoTransactionDetail', $data->id) }}" class="item">Detail</a>
         @endif
 
-        @if ($canFirstApprove || $canSecondApprove || $canBomApprove || $canCostingApprove || $canReject)
+        @if ($canSalesAreaApprove || $canRndDrawingApprove || $canRndBomApprove || $canAccountingApprove || $canItApprove || $canReject)
             <a href="{{ route('prereleaseSoTransactionApprovalForm', $data->id) }}" class="item">Approval</a>
         @endif
         
         @if (auth()->user()->hasPermissionTo('revise_prerelease_so_transaction') &&
-            $data->status === StatusDrawingTransaction::REVISE_NEEDED->value
+            $data->status === StatusPrereleaseSoTransaction::REVISE_NEEDED->value
         )
             <a href="{{ route('prereleaseSoTransactionReviseForm', $data->id) }}" class="item">Revise</a>
         @endif

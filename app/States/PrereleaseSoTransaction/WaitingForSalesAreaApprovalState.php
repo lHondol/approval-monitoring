@@ -41,12 +41,13 @@ class WaitingForSalesAreaApprovalState implements PrereleaseSoTransactionState
         $transactionId = $this->prereleaseSoTransaction->id;
         $soNumber = $this->prereleaseSoTransaction->so_number;
 
-        // dispatch(function () use ($transactionId, $soNumber) {
-        //     app(EmailService::class)->sendRequestApproval2PrereleaseSoTransaction(
-        //         $transactionId, 
-        //         $soNumber
-        //     );
-        // })->afterResponse();
+        dispatch(function () use ($transactionId, $soNumber) {
+            app(EmailService::class)->sendRequestPrereleaseSoApprovalGeneral(
+                $transactionId, 
+                $soNumber,
+                ['rnd_drawing_approve_prerelease_so_transaction']
+            );
+        })->afterResponse();
 
         return $this->prereleaseSoTransaction;
     }
@@ -72,12 +73,12 @@ class WaitingForSalesAreaApprovalState implements PrereleaseSoTransactionState
         $transactionId = $this->prereleaseSoTransaction->id;
         $soNumber = $this->prereleaseSoTransaction->so_number;
 
-        // dispatch(function () use ($transactionId, $soNumber) {
-        //     app(EmailService::class)->sendRequestRevisePrereleaseSoTransaction(
-        //         $transactionId,
-        //         $soNumber
-        //     );
-        // })->afterResponse();
+        dispatch(function () use ($transactionId, $soNumber) {
+            app(EmailService::class)->sendRequestRevisePrereleaseSoTransaction(
+                $transactionId,
+                $soNumber
+            );
+        })->afterResponse();
 
         return $this->prereleaseSoTransaction;
     }

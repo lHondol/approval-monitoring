@@ -10,6 +10,7 @@ use App\Services\PrereleaseSoTransactionRejectedImageService;
 use App\Services\PrereleaseSoTransactionStepService;
 use App\Services\EmailService;
 use App\Services\PDFService;
+use Carbon\Carbon;
 
 class WaitingForITApprovalState implements PrereleaseSoTransactionState
 {
@@ -30,6 +31,7 @@ class WaitingForITApprovalState implements PrereleaseSoTransactionState
 
     public function next(object $data = null) {
         $this->prereleaseSoTransaction->status = StatusPrereleaseSoTransaction::FINALIZED->value;
+        $this->prereleaseSoTransaction->finalized_at = Carbon::now();
         $this->prereleaseSoTransaction->save();
 
         $this->prereleaseSoTransactionStepService->createStep(
@@ -41,12 +43,13 @@ class WaitingForITApprovalState implements PrereleaseSoTransactionState
         $transactionId = $this->prereleaseSoTransaction->id;
         $soNumber = $this->prereleaseSoTransaction->so_number;
 
-        // dispatch(function () use ($transactionId, $soNumber) {
-        //     app(EmailService::class)->sendRequestApproval2PrereleaseSoTransaction(
-        //         $transactionId, 
-        //         $soNumber
-        //     );
-        // })->afterResponse();
+        dispatch(function () use ($transactionId, $soNumber) {
+            app(EmailService::class)->sendNoticePrereleaseSoFinalized(
+                $transactionId, 
+                $soNumber,
+                ['create_prerelease_so_transaction']
+            );
+        })->afterResponse();
 
         return $this->prereleaseSoTransaction;
     }
@@ -72,12 +75,12 @@ class WaitingForITApprovalState implements PrereleaseSoTransactionState
         $transactionId = $this->prereleaseSoTransaction->id;
         $soNumber = $this->prereleaseSoTransaction->so_number;
 
-        // dispatch(function () use ($transactionId, $soNumber) {
-        //     app(EmailService::class)->sendRequestRevisePrereleaseSoTransaction(
-        //         $transactionId,
-        //         $soNumber
-        //     );
-        // })->afterResponse();
+        dispatch(function () use ($transactionId, $soNumber) {
+            app(EmailService::class)->sendRequestRevisePrereleaseSoTransaction(
+                $transactionId,
+                $soNumber
+            );
+        })->afterResponse();
 
         return $this->prereleaseSoTransaction;
     }

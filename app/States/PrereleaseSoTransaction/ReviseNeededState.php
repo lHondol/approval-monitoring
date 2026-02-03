@@ -8,6 +8,7 @@ use App\Interfaces\PrereleaseSoTransactionState;
 use App\Models\PrereleaseSoTransaction;
 use App\Services\PrereleaseSoTransactionStepService;
 use App\Services\PDFService;
+use Carbon\Carbon;
 use Exception;
 use Str;
 
@@ -38,16 +39,24 @@ class ReviseNeededState implements PrereleaseSoTransactionState
 
         if (isset($data->description))
             $this->prereleaseSoTransaction->description = $data->description;
-
+    
+        $revisedAt = Carbon::now();
 
         $timestamp = now()->format('Ymd_His');
+        $revisedAt = $revisedAt->format('d M Y H:i:s');
 
         $newFileName = "{$this->prereleaseSoTransaction->id}_{$timestamp}.pdf";
 
+
+        $note = "Created At: {$revisedAt}";
+
         try {
-            $mergedFilePath = $this->pdfService->mergePdf(
+            $mergedFilePath = $this->pdfService->mergePdfWithNote(
                 $data->files, 
                 $newFileName,
+                10, 
+                10, 
+                $note, 
                 "prerelease-so-pdfs"
             );
         } catch (Exception $execption) {
@@ -55,7 +64,7 @@ class ReviseNeededState implements PrereleaseSoTransactionState
         }
 
         $this->prereleaseSoTransaction->filepath = $mergedFilePath;
-
+        $this->prereleaseSoTransaction->updated_at = $revisedAt;
         $this->prereleaseSoTransaction->save();
 
         $this->prereleaseSoTransactionStepService->createStep($this->prereleaseSoTransaction, ActionPrereleaseSoTransactionStep::UPLOAD_REVISED);

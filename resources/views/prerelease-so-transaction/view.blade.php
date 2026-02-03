@@ -34,7 +34,7 @@
                 </div>
             </div>
         </div>
-        <table id="drawingTransactions" class="ui celled table">
+        <table id="prereleaseSoTransactions" class="ui celled table">
             <thead>
                 <tr>
                     <th>Customer Name</th>
@@ -70,14 +70,14 @@
 @push('scripts')
     <script src="{{ asset('js/custom.js') }}"></script>
     <script>
-        var drawingTransactionTable = undefined
+        var prereleaseSoTransactionTable = undefined
         $(document).ready(function() {
-            drawingTransactionTable = $('#drawingTransactions').DataTable({
+            prereleaseSoTransactionTable = $('#prereleaseSoTransactions').DataTable({
                 processing: true,
                 serverSide: true,
                 order: [[4, 'desc']],
                 ajax: {
-                    url: "{{ route('drawingTransactionData') }}",
+                    url: "{{ route('prereleaseSoTransactionData') }}",
                     data: function(d) {
                         d.revision = $('#checkboxRevisionData').checkbox('is checked') ? '1' : '';
                         d.additional = $('#checkboxAdditionalData').checkbox('is checked') ? '1' : '';
@@ -147,7 +147,7 @@
         $('#statusFilterDt').dropdown({
             on: 'click',
             onChange: function(value) {
-                drawingTransactionTable
+                prereleaseSoTransactionTable
                 .column('status:name')
                 .search(value)
                 .draw();
@@ -156,7 +156,7 @@
 
         $('#checkboxRevisionData, #checkboxAdditionalData, #checkboxDoneRevised').checkbox({
             onChange: function() {
-                drawingTransactionTable.draw(); // triggers ajax.data and sends checkbox values
+                prereleaseSoTransactionTable.draw(); // triggers ajax.data and sends checkbox values
             }
         });
 

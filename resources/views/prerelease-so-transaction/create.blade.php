@@ -250,6 +250,7 @@
 
         $(document).ready(function() {
             $('#customersDropdown').dropdown();
+            $('#areasDropdown').dropdown();
         });
     </script>
 @endsection

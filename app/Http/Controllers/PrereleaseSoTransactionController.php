@@ -36,7 +36,11 @@ class PrereleaseSoTransactionController extends Controller
             return redirect()->back()->withErrors(['files' => 'file(s) version not supported']);
 
         dispatch(function () use ($prereleaseSoTransaction) {
-            app(EmailService::class)->sendRequestApproval1DrawingTransaction($prereleaseSoTransaction->id, $prereleaseSoTransaction->so_number);
+            app(EmailService::class)->sendRequestPrereleaseSoApprovalSalesArea(
+                $prereleaseSoTransaction->id, 
+                $prereleaseSoTransaction->area_id, 
+                $prereleaseSoTransaction->so_number
+            );
         })->afterResponse();
 
         return redirect()->route('prereleaseSoTransactionView');
@@ -83,9 +87,10 @@ class PrereleaseSoTransactionController extends Controller
 
     public function reviseForm(Request $request) {
         $customers = $this->prereleaseSoTransactionService->getCustomers();
+        $areas = $this->prereleaseSoTransactionService->getAreas();
         $id = $request->id;
         $data = $this->prereleaseSoTransactionService->getDetail($id);
-        return view('prerelease-so-transaction.revise', compact('data', 'customers'));
+        return view('prerelease-so-transaction.revise', compact('data', 'customers', 'areas'));
     }
 
     public function revise(ReviseRequest $request) {

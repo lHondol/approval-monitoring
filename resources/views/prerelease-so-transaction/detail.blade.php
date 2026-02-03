@@ -100,7 +100,7 @@
             if (stepsTabLoaded) return;
             $("#stepsLoader").addClass("active");
 
-            $.get("{{ route('drawingTransactionSteps', $data->id) }}", function (html) {
+            $.get("{{ route('prereleaseSoTransactionSteps', $data->id) }}", function (html) {
                 $("#stepsTab").html(html);
                 stepsTabLoaded = true;
             }).always(() => {
