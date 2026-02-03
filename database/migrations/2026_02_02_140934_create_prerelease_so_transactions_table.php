@@ -24,7 +24,7 @@ return new class extends Migration
             $table->string('so_number');
             $table->string('po_number');
             $table->string('status');
-            $table->timestamp('finalize_at')->nullable();
+            $table->timestamp('finalized_at')->nullable();
             $table->text('description')->nullable();
             $table->boolean('done_revised')->nullable();
             $table->boolean('as_additional_data')->nullable();

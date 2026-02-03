@@ -5,6 +5,7 @@ use App\Http\Controllers\Auth\AuthController;
 use App\Http\Controllers\CustomerController;
 use App\Http\Controllers\DrawingTransactionController;
 use App\Http\Controllers\PasswordController;
+use App\Http\Controllers\PrereleaseSoTransactionController;
 use App\Http\Controllers\ReportingController;
 use App\Http\Controllers\RoleController;
 use App\Http\Controllers\UserController;
@@ -79,6 +80,57 @@ Route::middleware('auth')
     Route::middleware('permission:first_approve_drawing_transaction|second_approve_drawing_transaction|bom_approve_distributed_drawing_transaction|costing_approve_distributed_drawing_transaction')
         ->post('/drawing-transactions/approval/{id}', 'approval')
         ->name('drawingTransactionApproval');
+
+});
+
+// PRERELEASE SO TRANSACTION
+Route::middleware('auth')
+->controller(PrereleaseSoTransactionController::class)
+->group(function () {
+
+    // View
+    Route::middleware('permission:view_prerelease_so_transaction')
+        ->get('/prerelease-so-transactions', 'view')
+        ->name('prereleaseSoTransactionView');
+
+    Route::middleware('permission:view_prerelease_so_transaction')
+        ->get('/prerelease-so-transactions/data', 'getData')
+        ->name('prereleaseSoTransactionData');
+
+    Route::middleware('permission:view_prerelease_so_transaction')
+        ->get('/prerelease-so-transactions/detail/{id}', 'getDetail')
+        ->name('prereleaseSoTransactionDetail');
+
+    Route::middleware('permission:view_prerelease_so_transaction')
+        ->get('/prerelease-so-transactions/detail/steps/{prerelease_so_transaction_id}', 'getSteps')
+        ->name('prereleaseSoTransactionSteps');
+
+    // Create
+    Route::middleware('permission:create_prerelease_so_transaction')
+        ->get('/prerelease-so-transactions/create', 'createForm')
+        ->name('prereleaseSoTransactionCreateForm');
+
+    Route::middleware('permission:create_prerelease_so_transaction')
+        ->post('/prerelease-so-transactions/create', 'create')
+        ->name('prereleaseSoTransactionCreate');
+
+    // Revise
+    Route::middleware('permission:revise_prerelease_so_transaction')
+        ->get('/prerelease-so-transactions/revise/{id}', 'reviseForm')
+        ->name('prereleaseSoTransactionReviseForm');
+
+    Route::middleware('permission:revise_prerelease_so_transaction')
+        ->post('/prerelease-so-transactions/revise/{id}', 'revise')
+        ->name('prereleaseSoTransactionRevise');
+
+    // Approval (first & second)
+    Route::middleware('permission:sales_area_approve_prerelease_so_transaction|rnd_drawing_approve_prerelease_so_transaction|rnd_bom_approve_prerelease_so_transaction|accounting_approve_prerelease_so_transaction|it_approve_prerelease_so_transaction')
+        ->get('/prerelease-so-transactions/approval/{id}', 'approvalForm')
+        ->name('prereleaseSoTransactionApprovalForm');
+
+    Route::middleware('permission:sales_area_approve_prerelease_so_transaction|rnd_drawing_approve_prerelease_so_transaction|rnd_bom_approve_prerelease_so_transaction|accounting_approve_prerelease_so_transaction|it_approve_prerelease_so_transaction')
+        ->post('/prerelease-so-transactions/approval/{id}', 'approval')
+        ->name('prereleaseSoTransactionApproval');
 
 });
 

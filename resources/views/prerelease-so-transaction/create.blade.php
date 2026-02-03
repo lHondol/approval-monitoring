@@ -31,10 +31,10 @@
             opacity: 1;
         }
     </style>
-    @include('shared.appbar', ['backRoute' => 'drawingTransactionView', 'title' => 'Create New Drawing Transaction'])
+    @include('shared.appbar', ['backRoute' => 'prereleaseSoTransactionView', 'title' => 'Create New Prerelease So Transaction'])
     <div class="flex justify-center">
         <div class="ui card !w-[800px] !p-8">
-            <form class="ui form" method="post" action="{{ route('drawingTransactionCreate') }}" enctype="multipart/form-data">
+            <form class="ui form" method="post" action="{{ route('prereleaseSoTransactionCreate') }}" enctype="multipart/form-data">
                 @csrf
 
                 @if ($errors->any())
@@ -60,6 +60,23 @@
                             @endforeach
                         </div>
                     </div>
+                </div>
+                <div class="field flex-1">
+                     <label class="!text-base">Area</label>
+                    <div id="areasDropdown" class="ui clearable selection dropdown">
+                        <input type="hidden" name="area">
+                        <i class="dropdown icon"></i>
+                        <div class="default text">Select Area</div>
+                        <div class="menu">
+                            @foreach ($areas as $area)
+                                <div class="item" data-value="{{ $area->id }}">{{ $area->name }}</div>
+                            @endforeach
+                        </div>
+                    </div>
+                </div>
+                <div class="field flex-1">
+                    <label class="!text-base"">Sales Order Number (SO)</label>
+                    <input type="text" name="so_number" placeholder="Sales Order Number">
                 </div>
                 <div class="field flex-1">
                     <label class="!text-base"">Purchase Order Number (PO)</label>
@@ -233,6 +250,7 @@
 
         $(document).ready(function() {
             $('#customersDropdown').dropdown();
+            $('#areasDropdown').dropdown();
         });
     </script>
 @endsection

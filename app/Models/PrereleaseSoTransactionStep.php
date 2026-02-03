@@ -9,4 +9,23 @@ class PrereleaseSoTransactionStep extends Model
 {
     use HasUuids;
     protected $primaryKey = 'id';
+
+    protected $casts = [
+        'created_at'     => 'datetime',
+        'updated_at'     => 'datetime',
+        'done_at'        => 'datetime'
+    ];
+
+
+    public function transaction() {
+        return $this->belongsTo(PrereleaseSoTransaction::class);
+    }
+
+    public function rejected_file() {
+        return $this->hasOne(PrereleaseSoTransactionRejectedFile::class);
+    }
+
+    public function user() {
+        return $this->hasOne(User::class, 'id', 'done_by_user');
+    }
 }

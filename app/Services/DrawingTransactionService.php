@@ -296,7 +296,7 @@ class DrawingTransactionService
 
         $newFileName = "{$drawingTransactionId}_{$timestamp}.pdf";
 
-        return $this->pdfService->mergeDrawingPdf($files, $newFileName);
+        return $this->pdfService->mergePdf($files, $newFileName);
     }
 
     public function mergePdfWithNote($files, $drawingTransactionId, $note) {
@@ -304,7 +304,7 @@ class DrawingTransactionService
 
         $newFileName = "{$drawingTransactionId}_{$timestamp}.pdf";
 
-        return $this->pdfService->mergeDrawingPdfWithNote($files, $newFileName, 255, 58, $note);
+        return $this->pdfService->mergePdfWithNote($files, $newFileName, 255, 58, $note);
     }
 
     public function getCustomers() {

@@ -53,7 +53,7 @@
                     <div id="customersDropdown" class="ui clearable selection dropdown">
                         <input type="hidden" name="customer" value="{{ $data->customer->id }}">
                         <i class="dropdown icon"></i>
-                        <div class="default text">Select Role</div>
+                        <div class="default text">Select Customer</div>
                         <div class="menu">
                             @foreach ($customers as $customer)
                                 <div class="item" data-value="{{ $customer->id }}">{{ $customer->name }}</div>

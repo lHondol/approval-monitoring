@@ -43,7 +43,7 @@ class ReviseNeededState implements DrawingTransactionState
         $newFileName = "{$this->drawingTransaction->id}_{$timestamp}.pdf";
 
         try {
-            $mergedFilePath = $this->pdfService->mergeDrawingPdf(
+            $mergedFilePath = $this->pdfService->mergePdf(
                 $data->files, 
                 $newFileName
             );

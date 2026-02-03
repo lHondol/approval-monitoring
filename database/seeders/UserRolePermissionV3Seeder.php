@@ -31,10 +31,6 @@ class UserRolePermissionV3Seeder extends Seeder
             ['name' => 'revise_prerelease_so_transaction', 'guard_name' => 'web'],
             ['ui_name' => 'Can Revise Prerelease SO Transaction']
         );
-        $canMktStaffApprovePrereleaseSo = Permission::updateOrCreate(
-            ['name' => 'mkt_staff_approve_prerelease_so_transaction', 'guard_name' => 'web'],
-            ['ui_name' => 'Can MKT Staff Approve Prerelease SO Transaction']
-        );
         $canSalesAreaApprovePrereleaseSo = Permission::updateOrCreate(
             ['name' => 'sales_area_approve_prerelease_so_transaction', 'guard_name' => 'web'],
             ['ui_name' => 'Can Sales Area Approve Prerelease SO Transaction']
@@ -50,6 +46,10 @@ class UserRolePermissionV3Seeder extends Seeder
         $canAccountingApprovePrereleaseSo = Permission::updateOrCreate(
             ['name' => 'accounting_approve_prerelease_so_transaction', 'guard_name' => 'web'],
             ['ui_name' => 'Can Accounting Approve Prerelease SO Transaction']
+        );
+        $canITApprovePrereleaseSo = Permission::updateOrCreate(
+            ['name' => 'it_approve_prerelease_so_transaction', 'guard_name' => 'web'],
+            ['ui_name' => 'Can IT Approve Prerelease SO Transaction']
         );
         $canRejectPrereleaseSo = Permission::updateOrCreate(
             ['name' => 'reject_prerelease_so_transaction', 'guard_name' => 'web'],
