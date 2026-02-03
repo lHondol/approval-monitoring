@@ -19,7 +19,10 @@
                 @endif
 
                 @php
-                    $topics = [["token" => "drawing_transaction","name" => "Drawing Transaction"]]
+                    $topics = [
+                        ["token" => "drawing_transaction","name" => "Drawing Transaction"],
+                        ["token" => "prerelease_so_transaction","name" => "Prerelease So Transaction"]
+                    ]
                 @endphp
                 <div class="field flex-1">
                      <label class="!text-base">Topic</label>

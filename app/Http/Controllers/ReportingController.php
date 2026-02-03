@@ -25,6 +25,6 @@ class ReportingController extends Controller
 
         $exportData = $this->exportService->export($topic, $fromDate, $toDate);
         $timestamp = Carbon::now()->timestamp;
-        return Excel::download($exportData, "drawing-transaction-{$timestamp}.xlsx"); 
+        return Excel::download($exportData, "{$topic}-{$timestamp}.xlsx"); 
     }
 }
