@@ -32,7 +32,7 @@ class FinalizedMail extends Mailable
     public function envelope(): Envelope
     {
         return new Envelope(
-            subject: 'Notice finalisasi Dokumen',
+            subject: 'Notice Finalisasi Dokumen',
         );
     }
 
