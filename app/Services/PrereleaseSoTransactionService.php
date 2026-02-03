@@ -4,6 +4,7 @@ namespace App\Services;
 
 use App\Enums\ActionPrereleaseSoTransactionStep;
 use App\Enums\StatusPrereleaseSoTransaction;
+use App\Models\Area;
 use App\Models\Customer;
 use App\Models\PrereleaseSoTransaction;
 use App\Models\PrereleaseSoTransactionStep;
@@ -43,9 +44,9 @@ class PrereleaseSoTransactionService
         return match ($status) {
             StatusPrereleaseSoTransaction::WAITING_SALES_AREA_APPROVAL->value => "teal",
             StatusPrereleaseSoTransaction::WAITING_RND_DRAWING_APPROVAL->value => "orange",
-            StatusPrereleaseSoTransaction::WAITING_RND_BOM_APPROVAL->value => "blue",
+            StatusPrereleaseSoTransaction::WAITING_RND_BOM_APPROVAL->value => "cyan",
+            StatusPrereleaseSoTransaction::WAITING_ACCOUNTING_APPROVAL->value => "blue",
             StatusPrereleaseSoTransaction::WAITING_ACCOUNTING_APPROVAL->value => "purple",
-            StatusPrereleaseSoTransaction::WAITING_MKT_STAFF_APPROVAL->value => "cyan",
             StatusPrereleaseSoTransaction::FINALIZED->value => "green",
             StatusPrereleaseSoTransaction::REVISE_NEEDED->value => "yellow",
         };
@@ -73,10 +74,17 @@ class PrereleaseSoTransactionService
         ->addColumn('customer_name', function($row) {
             return $row->customer?->name ?? '';
         })
+        ->addColumn('area', function($row) {
+            return $row->area?->name ?? '';
+        })
         ->orderColumn('customer_name', function($query, $order) {
             $query->leftJoin('customers', 'customers.id', '=', 'prerelease_so_transactions.customer_id')
                   ->orderBy('customers.name', $order);
-        })    
+        })
+        ->orderColumn('area', function($query, $order) {
+            $query->leftJoin('areas', 'areas.id', '=', 'prerelease_so_transactions.area_id')
+                  ->orderBy('areas.name', $order);
+        })       
         ->addColumn('actions', function($row) {
             return $this->renderActionButtons($row);
         })
@@ -105,12 +113,14 @@ class PrereleaseSoTransactionService
         ->filter(function($query) {
             if ($search = request('search.value')) {
                 $query->leftJoin('customers', 'customers.id', '=', 'prerelease_so_transactions.customer_id');
+                $query->leftJoin('areas', 'areas.id', '=', 'prerelease_so_transactions.area_id');
         
                 $query->where(function ($q) use ($search) {
                     $q->where('prerelease_so_transactions.so_number', 'LIKE', "%{$search}%")
                       ->orWhere('prerelease_so_transactions.po_number', 'LIKE', "%{$search}%")
                       ->orWhere('prerelease_so_transactions.description', 'LIKE', "%{$search}%")
                       ->orWhere('customers.name', 'LIKE', "%{$search}%")
+                      ->orWhere('areas.name', 'LIKE', "%{$search}%")
                       ->orWhereRaw(
                           "DATE_FORMAT(prerelease_so_transactions.created_at, '%d %b %Y %H:%i:%s') LIKE ?",
                           ["%{$search}%"]
@@ -162,7 +172,7 @@ class PrereleaseSoTransactionService
                 return Carbon::parse($row->finalized_at)->format('d M Y H:i:s');
             return '';
         })
-        ->rawColumns(['customer_name', 'status', 'actions'])
+        ->rawColumns(['customer_name', 'area', 'status', 'actions'])
         ->make(true);
     }
 
@@ -173,7 +183,7 @@ class PrereleaseSoTransactionService
     }
 
     public function getDetail($id) {
-        $prereleaseSoTransaction = PrereleaseSoTransaction::with('customer')->where('id', $id)->first();
+        $prereleaseSoTransaction = PrereleaseSoTransaction::with(['customer', 'area'])->where('id', $id)->first();
         return $prereleaseSoTransaction;
     }
 
@@ -236,7 +246,7 @@ class PrereleaseSoTransactionService
 
         $newFileName = "{$prereleaseSoTransactionId}_{$timestamp}.pdf";
 
-        return $this->pdfService->mergePdf($files, $newFileName);
+        return $this->pdfService->mergePdf($files, $newFileName, "prerelease-so-pdfs");
     }
 
     public function mergePdfWithNote($files, $prereleaseSoTransactionId, $note) {
@@ -244,11 +254,15 @@ class PrereleaseSoTransactionService
 
         $newFileName = "{$prereleaseSoTransactionId}_{$timestamp}.pdf";
 
-        return $this->pdfService->mergePdfWithNote($files, $newFileName, 255, 58, $note);
+        return $this->pdfService->mergePdfWithNote($files, $newFileName, 255, 58, $note, "prerelease-so-pdfs");
     }
 
     public function getCustomers() {
         return Customer::select(['id', 'name'])->get();   
+    }
+
+    public function getAreas() {
+        return Area::select(['id', 'name'])->get();   
     }
 
     public function approve($data) {

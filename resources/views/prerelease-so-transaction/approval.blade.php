@@ -1,10 +1,10 @@
 @extends('master.layout')
 
 @section('content')
-    @include('shared.appbar', ['backRoute' => 'drawingTransactionView', 'title' => 'Approval Drawing Transaction'])
+    @include('shared.appbar', ['backRoute' => 'prereleaseSoTransactionView', 'title' => 'Approval Prerelease So Transaction'])
     <div class="flex justify-center">
         <div class="ui card !w-[800px] !p-8">
-            <form class="ui form" method="post" action="{{ route('drawingTransactionApproval', $data->id) }}" enctype="multipart/form-data">
+            <form class="ui form" method="post" action="{{ route('prereleaseSoTransactionApproval', $data->id) }}" enctype="multipart/form-data">
                 @csrf
 
                 <input type="hidden" name="active_tab" id="active_tab_global">
@@ -19,31 +19,22 @@
                     </div>
                 @endif
                 
-
-                @php
-                    use App\Enums\StatusDrawingTransaction;
-                @endphp
-                @if ($data->status === StatusDrawingTransaction::WAITING_2ND_APPROVAL->value && !$data->so_number)
-                    <div class="field flex-1">
-                        <label class="!text-base"">Sales Order Number (SO)</label>
-                        <input type="text" name="so_number" placeholder="Sales Order Number"">
-                    </div>
-                @endif
                 <div class="field">
                     <label class="!text-base"">Reason (Must be fill if reject)</label>
                     <textarea style="resize: none;" name="reason" placeholder="Reason"></textarea>
                 </div>
                 <div>
                     @if (auth()->user()->hasAnyPermission([
-                        'first_approve_drawing_transaction',
-                        'second_approve_drawing_transaction',
-                        'bom_approve_distributed_drawing_transaction',
-                        'costing_approve_distributed_drawing_transaction'
+                        'sales_area_approve_prerelease_so_transaction',
+                        'rnd_drawing_approve_prerelease_so_transaction',
+                        'rnd_bom_approve_prerelease_so_transaction',
+                        'accounting_approve_prerelease_so_transaction',
+                        'it_approve_prerelease_so_transaction',
                     ]))
                         <button class="ui button customButton" type="submit" name="action" value="approve">Approve</button>
                     @endif
 
-                    @if (auth()->user()->hasPermissionTo('reject_drawing_transaction'))
+                    @if (auth()->user()->hasPermissionTo('reject_prerelease_so_transaction'))
                         <button class="ui button customButton" style="--btn-color: #e74c3c;" type="submit" name="action" value="reject">Reject</button>
                     @endif
                 </div>

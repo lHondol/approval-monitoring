@@ -9,4 +9,8 @@ class PrereleaseSoTransactionRejectedFile extends Model
 {
     use HasUuids;
     protected $primaryKey = 'id';
+
+    public function step() {
+        return $this->belongsTo(PrereleaseSoTransactionStep::class);
+    }
 }

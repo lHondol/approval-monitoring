@@ -124,11 +124,11 @@ Route::middleware('auth')
         ->name('prereleaseSoTransactionRevise');
 
     // Approval (first & second)
-    Route::middleware('permission:|mkt_staff_approve_prerelease_so_transaction|sales_area_approve_prerelease_so_transaction|rnd_drawing_approve_prerelease_so_transaction|rnd_bom_approve_prerelease_so_transaction|accounting_approve_prerelease_so_transaction')
+    Route::middleware('permission:sales_area_approve_prerelease_so_transaction|rnd_drawing_approve_prerelease_so_transaction|rnd_bom_approve_prerelease_so_transaction|accounting_approve_prerelease_so_transaction|it_approve_prerelease_so_transaction')
         ->get('/prerelease-so-transactions/approval/{id}', 'approvalForm')
         ->name('prereleaseSoTransactionApprovalForm');
 
-    Route::middleware('permission:|mkt_staff_approve_prerelease_so_transaction|sales_area_approve_prerelease_so_transaction|rnd_drawing_approve_prerelease_so_transaction|rnd_bom_approve_prerelease_so_transaction|accounting_approve_prerelease_so_transaction')
+    Route::middleware('permission:sales_area_approve_prerelease_so_transaction|rnd_drawing_approve_prerelease_so_transaction|rnd_bom_approve_prerelease_so_transaction|accounting_approve_prerelease_so_transaction|it_approve_prerelease_so_transaction')
         ->post('/prerelease-so-transactions/approval/{id}', 'approval')
         ->name('prereleaseSoTransactionApproval');
 

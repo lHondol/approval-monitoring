@@ -31,10 +31,10 @@
             opacity: 1;
         }
     </style>
-    @include('shared.appbar', ['backRoute' => 'drawingTransactionView', 'title' => 'Revise Drawing Transaction'])
+    @include('shared.appbar', ['backRoute' => 'prereleaseSoTransactionView', 'title' => 'Revise Prerelease So Transaction'])
     <div class="flex justify-center">
         <div class="ui card !w-[800px] !p-8">
-            <form class="ui form" method="post" action="{{ route('drawingTransactionRevise', $data->id) }}" enctype="multipart/form-data">
+            <form class="ui form" method="post" action="{{ route('prereleaseSoTransactionRevise', $data->id) }}" enctype="multipart/form-data">
                 @csrf
 
                 @if ($errors->any())
@@ -53,13 +53,30 @@
                     <div id="customersDropdown" class="ui clearable selection dropdown">
                         <input type="hidden" name="customer" value="{{ $data->customer->id }}">
                         <i class="dropdown icon"></i>
-                        <div class="default text">Select Role</div>
+                        <div class="default text">Select Customer</div>
                         <div class="menu">
                             @foreach ($customers as $customer)
                                 <div class="item" data-value="{{ $customer->id }}">{{ $customer->name }}</div>
                             @endforeach
                         </div>
                     </div>
+                </div>
+                <div class="field flex-1">
+                     <label class="!text-base">Area</label>
+                    <div id="areasDropdown" class="ui clearable selection dropdown">
+                        <input type="hidden" name="area" value="{{ $data->area->id }}">
+                        <i class="dropdown icon"></i>
+                        <div class="default text">Select Area</div>
+                        <div class="menu">
+                            @foreach ($areas as $area)
+                                <div class="item" data-value="{{ $area->id }}">{{ $area->name }}</div>
+                            @endforeach
+                        </div>
+                    </div>
+                </div>
+                <div class="field flex-1">
+                    <label class="!text-base"">Sales Order Number (PO)</label>
+                    <input type="text" name="so_number" placeholder="Sales Order Number" value="{{ $data->so_number }}">
                 </div>
                 <div class="field flex-1">
                     <label class="!text-base"">Purchase Order Number (PO)</label>

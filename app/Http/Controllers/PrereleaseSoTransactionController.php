@@ -23,7 +23,8 @@ class PrereleaseSoTransactionController extends Controller
 
     public function createForm() {
         $customers = $this->prereleaseSoTransactionService->getCustomers();
-        return view('prerelease-so-transaction.create', compact('customers'));
+        $areas = $this->prereleaseSoTransactionService->getAreas();
+        return view('prerelease-so-transaction.create', compact('customers', 'areas'));
     }
 
     public function create(CreateRequest $request) {

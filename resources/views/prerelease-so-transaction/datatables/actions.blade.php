@@ -8,38 +8,46 @@
             $user = auth()->user();
             $status = $data->status;
 
-            $canFirstApprove =
-                $user->hasPermissionTo('first_approve_drawing_transaction') &&
-                $status === StatusDrawingTransaction::WAITING_1ST_APPROVAL->value;
+            $canSalesAreaApprove =
+                $user->hasPermissionTo('sales_area_approve_prerelease_so_transaction') &&
+                $status === StatusPrereleaseSoTransaction::WAITING_SALES_AREA_APPROVAL->value;
 
-            $canSecondApprove =
-                $user->hasPermissionTo('second_approve_drawing_transaction') &&
-                $status === StatusDrawingTransaction::WAITING_2ND_APPROVAL->value;
-            $canBomApprove = 
-                $user->hasPermissionTo(permission: 'bom_approve_distributed_drawing_transaction') &&
-                $status === StatusDrawingTransaction::DISTRIBUTED_WAITING_BOM_APPROVAL->value;
-            $canCostingApprove = 
-                $user->hasPermissionTo(permission: 'costing_approve_distributed_drawing_transaction') &&
-                $status === StatusDrawingTransaction::DISTRIBUTED_WAITING_COSTING_APPROVAL->value;
+            $canRndDrawingApprove =
+                $user->hasPermissionTo('rnd_drawing_approve_prerelease_so_transaction') &&
+                $status === StatusPrereleaseSoTransaction::WAITING_RND_DRAWING_APPROVAL->value;
+
+            $canRndBomApprove =
+                $user->hasPermissionTo('rnd_bom_approve_prerelease_so_transaction') &&
+                $status === StatusPrereleaseSoTransaction::WAITING_RND_BOM_APPROVAL->value;
+
+            $canAccountingApprove =
+                $user->hasPermissionTo('accounting_approve_prerelease_so_transaction') &&
+                $status === StatusPrereleaseSoTransaction::WAITING_ACCOUNTING_APPROVAL->value;
+
+            $canItApprove =
+                $user->hasPermissionTo('it_approve_prerelease_so_transaction') &&
+                $status === StatusPrereleaseSoTransaction::WAITING_IT_APPROVAL->value;
+
             $canReject =
-                ($user->hasPermissionTo('reject_drawing_transaction') && $canFirstApprove) ||
-                ($user->hasPermissionTo('reject_drawing_transaction') && $canSecondApprove) || 
-                ($user->hasPermissionTo('reject_drawing_transaction') && $canBomApprove) || 
-                ($user->hasPermissionTo('reject_drawing_transaction') && $canCostingApprove);
+                ($user->hasPermissionTo('reject_prerelease_so_transaction') && $canSalesAreaApprove) ||
+                ($user->hasPermissionTo('reject_prerelease_so_transaction') && $canRndDrawingApprove) ||
+                ($user->hasPermissionTo('reject_prerelease_so_transaction') && $canRndBomApprove) ||
+                ($user->hasPermissionTo('reject_prerelease_so_transaction') && $canAccountingApprove) ||
+                ($user->hasPermissionTo('reject_prerelease_so_transaction') && $canItApprove);
         @endphp
 
-        @if (auth()->user()->hasAnyPermission(['view_drawing_transaction', 'view_distributed_drawing_transaction']))
-            <a href="{{ route('drawingTransactionDetail', $data->id) }}" class="item">Detail</a>
+        @if (auth()->user()->hasAnyPermission(['view_prerelease_so_transaction']))
+            <a href="{{ route('prereleaseSoTransactionDetail', $data->id) }}" class="item">Detail</a>
         @endif
 
         @if ($canFirstApprove || $canSecondApprove || $canBomApprove || $canCostingApprove || $canReject)
-            <a href="{{ route('drawingTransactionApprovalForm', $data->id) }}" class="item">Approval</a>
+            <a href="{{ route('prereleaseSoTransactionApprovalForm', $data->id) }}" class="item">Approval</a>
         @endif
         
-        @if (auth()->user()->hasPermissionTo('revise_drawing_transaction') &&
+        @if (auth()->user()->hasPermissionTo('revise_prerelease_so_transaction') &&
             $data->status === StatusDrawingTransaction::REVISE_NEEDED->value
         )
-            <a href="{{ route('drawingTransactionReviseForm', $data->id) }}" class="item">Revise</a>
+            <a href="{{ route('prereleaseSoTransactionReviseForm', $data->id) }}" class="item">Revise</a>
         @endif
     </div>
 </div>

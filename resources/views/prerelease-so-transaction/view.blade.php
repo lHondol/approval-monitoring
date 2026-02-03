@@ -11,9 +11,12 @@
                 <div class="default text">Filter Status</div>
                 <div class="menu">
                     <div class="item" data-value="Waiting">Waiting For Approval</div>
-                    <div class="item" data-value="Waiting For 1st Approval">Waiting For Approval 1</div>
-                    <div class="item" data-value="Waiting For 2nd Approval">Waiting For Approval 2</div>
-                    <div class="item" data-value="Distributed">Distributed</div>
+                    <div class="item" data-value="Waiting For Sales Area Approval">Waiting For Approval Sales Area</div>
+                    <div class="item" data-value="Waiting For RnD Drawing Approval">Waiting For Approval RnD Drawing</div>
+                    <div class="item" data-value="Waiting For RnD BOM Approval">Waiting For Approval RnD BOM</div>
+                    <div class="item" data-value="Waiting For Accounting Approval">Waiting For Approval Accounting</div>
+                    <div class="item" data-value="Waiting For IT Approval">Waiting For Approval IT</div>
+                    <div class="item" data-value="Finalized">Finalized</div>
                 </div>
             </div>
             <div class="flex gap-3" id="additionalRevisedFilter">
@@ -35,11 +38,12 @@
             <thead>
                 <tr>
                     <th>Customer Name</th>
+                    <th>Area</th>
                     <th>SO Number</th>
                     <th>PO Number</th>
                     <th>Description</th>
                     <th>Created At</th>
-                    <th>Distributed At</th>
+                    <th>Finalized At</th>
                     <th>Status</th>
                     <th>Actions</th>
                 </tr>
@@ -49,11 +53,12 @@
             <tfoot>
                 <tr>
                     <th class="!font-bold">Customer Name</th>
+                    <th class="!font-bold">Area</th>
                     <th class="!font-bold">SO Number</th>
                     <th class="!font-bold">PO Number</th>
                     <th class="!font-bold">Description</th>
                     <th class="!font-bold">Created At</th>
-                    <th class="!font-bold">Distributed At</th>
+                    <th class="!font-bold">Finalized At</th>
                     <th class="!font-bold">Status</th>
                     <th class="!font-bold">Actions</th>
                 </tr>
@@ -81,11 +86,12 @@
                 },  
                 columns: [
                     { data: 'customer_name', name: 'customer_name', width: 150, orderable: true },
+                    { data: 'area', name: 'area', width: 150, orderable: true },
                     { data: 'so_number', name: 'so_number', width: 150 },
                     { data: 'po_number', name: 'po_number', width: 150 },
                     { data: 'description', name: 'description', width: 200 },
                     { data: 'created_at', name: 'created_at', width: 130 },
-                    { data: 'distributed_at', name: 'distributed_at', width: 130 },
+                    { data: 'finalized_at', name: 'finalized_at', width: 130 },
                     { data: 'status', name: 'status', width: 200 },
                     { data: 'as_revision_data', name: 'as_revision_data', visible: false },
                     { data: 'as_additional_data', name: 'as_additional_data', visible: false },
@@ -117,12 +123,12 @@
                     topEnd: {
                         search: 'applied',
                         buttons: [
-                            @if(auth()->user()->hasPermissionTo('create_drawing_transaction'))
+                            @if(auth()->user()->hasPermissionTo('create_prerelease_so_transaction'))
                                 {
                                     text: 'Add Record',
                                     className: 'customButton !ml-3',
                                     action: function () {
-                                        window.location.href = "{{ route('drawingTransactionCreateForm') }}";
+                                        window.location.href = "{{ route('prereleaseSoTransactionCreateForm') }}";
                                     }
                                 },
                             @endif

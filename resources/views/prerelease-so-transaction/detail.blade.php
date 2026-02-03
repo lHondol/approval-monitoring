@@ -57,7 +57,7 @@
         }
     </style>
 
-    @include('shared.appbar', ['backRoute' => 'drawingTransactionView', 'title' => 'Detail Drawing Transaction', 'marginButtom' => '!mb-3'])
+    @include('shared.appbar', ['backRoute' => 'prereleaseSoTransactionView', 'title' => 'Detail Prerelease So Transaction', 'marginButtom' => '!mb-3'])
 
     <div class="ui menu tabular flex justify-center !mt-0">
         <div class="item !px-0 !m-0" data-tab="detail">
@@ -76,7 +76,7 @@
     <div class="ui divider"></div>
 
     <div class="ui attached tab segment" data-tab="detail" style="overflow: visible;">
-        @include('drawing-transaction.tabs.detail-tab', ['data' => $data])
+        @include('prerelease-so-transaction.tabs.detail-tab', ['data' => $data])
     </div>
 
     <div class="ui attached tab segment" data-tab="steps" id="stepsTab" style="overflow: visible;">

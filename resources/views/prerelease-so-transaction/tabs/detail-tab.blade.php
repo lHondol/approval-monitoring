@@ -1,17 +1,16 @@
 @php
-    use App\Enums\StatusDrawingTransaction;
+    use App\Enums\StatusPrereleaseSoTransaction;
     use Carbon\Carbon;
 
     $renderStatusColor = function ($status) {
         return match ($status) {
-            StatusDrawingTransaction::WAITING_1ST_APPROVAL->value => "teal",
-            StatusDrawingTransaction::WAITING_2ND_APPROVAL->value => "teal",
-            StatusDrawingTransaction::REVISE_NEEDED->value => "amber",
-            StatusDrawingTransaction::DISTRIBUTED_WAITING_BOM_APPROVAL->value => "blue",
-            StatusDrawingTransaction::DISTRIBUTED_WAITING_COSTING_APPROVAL->value => "blue",
-            StatusDrawingTransaction::DISTRIBUTED_BOM_REJECTED->value => "red",
-            StatusDrawingTransaction::DISTRIBUTED_COSTING_REJECTED->value => "red",
-            StatusDrawingTransaction::DISTRIBUTED_COSTING_DONE->value => "green",
+            StatusPrereleaseSoTransaction::WAITING_SALES_AREA_APPROVAL->value => "teal",
+            StatusPrereleaseSoTransaction::WAITING_RND_DRAWING_APPROVAL->value => "orange",
+            StatusPrereleaseSoTransaction::WAITING_RND_BOM_APPROVAL->value => "cyan",
+            StatusPrereleaseSoTransaction::WAITING_ACCOUNTING_APPROVAL->value => "blue",
+            StatusPrereleaseSoTransaction::WAITING_ACCOUNTING_APPROVAL->value => "purple",
+            StatusPrereleaseSoTransaction::FINALIZED->value => "green",
+            StatusPrereleaseSoTransaction::REVISE_NEEDED->value => "yellow",
         };
     };
 @endphp
@@ -45,6 +44,15 @@
             <div class="ui input w-full !cursor-default opacity-70">
                 <div class="w-full px-5 py-2 rounded bg-gray-100 !text-black">
                     {{ $data->customer->name }}
+                </div>
+            </div>
+        </div>
+
+        <div class="mb-4">
+            <div class="font-bold mb-1">Area</div>
+            <div class="ui input w-full !cursor-default opacity-70">
+                <div class="w-full px-5 py-2 rounded bg-gray-100 !text-black">
+                    {{ $data->area->name }}
                 </div>
             </div>
         </div>
@@ -89,7 +97,7 @@
             </div>
         @endif
 
-        @if ($data->need_revise_note && $data->status === StatusDrawingTransaction::REVISE_NEEDED->value)
+        @if ($data->need_revise_note && $data->status === StatusPrereleaseSoTransaction::REVISE_NEEDED->value)
             <div class="mb-4">
                 <div class="font-bold mb-1">Need Revise Note</div>
                 <div class="ui input w-full !cursor-default opacity-70">
@@ -119,11 +127,11 @@
         </div>
 
         <div class="mb-4">
-            <div class="font-bold mb-1">Distributed At</div>
+            <div class="font-bold mb-1">Finalized At</div>
             <div class="ui input w-full !cursor-default opacity-70">
                 <div class="w-full px-5 py-2 rounded bg-gray-100 !text-black">
-                    {{ $data->distributed_at
-                        ? Carbon::parse($data->distributed_at)->format('d M Y H:i:s')
+                    {{ $data->finalized_at
+                        ? Carbon::parse($data->finalized_at)->format('d M Y H:i:s')
                         : '-- Not Distribute Yet --'
                     }}
                 </div>

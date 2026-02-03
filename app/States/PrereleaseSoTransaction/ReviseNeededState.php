@@ -47,7 +47,8 @@ class ReviseNeededState implements PrereleaseSoTransactionState
         try {
             $mergedFilePath = $this->pdfService->mergePdf(
                 $data->files, 
-                $newFileName
+                $newFileName,
+                "prerelease-so-pdfs"
             );
         } catch (Exception $execption) {
             return null;
