@@ -46,7 +46,8 @@ class PrereleaseSoTransactionService
             StatusPrereleaseSoTransaction::WAITING_RND_DRAWING_APPROVAL->value => "orange",
             StatusPrereleaseSoTransaction::WAITING_RND_BOM_APPROVAL->value => "pink",
             StatusPrereleaseSoTransaction::WAITING_ACCOUNTING_APPROVAL->value => "blue",
-            StatusPrereleaseSoTransaction::WAITING_IT_APPROVAL->value => "purple",
+            StatusPrereleaseSoTransaction::WAITING_IT_APPROVAL->value => "violet",
+            StatusPrereleaseSoTransaction::WAITING_MKT_STAFF_FINALIZE->value => "purple",
             StatusPrereleaseSoTransaction::FINALIZED->value => "green",
             StatusPrereleaseSoTransaction::REVISE_NEEDED->value => "yellow",
         };
@@ -60,7 +61,8 @@ class PrereleaseSoTransactionService
             'rnd_drawing_approve_prerelease_so_transaction', 
             'rnd_bom_approve_prerelease_so_transaction', 
             'accounting_approve_prerelease_so_transaction', 
-            'it_approve_prerelease_so_transaction', 
+            'it_approve_prerelease_so_transaction',
+            'mkt_staff_finalize_prerelease_so_transaction' 
         ];
 
         $filterByArea = null;
@@ -105,6 +107,12 @@ class PrereleaseSoTransactionService
         ->orderColumn('area', function($query, $order) {
             $query->leftJoin('areas', 'areas.id', '=', 'prerelease_so_transactions.area_id')
                   ->orderBy('areas.name', $order);
+        })
+        ->addColumn('leadtime', function($row) {
+            $days = (string) Carbon::parse($row->created_at)
+            ->startOfDay()
+            ->diffInDays(Carbon::now()->startOfDay());
+            return "$days day(s)"; 
         })       
         ->addColumn('actions', function($row) {
             return $this->renderActionButtons($row);
@@ -137,8 +145,19 @@ class PrereleaseSoTransactionService
                 $query->leftJoin('areas', 'areas.id', '=', 'prerelease_so_transactions.area_id');
         
                 $query->where(function ($q) use ($search) {
-                    $q->where('prerelease_so_transactions.so_number', 'LIKE', "%{$search}%")
-                      ->orWhere('prerelease_so_transactions.po_number', 'LIKE', "%{$search}%")
+                    if (str_contains($search, ';')) {
+                        $soNumbers = collect(explode(';', $search))
+                            ->map(fn ($v) => trim($v))
+                            ->filter()
+                            ->values()
+                            ->toArray();
+
+                        $q->whereIn('prerelease_so_transactions.so_number', $soNumbers);
+                    } else {
+                        $q->where('prerelease_so_transactions.so_number', 'LIKE', "%{$search}%");
+                    }
+
+                    $q->orWhere('prerelease_so_transactions.po_number', 'LIKE', "%{$search}%")
                       ->orWhere('prerelease_so_transactions.description', 'LIKE', "%{$search}%")
                       ->orWhere('customers.name', 'LIKE', "%{$search}%")
                       ->orWhere('areas.name', 'LIKE', "%{$search}%")

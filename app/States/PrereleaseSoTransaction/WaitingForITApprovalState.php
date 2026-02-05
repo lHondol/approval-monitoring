@@ -30,7 +30,7 @@ class WaitingForITApprovalState implements PrereleaseSoTransactionState
     }
 
     public function next(object $data = null) {
-        $this->prereleaseSoTransaction->status = StatusPrereleaseSoTransaction::FINALIZED->value;
+        $this->prereleaseSoTransaction->status = StatusPrereleaseSoTransaction::WAITING_MKT_STAFF_FINALIZE->value;
         $this->prereleaseSoTransaction->finalized_at = Carbon::now();
         $this->prereleaseSoTransaction->save();
 
@@ -44,10 +44,9 @@ class WaitingForITApprovalState implements PrereleaseSoTransactionState
         $soNumber = $this->prereleaseSoTransaction->so_number;
 
         dispatch(function () use ($transactionId, $soNumber) {
-            app(EmailService::class)->sendNoticePrereleaseSoFinalized(
+            app(EmailService::class)->sendRequestPrereleaseSoFinalized(
                 $transactionId, 
-                $soNumber,
-                ['create_prerelease_so_transaction']
+                $soNumber
             );
         })->afterResponse();
 

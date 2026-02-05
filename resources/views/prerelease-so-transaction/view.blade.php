@@ -44,6 +44,7 @@
                     <th>Description</th>
                     <th>Created At</th>
                     <th>Finalized At</th>
+                    <th>Leading Time</th>
                     <th>Status</th>
                     <th>Actions</th>
                 </tr>
@@ -92,6 +93,7 @@
                     { data: 'description', name: 'description', width: 200 },
                     { data: 'created_at', name: 'created_at', width: 130 },
                     { data: 'finalized_at', name: 'finalized_at', width: 130 },
+                    { data: 'leadtime', name: 'leadtime', width: 130 },
                     { data: 'status', name: 'status', width: 200 },
                     { data: 'as_revision_data', name: 'as_revision_data', visible: false },
                     { data: 'as_additional_data', name: 'as_additional_data', visible: false },

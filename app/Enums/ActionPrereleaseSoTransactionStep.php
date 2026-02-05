@@ -10,6 +10,7 @@ enum ActionPrereleaseSoTransactionStep: string
     case APPROVE_RND_BOM = 'Approve - RnD BOM';
     case APPROVE_ACCOUNTING = 'Approve - Accounting';
     case APPROVE_IT = 'Approve - IT';
+    case FINALIZE_MKT_STAFF = 'Finalize - MKT Staff';
     case REJECT = 'Reject';
     case UPLOAD_REVISED = 'Upload (Revised)';
 }

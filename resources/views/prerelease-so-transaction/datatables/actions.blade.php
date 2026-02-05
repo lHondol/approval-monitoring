@@ -28,6 +28,11 @@
                 $user->hasPermissionTo('it_approve_prerelease_so_transaction') &&
                 $status === StatusPrereleaseSoTransaction::WAITING_IT_APPROVAL->value;
 
+            $canMKTStaffFinalize =
+                $user->hasPermissionTo('mkt_staff_finalize_prerelease_so_transaction') &&
+                $status === StatusPrereleaseSoTransaction::WAITING_MKT_STAFF_FINALIZE->value;
+
+
             $canReject =
                 ($user->hasPermissionTo('reject_prerelease_so_transaction') && $canSalesAreaApprove) ||
                 ($user->hasPermissionTo('reject_prerelease_so_transaction') && $canRndDrawingApprove) ||
@@ -40,8 +45,14 @@
             <a href="{{ route('prereleaseSoTransactionDetail', $data->id) }}" class="item">Detail</a>
         @endif
 
-        @if ($canSalesAreaApprove || $canRndDrawingApprove || $canRndBomApprove || $canAccountingApprove || $canItApprove || $canReject)
-            <a href="{{ route('prereleaseSoTransactionApprovalForm', $data->id) }}" class="item">Approval</a>
+        @if ($canSalesAreaApprove || $canRndDrawingApprove || $canRndBomApprove || $canAccountingApprove || $canItApprove || $canMKTStaffFinalize || $canReject)
+            <a href="{{ route('prereleaseSoTransactionApprovalForm', $data->id) }}" class="item">
+                @if ($canMKTStaffFinalize)
+                    Finalize
+                @else
+                    Approval
+                @endif
+            </a>
         @endif
         
         @if (auth()->user()->hasPermissionTo('revise_prerelease_so_transaction') &&

@@ -8,7 +8,8 @@
             StatusPrereleaseSoTransaction::WAITING_RND_DRAWING_APPROVAL->value => "orange",
             StatusPrereleaseSoTransaction::WAITING_RND_BOM_APPROVAL->value => "pink",
             StatusPrereleaseSoTransaction::WAITING_ACCOUNTING_APPROVAL->value => "blue",
-            StatusPrereleaseSoTransaction::WAITING_IT_APPROVAL->value => "purple",
+            StatusPrereleaseSoTransaction::WAITING_IT_APPROVAL->value => "violet",
+            StatusPrereleaseSoTransaction::WAITING_MKT_STAFF_FINALIZE->value => "purple",
             StatusPrereleaseSoTransaction::FINALIZED->value => "green",
             StatusPrereleaseSoTransaction::REVISE_NEEDED->value => "yellow",
         };

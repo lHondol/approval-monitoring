@@ -51,6 +51,10 @@ class UserRolePermissionV3Seeder extends Seeder
             ['name' => 'it_approve_prerelease_so_transaction', 'guard_name' => 'web'],
             ['ui_name' => 'Can IT Approve Prerelease SO Transaction']
         );
+        $canITApprovePrereleaseSo = Permission::updateOrCreate(
+            ['name' => 'mkt_staff_finalize_prerelease_so_transaction', 'guard_name' => 'web'],
+            ['ui_name' => 'Can MKT Staff Finalize Prerelease SO Transaction']
+        );
         $canRejectPrereleaseSo = Permission::updateOrCreate(
             ['name' => 'reject_prerelease_so_transaction', 'guard_name' => 'web'],
             ['ui_name' => 'Can Reject Prerelease SO Transaction']

@@ -7,6 +7,7 @@ use App\Mail\FinalizedMail;
 use App\Mail\NeedReviseMail;
 use App\Mail\RejectionMail;
 use App\Mail\WaitingApprovalMail;
+use App\Mail\WaitingFinalizeMail;
 use App\Models\User;
 use Illuminate\Support\Facades\Mail;
 
@@ -61,6 +62,27 @@ class EmailService
             $name = $user->name;
             $email = $user->email;
             Mail::to($email)->send(new WaitingApprovalMail($approvalUrl, $name, $so_number));
+        }
+    }
+
+    public function sendRequestPrereleaseSoFinalized($transactionId, $so_number) {
+        $permissions = ['mkt_staff_finalize_prerelease_so_transaction'];
+        
+        $users = User::query();
+        
+        foreach ($permissions as $perm) {
+            $users->whereHas('roles.permissions', function ($query) use ($perm) {
+                $query->where('name', $perm);
+            });
+        }
+
+        $users = $users->get();
+
+        foreach ($users as $user) {
+            $approvalUrl = config('app.url') . "/prerelease-so-transactions/approval/{$transactionId}";
+            $name = $user->name;
+            $email = $user->email;
+            Mail::to($email)->send(new WaitingFinalizeMail($approvalUrl, $name, $so_number));
         }
     }
 

@@ -18,9 +18,20 @@
                         </ul>
                     </div>
                 @endif
-                
+                @php
+                    use App\Enums\StatusPrereleaseSoTransaction;
+                    $canFinalize = 
+                        auth()->user()->hasPermissionTo('mkt_staff_finalize_prerelease_so_transaction') &&
+                        $data->status === StatusPrereleaseSoTransaction::WAITING_MKT_STAFF_FINALIZE->value;;
+                @endphp
                 <div class="field">
-                    <label class="!text-base"">Reason (Must be fill if reject)</label>
+                    <label class="!text-base"">
+                        @if ($canFinalize)
+                            Reason
+                        @else
+                            Reason (Must be fill if reject)
+                        @endif
+                    </label>
                     <textarea style="resize: none;" name="reason" placeholder="Reason"></textarea>
                 </div>
                 <div>
@@ -30,11 +41,17 @@
                         'rnd_bom_approve_prerelease_so_transaction',
                         'accounting_approve_prerelease_so_transaction',
                         'it_approve_prerelease_so_transaction',
-                    ]))
-                        <button class="ui button customButton" type="submit" name="action" value="approve">Approve</button>
+                    ]) || $canFinalize)
+                        <button class="ui button customButton" type="submit" name="action" value="approve">
+                            @if ($canFinalize)
+                                Finalize
+                            @else
+                                Approve
+                            @endif
+                        </button>
                     @endif
 
-                    @if (auth()->user()->hasPermissionTo('reject_prerelease_so_transaction'))
+                    @if (auth()->user()->hasPermissionTo('reject_prerelease_so_transaction') && !$canFinalize)
                         <button class="ui button customButton" style="--btn-color: #e74c3c;" type="submit" name="action" value="reject">Reject</button>
                     @endif
                 </div>
