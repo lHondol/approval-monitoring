@@ -311,6 +311,9 @@ Route::get('/app-update', function () {
         abort(403, 'Unauthorized');
     }
 
+    // Run migrate
+    Artisan::call('migrate');
+
     // Run Seeder
     Artisan::call('db:seed --class=UserRolePermissionV2Seeder');
     Artisan::call('db:seed --class=UserRolePermissionV3Seeder');
