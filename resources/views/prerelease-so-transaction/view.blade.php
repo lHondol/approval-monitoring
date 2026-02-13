@@ -87,7 +87,7 @@
                 },  
                 columns: [
                     { data: 'customer_name', name: 'customer_name', width: 150, orderable: true },
-                    { data: 'area', name: 'area', width: 150, orderable: true },
+                    // { data: 'area', name: 'area', width: 150, orderable: true },
                     { data: 'so_number', name: 'so_number', width: 150 },
                     { data: 'po_number', name: 'po_number', width: 150 },
                     { data: 'description', name: 'description', width: 200 },
@@ -98,6 +98,7 @@
                     { data: 'as_revision_data', name: 'as_revision_data', visible: false },
                     { data: 'as_additional_data', name: 'as_additional_data', visible: false },
                     { data: 'done_revised', name: 'done_revised', visible: false },
+                    { data: 'is_urgent', name: 'is_urgent', visible: false },
                     { data: 'actions', name: 'actions', width: 120 },
                 ],
                 columnDefs: [
@@ -142,7 +143,12 @@
                 },
                 drawCallback: function () {
                     initDropdownPortal();
-                }
+                },
+                rowCallback: function(row, data) {
+                    if (data.is_urgent == 1) {
+                        $(row).addClass('urgent-row');
+                    }
+                },
             });
         });
         

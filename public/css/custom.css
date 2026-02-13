@@ -90,3 +90,12 @@ body {
 .ui.label {
     margin: 0 !important;
 }
+
+.urgent-row {
+    background-color: #ffe6e6 !important;
+}
+
+.urgent-row td {
+    color: #b30000 !important;
+    font-weight: 600;
+}

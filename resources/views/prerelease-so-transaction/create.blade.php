@@ -34,7 +34,7 @@
     @include('shared.appbar', ['backRoute' => 'prereleaseSoTransactionView', 'title' => 'Create New Prerelease So Transaction'])
     <div class="flex justify-center">
         <div class="ui card !w-[800px] !p-8">
-            <form class="ui form" method="post" action="{{ route('prereleaseSoTransactionCreate') }}" enctype="multipart/form-data">
+            <form id="createForm" class="ui form" method="post" action="{{ route('prereleaseSoTransactionCreate') }}" enctype="multipart/form-data">
                 @csrf
 
                 @if ($errors->any())
@@ -136,8 +136,22 @@
                         style="margin-top:15px; padding: 5px; display:flex; gap:10px; flex-wrap:wrap;">
                     </div>
                 </div>
-                <button class="ui button customButton" type="submit">Submit</button>
+
+                <input type="hidden" name="is_urgent" id="isUrgentConfirmationAction">
+
+                <button class="ui button customButton" id="submitBtn">Submit</button>
             </form>
+
+            <div class="ui small modal !w-[350px]" id="isUrgentConfirmModal">
+                <div class="header !text-base">Confirm Urgency</div>
+                <div class="content">
+                    <p>Is this transaction considered urgent?</p>
+                </div>
+                <div class="actions">
+                    <div class="ui red button" id="noBtn">No</div>
+                    <div class="ui green button" id="yesBtn">Yes</div>
+                </div>
+            </div>
         </div>
     </div>
 
@@ -277,6 +291,35 @@
                 const value = firstItem.data('value');
                 targetDropdown.dropdown('set selected', value);
             }
+
+            const form = $('#createForm');
+            const submitBtn = $('#submitBtn');
+            const modal = $('#isUrgentConfirmModal');
+            const hiddenInput = $('#isUrgentConfirmationAction');
+
+            submitBtn.on('click', function (e) {
+                e.preventDefault(); // stop normal submit
+                const today = new Date();
+                const currentDay = today.getDate(); // 1 - 31
+
+                if (currentDay > 11) {
+                    // Show confirmation modal
+                    modal.modal('show');
+                } else {
+                    // Submit directly
+                    form[0].submit();
+                }
+            });
+
+            $('#yesBtn').on('click', function () {
+                hiddenInput.val(1);
+                form[0].submit();
+            });
+
+            $('#noBtn').on('click', function () {
+                hiddenInput.val(0);
+                form[0].submit();
+            });
         });
     </script>
 @endsection

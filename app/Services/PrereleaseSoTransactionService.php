@@ -57,13 +57,13 @@ class PrereleaseSoTransactionService
         
         $status = [];
 
-        $nonAreaPermissions = [
-            'rnd_drawing_approve_prerelease_so_transaction', 
-            'rnd_bom_approve_prerelease_so_transaction', 
-            'accounting_approve_prerelease_so_transaction', 
-            'it_approve_prerelease_so_transaction',
-            'mkt_staff_release_prerelease_so_transaction' 
-        ];
+        // $nonAreaPermissions = [
+        //     'rnd_drawing_approve_prerelease_so_transaction', 
+        //     'rnd_bom_approve_prerelease_so_transaction', 
+        //     'accounting_approve_prerelease_so_transaction', 
+        //     'it_approve_prerelease_so_transaction',
+        //     'mkt_staff_release_prerelease_so_transaction' 
+        // ];
 
         // $filterByArea = null;
         // if (auth()->user()->hasPermissionTo('sales_area_approve_prerelease_so_transaction') &&
@@ -83,8 +83,10 @@ class PrereleaseSoTransactionService
             'prerelease_so_transactions.as_additional_data',
             'prerelease_so_transactions.done_revised',
             'prerelease_so_transactions.customer_id',
+            'prerelease_so_transactions.is_urgent',
             // 'prerelease_so_transactions.area_id',
         ])->with(['customer', 'area'])
+        ->orderBy('is_urgent', 'desc')
         ->when(count($status) > 0, function ($query) use ($status) {
             $query->whereIn('status', $status);
         })
@@ -106,10 +108,10 @@ class PrereleaseSoTransactionService
             $query->leftJoin('customers', 'customers.id', '=', 'prerelease_so_transactions.customer_id')
                   ->orderBy('customers.name', $order);
         })
-        ->orderColumn('area', function($query, $order) {
-            $query->leftJoin('areas', 'areas.id', '=', 'prerelease_so_transactions.area_id')
-                  ->orderBy('areas.name', $order);
-        })
+        // ->orderColumn('area', function($query, $order) {
+        //     $query->leftJoin('areas', 'areas.id', '=', 'prerelease_so_transactions.area_id')
+        //           ->orderBy('areas.name', $order);
+        // })
         ->addColumn('leadtime', function($row) {
             $days = (string) Carbon::parse($row->created_at)
             ->startOfDay()
@@ -144,7 +146,7 @@ class PrereleaseSoTransactionService
         ->filter(function($query) {
             if ($search = request('search.value')) {
                 $query->leftJoin('customers', 'customers.id', '=', 'prerelease_so_transactions.customer_id');
-                $query->leftJoin('areas', 'areas.id', '=', 'prerelease_so_transactions.area_id');
+                // $query->leftJoin('areas', 'areas.id', '=', 'prerelease_so_transactions.area_id');
         
                 $query->where(function ($q) use ($search) {
                     if (str_contains($search, ';')) {
@@ -162,7 +164,7 @@ class PrereleaseSoTransactionService
                     $q->orWhere('prerelease_so_transactions.po_number', 'LIKE', "%{$search}%")
                       ->orWhere('prerelease_so_transactions.description', 'LIKE', "%{$search}%")
                       ->orWhere('customers.name', 'LIKE', "%{$search}%")
-                      ->orWhere('areas.name', 'LIKE', "%{$search}%")
+                    //   ->orWhere('areas.name', 'LIKE', "%{$search}%")
                       ->orWhereRaw(
                           "DATE_FORMAT(prerelease_so_transactions.created_at, '%d %b %Y %H:%i:%s') LIKE ?",
                           ["%{$search}%"]
@@ -249,6 +251,8 @@ class PrereleaseSoTransactionService
 
         $prereleaseSoTransaction->target_shipment_year = $target->year;
         $prereleaseSoTransaction->target_shipment_month = $target->month;
+
+        $prereleaseSoTransaction->is_urgent = $data->is_urgent ?? 0;
 
         $status = StatusPrereleaseSoTransaction::WAITING_SALES_AREA_APPROVAL;
         $prereleaseSoTransaction->status = $status->value;
