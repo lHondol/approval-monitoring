@@ -28,8 +28,8 @@
                 $user->hasPermissionTo('it_approve_prerelease_so_transaction') &&
                 $status === StatusPrereleaseSoTransaction::WAITING_IT_APPROVAL->value;
 
-            $canMKTStaffFinalize =
-                $user->hasPermissionTo('mkt_staff_finalize_prerelease_so_transaction') &&
+            $canMKTStaffRelease =
+                $user->hasPermissionTo('mkt_staff_release_prerelease_so_transaction') &&
                 $status === StatusPrereleaseSoTransaction::WAITING_MKT_STAFF_FINALIZE->value;
 
 
@@ -45,9 +45,9 @@
             <a href="{{ route('prereleaseSoTransactionDetail', $data->id) }}" class="item">Detail</a>
         @endif
 
-        @if ($canSalesAreaApprove || $canRndDrawingApprove || $canRndBomApprove || $canAccountingApprove || $canItApprove || $canMKTStaffFinalize || $canReject)
+        @if ($canSalesAreaApprove || $canRndDrawingApprove || $canRndBomApprove || $canAccountingApprove || $canItApprove || $canMKTStaffRelease || $canReject)
             <a href="{{ route('prereleaseSoTransactionApprovalForm', $data->id) }}" class="item">
-                @if ($canMKTStaffFinalize)
+                @if ($canMKTStaffRelease)
                     Finalize
                 @else
                     Approval

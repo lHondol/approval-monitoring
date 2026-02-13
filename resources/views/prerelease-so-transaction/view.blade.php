@@ -38,7 +38,7 @@
             <thead>
                 <tr>
                     <th>Customer Name</th>
-                    <th>Area</th>
+                    {{-- <th>Area</th> --}}
                     <th>SO Number</th>
                     <th>PO Number</th>
                     <th>Description</th>
@@ -54,7 +54,7 @@
             <tfoot>
                 <tr>
                     <th class="!font-bold">Customer Name</th>
-                    <th class="!font-bold">Area</th>
+                    {{-- <th class="!font-bold">Area</th> --}}
                     <th class="!font-bold">SO Number</th>
                     <th class="!font-bold">PO Number</th>
                     <th class="!font-bold">Description</th>
@@ -92,7 +92,7 @@
                     { data: 'po_number', name: 'po_number', width: 150 },
                     { data: 'description', name: 'description', width: 200 },
                     { data: 'created_at', name: 'created_at', width: 130 },
-                    { data: 'finalized_at', name: 'finalized_at', width: 130 },
+                    { data: 'released_at', name: 'released_at', width: 130 },
                     { data: 'leadtime', name: 'leadtime', width: 130 },
                     { data: 'status', name: 'status', width: 200 },
                     { data: 'as_revision_data', name: 'as_revision_data', visible: false },

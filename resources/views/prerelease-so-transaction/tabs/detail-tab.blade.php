@@ -9,8 +9,8 @@
             StatusPrereleaseSoTransaction::WAITING_RND_BOM_APPROVAL->value => "pink",
             StatusPrereleaseSoTransaction::WAITING_ACCOUNTING_APPROVAL->value => "blue",
             StatusPrereleaseSoTransaction::WAITING_IT_APPROVAL->value => "violet",
-            StatusPrereleaseSoTransaction::WAITING_MKT_STAFF_FINALIZE->value => "purple",
-            StatusPrereleaseSoTransaction::FINALIZED->value => "green",
+            StatusPrereleaseSoTransaction::WAITING_MKT_STAFF_RELEASE->value => "purple",
+            StatusPrereleaseSoTransaction::RELEASED->value => "green",
             StatusPrereleaseSoTransaction::REVISE_NEEDED->value => "yellow",
         };
     };
@@ -128,11 +128,11 @@
         </div>
 
         <div class="mb-4">
-            <div class="font-bold mb-1">Finalized At</div>
+            <div class="font-bold mb-1">Release At</div>
             <div class="ui input w-full !cursor-default opacity-70">
                 <div class="w-full px-5 py-2 rounded bg-gray-100 !text-black">
-                    {{ $data->finalized_at
-                        ? Carbon::parse($data->finalized_at)->format('d M Y H:i:s')
+                    {{ $data->released_at
+                        ? Carbon::parse($data->released_at)->format('d M Y H:i:s')
                         : '-- Not Distribute Yet --'
                     }}
                 </div>

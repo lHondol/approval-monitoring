@@ -9,7 +9,7 @@ use App\States\PrereleaseSoTransaction\FinalState;
 use App\States\PrereleaseSoTransaction\ReviseNeededState;
 use App\States\PrereleaseSoTransaction\WaitingForAccountingApprovalState;
 use App\States\PrereleaseSoTransaction\WaitingForITApprovalState;
-use App\States\PrereleaseSoTransaction\WaitingForMKTStaffFinalizeState;
+use App\States\PrereleaseSoTransaction\WaitingForMKTStaffReleaseState;
 use App\States\PrereleaseSoTransaction\WaitingForRnDBomApprovalState;
 use App\States\PrereleaseSoTransaction\WaitingForRnDDrawingApprovalState;
 use App\States\PrereleaseSoTransaction\WaitingForSalesAreaApprovalState;
@@ -24,7 +24,7 @@ class PrereleaseSoTransaction extends Model
     protected $casts = [
         'created_at'     => 'datetime',
         'updated_at'     => 'datetime',
-        'finalized_at' => 'datetime'
+        'released_at' => 'datetime'
     ];
 
     public function steps() {
@@ -41,8 +41,8 @@ class PrereleaseSoTransaction extends Model
             StatusPrereleaseSoTransaction::WAITING_RND_BOM_APPROVAL->value   => new WaitingForRnDBomApprovalState($this),
             StatusPrereleaseSoTransaction::WAITING_ACCOUNTING_APPROVAL->value   => new WaitingForAccountingApprovalState($this),
             StatusPrereleaseSoTransaction::WAITING_IT_APPROVAL->value   => new WaitingForITApprovalState($this),
-            StatusPrereleaseSoTransaction::WAITING_MKT_STAFF_FINALIZE->value   => new WaitingForMKTStaffFinalizeState($this),
-            StatusPrereleaseSoTransaction::FINALIZED->value   => new FinalState($this),
+            StatusPrereleaseSoTransaction::WAITING_MKT_STAFF_RELEASE->value   => new WaitingForMKTStaffReleaseState($this),
+            StatusPrereleaseSoTransaction::RELEASED->value   => new FinalState($this),
             StatusPrereleaseSoTransaction::REVISE_NEEDED->value   => new ReviseNeededState($this),
         };
     }

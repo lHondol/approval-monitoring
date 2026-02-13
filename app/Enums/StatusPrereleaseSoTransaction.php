@@ -9,7 +9,7 @@ enum StatusPrereleaseSoTransaction: string
     case WAITING_RND_BOM_APPROVAL = 'Waiting for RnD BOM Approval';
     case WAITING_ACCOUNTING_APPROVAL = 'Waiting for Accounting Approval';
     case WAITING_IT_APPROVAL = 'Waiting for IT Approval';
-    case WAITING_MKT_STAFF_FINALIZE = 'Waiting for MKT Staff Finalize';
-    case FINALIZED = 'Finalized';
+    case WAITING_MKT_STAFF_RELEASE = 'Waiting for MKT Staff Release';
+    case RELEASED = 'Released';
     case REVISE_NEEDED = 'Revise Needed';
 }

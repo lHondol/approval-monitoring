@@ -61,7 +61,7 @@
                         </div>
                     </div>
                 </div>
-                <div class="field flex-1">
+                {{-- <div class="field flex-1">
                      <label class="!text-base">Area</label>
                     <div id="areasDropdown" class="ui clearable selection dropdown">
                         <input type="hidden" name="area">
@@ -73,7 +73,7 @@
                             @endforeach
                         </div>
                     </div>
-                </div>
+                </div> --}}
                 <div class="field flex-1">
                     <label class="!text-base"">Sales Order Number (SO)</label>
                     <input type="text" name="so_number" placeholder="Sales Order Number">

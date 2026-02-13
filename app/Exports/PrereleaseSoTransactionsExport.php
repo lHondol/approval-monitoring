@@ -130,7 +130,7 @@ class PrereleaseSoTransactionsExport implements FromCollection, WithHeadings
                     'IT Approved'          => $fmt($itAt),
                     'IT Day'               => $days($accountingAt, $itAt),
                 
-                    'Finalized At'         => $fmt($transaction->finalized_at),
+                    'Released At'         => $fmt($transaction->released_at),
 
                     'Leading Time'         => $leadingTimeDay,
                 

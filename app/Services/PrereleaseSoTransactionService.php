@@ -47,8 +47,8 @@ class PrereleaseSoTransactionService
             StatusPrereleaseSoTransaction::WAITING_RND_BOM_APPROVAL->value => "pink",
             StatusPrereleaseSoTransaction::WAITING_ACCOUNTING_APPROVAL->value => "blue",
             StatusPrereleaseSoTransaction::WAITING_IT_APPROVAL->value => "violet",
-            StatusPrereleaseSoTransaction::WAITING_MKT_STAFF_FINALIZE->value => "purple",
-            StatusPrereleaseSoTransaction::FINALIZED->value => "green",
+            StatusPrereleaseSoTransaction::WAITING_MKT_STAFF_RELEASE->value => "purple",
+            StatusPrereleaseSoTransaction::RELEASED->value => "green",
             StatusPrereleaseSoTransaction::REVISE_NEEDED->value => "yellow",
         };
     }
@@ -62,14 +62,14 @@ class PrereleaseSoTransactionService
             'rnd_bom_approve_prerelease_so_transaction', 
             'accounting_approve_prerelease_so_transaction', 
             'it_approve_prerelease_so_transaction',
-            'mkt_staff_finalize_prerelease_so_transaction' 
+            'mkt_staff_release_prerelease_so_transaction' 
         ];
 
-        $filterByArea = null;
-        if (auth()->user()->hasPermissionTo('sales_area_approve_prerelease_so_transaction') &&
-            !auth()->user()->hasAnyPermission($nonAreaPermissions)) {
-            $filterByArea = true;
-        }
+        // $filterByArea = null;
+        // if (auth()->user()->hasPermissionTo('sales_area_approve_prerelease_so_transaction') &&
+        //     !auth()->user()->hasAnyPermission($nonAreaPermissions)) {
+        //     $filterByArea = true;
+        // }
 
         return DataTables::of(PrereleaseSoTransaction::select([
             'prerelease_so_transactions.id',
@@ -77,29 +77,31 @@ class PrereleaseSoTransactionService
             'prerelease_so_transactions.po_number',
             'prerelease_so_transactions.description',
             'prerelease_so_transactions.created_at',
-            'prerelease_so_transactions.finalized_at',
+            'prerelease_so_transactions.released_at',
             'prerelease_so_transactions.status',
             'prerelease_so_transactions.as_revision_data',
             'prerelease_so_transactions.as_additional_data',
             'prerelease_so_transactions.done_revised',
             'prerelease_so_transactions.customer_id',
-            'prerelease_so_transactions.area_id',
+            // 'prerelease_so_transactions.area_id',
         ])->with(['customer', 'area'])
         ->when(count($status) > 0, function ($query) use ($status) {
             $query->whereIn('status', $status);
-        })->when($filterByArea, function ($query) {
-            $userId = auth()->user()->id;
+        })
+        // ->when($filterByArea, function ($query) {
+        //     $userId = auth()->user()->id;
         
-            $query->whereHas('area.users', function ($q) use ($userId) {
-                $q->where('users.id', $userId);
-            });
-        }))
+        //     $query->whereHas('area.users', function ($q) use ($userId) {
+        //         $q->where('users.id', $userId);
+        //     });
+        // })
+        )
         ->addColumn('customer_name', function($row) {
             return $row->customer?->name ?? '';
         })
-        ->addColumn('area', function($row) {
-            return $row->area?->name ?? '';
-        })
+        // ->addColumn('area', function($row) {
+        //     return $row->area?->name ?? '';
+        // })
         ->orderColumn('customer_name', function($query, $order) {
             $query->leftJoin('customers', 'customers.id', '=', 'prerelease_so_transactions.customer_id')
                   ->orderBy('customers.name', $order);
@@ -166,7 +168,7 @@ class PrereleaseSoTransactionService
                           ["%{$search}%"]
                       )
                       ->orWhereRaw(
-                          "DATE_FORMAT(prerelease_so_transactions.finalized_at, '%d %b %Y %H:%i:%s') LIKE ?",
+                          "DATE_FORMAT(prerelease_so_transactions.released_at, '%d %b %Y %H:%i:%s') LIKE ?",
                           ["%{$search}%"]
                       );
                 });
@@ -207,12 +209,17 @@ class PrereleaseSoTransactionService
         ->editColumn('created_at', function($row) {
             return Carbon::parse($row->created_at)->format('d M Y H:i:s');
         })
-        ->editColumn('finalized_at', function($row) {
-            if ($row->finalized_at)
-                return Carbon::parse($row->finalized_at)->format('d M Y H:i:s');
+        ->editColumn('released_at', function($row) {
+            if ($row->released_at)
+                return Carbon::parse($row->released_at)->format('d M Y H:i:s');
             return '';
         })
-        ->rawColumns(['customer_name', 'area', 'status', 'actions'])
+        ->rawColumns([
+            'customer_name', 
+            // 'area', 
+            'status', 
+            'actions'
+        ])
         ->make(true);
     }
 
@@ -234,7 +241,7 @@ class PrereleaseSoTransactionService
         $prereleaseSoTransaction->id =$uuid;
 
         $prereleaseSoTransaction->customer_id = $data->customer;
-        $prereleaseSoTransaction->area_id = $data->area;
+        // $prereleaseSoTransaction->area_id = $data->area;
         $prereleaseSoTransaction->so_number = $data->so_number;
         $prereleaseSoTransaction->po_number = $data->po_number;
 

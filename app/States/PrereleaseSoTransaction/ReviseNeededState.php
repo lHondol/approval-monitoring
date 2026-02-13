@@ -29,7 +29,7 @@ class ReviseNeededState implements PrereleaseSoTransactionState
 
     public function next(object $data = null) {
         $this->prereleaseSoTransaction->customer_id = $data->customer;
-        $this->prereleaseSoTransaction->area_id = $data->area;
+        // $this->prereleaseSoTransaction->area_id = $data->area;
         $this->prereleaseSoTransaction->so_number = $data->so_number;
         $this->prereleaseSoTransaction->po_number = $data->po_number;
 

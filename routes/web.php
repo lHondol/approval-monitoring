@@ -318,8 +318,11 @@ Route::get('/app-update', function () {
     Artisan::call('db:seed --class=UserRolePermissionV2Seeder');
     Artisan::call('db:seed --class=UserRolePermissionV3Seeder');
 
-    // Update V1 Distributed Status
+    // Update V1 Distributed Status Drawing
     Artisan::call('app:update-distributed-drawing-transaction-status');
+    
+    // Update V1 Finalized Status Prerelease So
+    Artisan::call('app:update-finalized-prerelease-so-transaction-status');
 
     // Run storage:link
     Artisan::call('storage:link');
