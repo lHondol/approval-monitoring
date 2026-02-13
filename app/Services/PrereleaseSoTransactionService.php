@@ -245,6 +245,11 @@ class PrereleaseSoTransactionService
         $prereleaseSoTransaction->so_number = $data->so_number;
         $prereleaseSoTransaction->po_number = $data->po_number;
 
+        $target = Carbon::createFromFormat('Y-m', $data->target_shipment);
+
+        $prereleaseSoTransaction->target_shipment_year = $target->year;
+        $prereleaseSoTransaction->target_shipment_month = $target->month;
+
         $status = StatusPrereleaseSoTransaction::WAITING_SALES_AREA_APPROVAL;
         $prereleaseSoTransaction->status = $status->value;
 
@@ -318,6 +323,25 @@ class PrereleaseSoTransactionService
 
     public function getAreas() {
         return Area::select(['id', 'name'])->get();   
+    }
+
+    public function getMonths() {
+        $months = [];
+
+        $start = now()->addMonth()->startOfMonth();
+
+        for ($i = 0; $i < 12; $i++) {
+            $date = $start->copy()->addMonths($i);
+
+            $months[] = [
+                'year'  => $date->year,
+                'month' => $date->month,
+                'label' => $date->format('F Y'),
+                'value' => $date->format('Y-m'),
+            ];
+        }
+
+        return $months;
     }
 
     public function approve($data) {

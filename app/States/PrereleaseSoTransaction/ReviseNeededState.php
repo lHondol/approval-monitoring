@@ -33,6 +33,11 @@ class ReviseNeededState implements PrereleaseSoTransactionState
         $this->prereleaseSoTransaction->so_number = $data->so_number;
         $this->prereleaseSoTransaction->po_number = $data->po_number;
 
+        $target = Carbon::createFromFormat('Y-m', $data->target_shipment);
+
+        $this->prereleaseSoTransaction->target_shipment_year = $target->year;
+        $this->prereleaseSoTransaction->target_shipment_month = $target->month;
+
         $status = StatusPrereleaseSoTransaction::WAITING_SALES_AREA_APPROVAL->value;
         $this->prereleaseSoTransaction->status = $status;
         $this->prereleaseSoTransaction->done_revised = true;

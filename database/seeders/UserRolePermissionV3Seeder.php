@@ -51,6 +51,14 @@ class UserRolePermissionV3Seeder extends Seeder
             ['name' => 'it_approve_prerelease_so_transaction', 'guard_name' => 'web'],
             ['ui_name' => 'Can IT Approve Prerelease SO Transaction']
         );
+        $canAccountingRequestConfirmMarginPrereleaseSo = Permission::updateOrCreate(
+            ['name' => 'accounting_request_confirm_margin_prerelease_so_transaction', 'guard_name' => 'web'],
+            ['ui_name' => 'Can Accounting Request Confirm Margin Prerelease SO Transaction']
+        );
+        $canMktManagerConfirmMarginPrereleaseSo = Permission::updateOrCreate(
+            ['name' => 'mkt_manager_confirm_margin_prerelease_so_transaction', 'guard_name' => 'web'],
+            ['ui_name' => 'Can Mkt Manager Confirm Margin Prerelease SO Transaction']
+        );
 
         $canMktStaffReleasePrereleaseSo =  Permission::where('name', 'mkt_staff_finalize_prerelease_so_transaction')
         ->where('guard_name', 'web')

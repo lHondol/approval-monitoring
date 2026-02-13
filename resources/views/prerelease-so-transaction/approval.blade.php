@@ -20,13 +20,13 @@
                 @endif
                 @php
                     use App\Enums\StatusPrereleaseSoTransaction;
-                    $canFinalize = 
-                        auth()->user()->hasPermissionTo('mkt_staff_finalize_prerelease_so_transaction') &&
-                        $data->status === StatusPrereleaseSoTransaction::WAITING_MKT_STAFF_FINALIZE->value;;
+                    $canRelease = 
+                        auth()->user()->hasPermissionTo('mkt_staff_release_prerelease_so_transaction') &&
+                        $data->status === StatusPrereleaseSoTransaction::WAITING_MKT_STAFF_RELEASE->value;;
                 @endphp
                 <div class="field">
                     <label class="!text-base"">
-                        @if ($canFinalize)
+                        @if ($canRelease)
                             Reason
                         @else
                             Reason (Must be fill if reject)
@@ -41,17 +41,17 @@
                         'rnd_bom_approve_prerelease_so_transaction',
                         'accounting_approve_prerelease_so_transaction',
                         'it_approve_prerelease_so_transaction',
-                    ]) || $canFinalize)
+                    ]) || $canRelease)
                         <button class="ui button customButton" type="submit" name="action" value="approve">
-                            @if ($canFinalize)
-                                Finalize
+                            @if ($canRelease)
+                                Release
                             @else
                                 Approve
                             @endif
                         </button>
                     @endif
 
-                    @if (auth()->user()->hasPermissionTo('reject_prerelease_so_transaction') && !$canFinalize)
+                    @if (auth()->user()->hasPermissionTo('reject_prerelease_so_transaction') && !$canRelease)
                         <button class="ui button customButton" style="--btn-color: #e74c3c;" type="submit" name="action" value="reject">Reject</button>
                     @endif
                 </div>

@@ -61,6 +61,21 @@
                         </div>
                     </div>
                 </div>
+
+                <div class="field flex-1">
+                     <label class="!text-base">Target Shipment</label>
+                    <div id="targetShipmentsDropdown" class="ui clearable selection dropdown">
+                        <input type="hidden" name="target_shipment">
+                        <i class="dropdown icon"></i>
+                        <div class="default text">Select Target Shipment</div>
+                        <div class="menu">
+                            @foreach ($months as $month)
+                                <div class="item" data-value="{{ $month['value'] }}">{{ $month['label'] }}</div>
+                            @endforeach
+                        </div>
+                    </div>
+                </div>
+
                 {{-- <div class="field flex-1">
                      <label class="!text-base">Area</label>
                     <div id="areasDropdown" class="ui clearable selection dropdown">
@@ -250,7 +265,18 @@
 
         $(document).ready(function() {
             $('#customersDropdown').dropdown();
-            $('#areasDropdown').dropdown();
+            // $('#areasDropdown').dropdown();
+
+            const targetDropdown = $('#targetShipmentsDropdown');
+            targetDropdown.dropdown();
+
+            // Set default to first item
+            const firstItem = targetDropdown.find('.menu .item').first();
+
+            if (firstItem.length) {
+                const value = firstItem.data('value');
+                targetDropdown.dropdown('set selected', value);
+            }
         });
     </script>
 @endsection

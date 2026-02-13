@@ -30,7 +30,7 @@
 
             $canMKTStaffRelease =
                 $user->hasPermissionTo('mkt_staff_release_prerelease_so_transaction') &&
-                $status === StatusPrereleaseSoTransaction::WAITING_MKT_STAFF_FINALIZE->value;
+                $status === StatusPrereleaseSoTransaction::WAITING_MKT_STAFF_RELEASE->value;
 
 
             $canReject =

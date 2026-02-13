@@ -12,7 +12,8 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('prerelease_so_transactions', function (Blueprint $table) {
-            $table->integer('target_shipment')->nullable();
+            $table->integer('target_shipment_month')->nullable();
+            $table->integer('target_shipment_year')->nullable();
             $table->boolean('is_urgent')->nullable();
             $table->boolean('is_margin_confirmed')->nullable();
         });

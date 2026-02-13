@@ -61,7 +61,22 @@
                         </div>
                     </div>
                 </div>
+                
                 <div class="field flex-1">
+                     <label class="!text-base">Target Shipment</label>
+                    <div id="targetShipmentsDropdown" class="ui clearable selection dropdown">
+                        <input type="hidden" name="target_shipment" value="{{ sprintf('%04d-%02d', $data->target_shipment_year, $data->target_shipment_month) }}">
+                        <i class="dropdown icon"></i>
+                        <div class="default text">Select Target Shipment</div>
+                        <div class="menu">
+                            @foreach ($months as $month)
+                                <div class="item" data-value="{{ $month['value'] }}">{{ $month['label'] }}</div>
+                            @endforeach
+                        </div>
+                    </div>
+                </div>
+
+                {{-- <div class="field flex-1">
                      <label class="!text-base">Area</label>
                     <div id="areasDropdown" class="ui clearable selection dropdown">
                         <input type="hidden" name="area" value="{{ $data->area->id }}">
@@ -73,7 +88,8 @@
                             @endforeach
                         </div>
                     </div>
-                </div>
+                </div> --}}
+
                 <div class="field flex-1">
                     <label class="!text-base"">Sales Order Number (PO)</label>
                     <input type="text" name="so_number" placeholder="Sales Order Number" value="{{ $data->so_number }}">
@@ -281,7 +297,10 @@
 
         $(document).ready(function() {
             $('#customersDropdown').dropdown();
-            $('#areasDropdown').dropdown();
+            // $('#areasDropdown').dropdown();
+
+            const targetDropdown = $('#targetShipmentsDropdown');
+            targetDropdown.dropdown();
         });
     </script>
 @endsection

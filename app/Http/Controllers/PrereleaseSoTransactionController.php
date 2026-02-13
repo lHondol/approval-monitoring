@@ -24,7 +24,8 @@ class PrereleaseSoTransactionController extends Controller
     public function createForm() {
         $customers = $this->prereleaseSoTransactionService->getCustomers();
         $areas = $this->prereleaseSoTransactionService->getAreas();
-        return view('prerelease-so-transaction.create', compact('customers', 'areas'));
+        $months = $this->prereleaseSoTransactionService->getMonths();
+        return view('prerelease-so-transaction.create', compact('customers', 'areas', 'months'));
     }
 
     public function create(CreateRequest $request) {
@@ -88,9 +89,10 @@ class PrereleaseSoTransactionController extends Controller
     public function reviseForm(Request $request) {
         $customers = $this->prereleaseSoTransactionService->getCustomers();
         $areas = $this->prereleaseSoTransactionService->getAreas();
+        $months = $this->prereleaseSoTransactionService->getMonths();
         $id = $request->id;
         $data = $this->prereleaseSoTransactionService->getDetail($id);
-        return view('prerelease-so-transaction.revise', compact('data', 'customers', 'areas'));
+        return view('prerelease-so-transaction.revise', compact('data', 'customers', 'areas', 'months'));
     }
 
     public function revise(ReviseRequest $request) {
