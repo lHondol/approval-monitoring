@@ -34,7 +34,7 @@ class EmailService
         $users = $users->get();
 
         foreach ($users as $user) {
-            $approvalUrl = config('app.url') . "/prerelease-so-transactions/approval/{$transactionId}";
+            $approvalUrl = url("prerelease-so-transactions/approval/{$transactionId}");
             $name = $user->name;
             $email = $user->email;
             Mail::to($email)->send(new WaitingApprovalMail($approvalUrl, $name, $so_number));
@@ -59,7 +59,7 @@ class EmailService
         $users = $users->get();
 
         foreach ($users as $user) {
-            $approvalUrl = config('app.url') . "/prerelease-so-transactions/approval/{$transactionId}";
+            $approvalUrl = url("prerelease-so-transactions/approval/{$transactionId}");
             $name = $user->name;
             $email = $user->email;
             Mail::to($email)->send(new WaitingApprovalMail($approvalUrl, $name, $so_number));
@@ -67,7 +67,7 @@ class EmailService
     }
 
     public function sendRequestPrereleaseSoReleased($transactionId, $so_number) {
-        $permissions = ['mkt_staff_finalize_prerelease_so_transaction'];
+        $permissions = ['mkt_staff_release_prerelease_so_transaction'];
         
         $users = User::query();
         
@@ -80,7 +80,7 @@ class EmailService
         $users = $users->get();
 
         foreach ($users as $user) {
-            $approvalUrl = config('app.url') . "/prerelease-so-transactions/approval/{$transactionId}";
+            $approvalUrl = url("prerelease-so-transactions/approval/{$transactionId}");
             $name = $user->name;
             $email = $user->email;
             Mail::to($email)->send(new WaitingReleaseMail($approvalUrl, $name, $so_number));
@@ -101,7 +101,7 @@ class EmailService
         $users = $users->get();
 
         foreach ($users as $user) {
-            $approvalUrl = config('app.url') . "/prerelease-so-transactions/approval/{$transactionId}";
+            $approvalUrl = url("prerelease-so-transactions/approval/{$transactionId}");
             $name = $user->name;
             $email = $user->email;
             Mail::to($email)->send(new WaitingMarginConfirmationMail($approvalUrl, $name, $so_number));
@@ -120,7 +120,7 @@ class EmailService
         $users = $users->get();
 
         foreach ($users as $user) {
-            $transactionUrl = config('app.url') . "/prerelease-so-transactions/detail/{$transactionId}";
+            $transactionUrl = url("prerelease-so-transactions/detail/{$transactionId}");
             $name = $user->name;
             $email = $user->email;
             Mail::to($email)->send(new ReleasedMail($transactionUrl, $name, $so_number));
@@ -143,7 +143,7 @@ class EmailService
         $users = $users->get();
 
         foreach ($users as $user) {
-            $reviseUrl = config('app.url') . "/prerelease-so-transactions/revise/{$transactionId}";
+            $reviseUrl = url("prerelease-so-transactions/revise/{$transactionId}");
             $name = $user->name;
             $email = $user->email;
             Mail::to($email)->send(new NeedReviseMail($reviseUrl, $name, $so_number));
@@ -166,7 +166,7 @@ class EmailService
         $users = $users->get();
 
         foreach ($users as $user) {
-            $approvalUrl = config('app.url') . "/drawing-transactions/approval/{$drawingTransactionId}";
+            $approvalUrl = url("drawing-transactions/approval/{$drawingTransactionId}");
             $name = $user->name;
             $email = $user->email;
             Mail::to($email)->send(new WaitingApprovalMail($approvalUrl, $name, $so_number));
@@ -189,7 +189,7 @@ class EmailService
         $users = $users->get();
 
         foreach ($users as $user) {
-            $approvalUrl = config('app.url') . "/drawing-transactions/approval/{$drawingTransactionId}";
+            $approvalUrl = url("drawing-transactions/approval/{$drawingTransactionId}");
             $name = $user->name;
             $email = $user->email;
             Mail::to($email)->send(new WaitingApprovalMail($approvalUrl, $name, $so_number));
@@ -212,7 +212,7 @@ class EmailService
         $users = $users->get();
 
         foreach ($users as $user) {
-            $approvalUrl = config('app.url') . "/drawing-transactions/approval/{$drawingTransactionId}";
+            $approvalUrl = url("drawing-transactions/approval/{$drawingTransactionId}");
             $name = $user->name;
             $email = $user->email;
             Mail::to($email)->send(new WaitingApprovalMail($approvalUrl, $name, $so_number));
@@ -235,7 +235,7 @@ class EmailService
         $users = $users->get();
 
         foreach ($users as $user) {
-            $approvalUrl = config('app.url') . "/drawing-transactions/approval/{$drawingTransactionId}";
+            $approvalUrl = url("drawing-transactions/approval/{$drawingTransactionId}");
             $name = $user->name;
             $email = $user->email;
             Mail::to($email)->send(new WaitingApprovalMail($approvalUrl, $name, $so_number));
@@ -258,7 +258,7 @@ class EmailService
         $users = $users->get();
 
         foreach ($users as $user) {
-            $transactionUrl = config('app.url') . "/drawing-transactions/detail/{$drawingTransactionId}";
+            $transactionUrl = url("drawing-transactions/detail/{$drawingTransactionId}");
             $name = $user->name;
             $email = $user->email;
             Mail::to($email)->send(new RejectionMail($transactionUrl, $name, $so_number));
@@ -281,7 +281,7 @@ class EmailService
         $users = $users->get();
 
         foreach ($users as $user) {
-            $transactionUrl = config('app.url') . "/drawing-transactions/detail/{$drawingTransactionId}";
+            $transactionUrl = url("drawing-transactions/detail/{$drawingTransactionId}");
             $name = $user->name;
             $email = $user->email;
             Mail::to($email)->send(new DistributedMail($transactionUrl, $name, $so_number));
@@ -304,7 +304,7 @@ class EmailService
         $users = $users->get();
 
         foreach ($users as $user) {
-            $reviseUrl = config('app.url') . "/drawing-transactions/revise/{$drawingTransactionId}";
+            $reviseUrl = url("drawing-transactions/revise/{$drawingTransactionId}");
             $name = $user->name;
             $email = $user->email;
             Mail::to($email)->send(new NeedReviseMail($reviseUrl, $name, $so_number));

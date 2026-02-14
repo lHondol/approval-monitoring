@@ -31,7 +31,7 @@ class WaitingReleaseMail extends Mailable
     public function envelope(): Envelope
     {
         return new Envelope(
-            subject: 'Permintaan Finalisasi Dokumen',
+            subject: 'Permintaan Rilis Dokumen',
         );
     }
 
@@ -41,7 +41,7 @@ class WaitingReleaseMail extends Mailable
     public function content(): Content
     {
         return new Content(
-            view: 'emails.waiting-finalize',
+            view: 'emails.waiting-release',
             with: [
                 'link'=> $this->link,
                 'name' => $this->name,
