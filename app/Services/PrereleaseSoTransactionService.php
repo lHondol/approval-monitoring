@@ -8,6 +8,7 @@ use App\Models\Area;
 use App\Models\Customer;
 use App\Models\PrereleaseSoTransaction;
 use App\Models\PrereleaseSoTransactionStep;
+use App\States\PrereleaseSoTransaction\WaitingForAccountingApprovalState;
 use Carbon\Carbon;
 use Exception;
 use GuzzleHttp\Psr7\Request;
@@ -47,6 +48,7 @@ class PrereleaseSoTransactionService
             StatusPrereleaseSoTransaction::WAITING_RND_BOM_APPROVAL->value => "pink",
             StatusPrereleaseSoTransaction::WAITING_ACCOUNTING_APPROVAL->value => "blue",
             StatusPrereleaseSoTransaction::WAITING_IT_APPROVAL->value => "violet",
+            StatusPrereleaseSoTransaction::WAITING_MKT_MGR_CONFIRM_MARGIN->value => "violet",
             StatusPrereleaseSoTransaction::WAITING_MKT_STAFF_RELEASE->value => "purple",
             StatusPrereleaseSoTransaction::RELEASED->value => "green",
             StatusPrereleaseSoTransaction::REVISE_NEEDED->value => "yellow",
@@ -254,7 +256,7 @@ class PrereleaseSoTransactionService
 
         $prereleaseSoTransaction->is_urgent = $data->is_urgent ?? 0;
 
-        $status = StatusPrereleaseSoTransaction::WAITING_SALES_AREA_APPROVAL;
+        $status = StatusPrereleaseSoTransaction::WAITING_RND_DRAWING_APPROVAL;
         $prereleaseSoTransaction->status = $status->value;
 
         if (isset($data->description))
@@ -370,5 +372,31 @@ class PrereleaseSoTransactionService
             return null;
 
         return $prereleaseSoTransaction;
+    }
+
+    public function requestConfirmMargin($data) {
+        $prereleaseSoTransaction = PrereleaseSoTransaction::where('id', $data->id)->first();
+        if ($prereleaseSoTransaction->state instanceof WaitingForAccountingApprovalState) {
+            $prereleaseSoTransaction->state->requestConfirmMargin($data);
+        } else {
+            throw new Exception('Only accounting can request margin confirmation');
+        }
+
+        return $prereleaseSoTransaction;
+    }
+
+    public function getBadgeCount() {
+        
+        $nonAreaPermissions = [
+            'rnd_drawing_approve_prerelease_so_transaction', 
+            'rnd_bom_approve_prerelease_so_transaction', 
+            'accounting_approve_prerelease_so_transaction', 
+            'it_approve_prerelease_so_transaction',
+            'mkt_staff_release_prerelease_so_transaction' 
+        ];
+
+        $status = [];
+        
+        return PrereleaseSoTransaction::where()->count();
     }
 }

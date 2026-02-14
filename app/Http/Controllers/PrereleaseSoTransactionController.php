@@ -2,9 +2,9 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Requests\DrawingTransaction\ApprovalRequest;
-use App\Http\Requests\DrawingTransaction\CreateRequest;
-use App\Http\Requests\DrawingTransaction\ReviseRequest;
+use App\Http\Requests\PrereleaseSoTransaction\ApprovalRequest;
+use App\Http\Requests\PrereleaseSoTransaction\CreateRequest;
+use App\Http\Requests\PrereleaseSoTransaction\ReviseRequest;
 use App\Models\User;
 use App\Services\PrereleaseSoTransactionService;
 use App\Services\EmailService;
@@ -37,10 +37,10 @@ class PrereleaseSoTransactionController extends Controller
             return redirect()->back()->withErrors(['files' => 'file(s) version not supported']);
 
         dispatch(function () use ($prereleaseSoTransaction) {
-            app(EmailService::class)->sendRequestPrereleaseSoApprovalSalesArea(
+            app(EmailService::class)->sendRequestPrereleaseSoApprovalGeneral(
                 $prereleaseSoTransaction->id, 
-                $prereleaseSoTransaction->area_id, 
-                $prereleaseSoTransaction->so_number
+                $prereleaseSoTransaction->so_number,
+                ['rnd_drawing_approve_prerelease_so_transaction']
             );
         })->afterResponse();
 
@@ -81,6 +81,8 @@ class PrereleaseSoTransactionController extends Controller
             $this->prereleaseSoTransactionService->approve((object) $data);
         } else if ($request->action == 'reject') {
             $this->prereleaseSoTransactionService->reject((object) $data);
+        } else if ($request->action == 'request-confirm-margin') {
+            $this->prereleaseSoTransactionService->requestConfirmMargin((object) $data);
         }
 
         return redirect()->route('prereleaseSoTransactionView');
@@ -107,7 +109,11 @@ class PrereleaseSoTransactionController extends Controller
             return redirect()->back()->withErrors(['files' => 'file(s) version not supported']);
 
         dispatch(function () use ($prereleaseSoTransaction) {
-            app(EmailService::class)->sendRequestApproval1DrawingTransaction($prereleaseSoTransaction->id, $prereleaseSoTransaction->so_number);
+            app(EmailService::class)->sendRequestPrereleaseSoApprovalGeneral(
+                $prereleaseSoTransaction->id, 
+                $prereleaseSoTransaction->so_number,
+                ['rnd_drawing_approve_prerelease_so_transaction']
+            );
         })->afterResponse();
 
         return redirect()->route('prereleaseSoTransactionView');

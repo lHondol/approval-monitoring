@@ -9,7 +9,9 @@ enum ActionPrereleaseSoTransactionStep: string
     case APPROVE_RND_DRAWING = 'Approve - RnD Drawing';
     case APPROVE_RND_BOM = 'Approve - RnD BOM';
     case APPROVE_ACCOUNTING = 'Approve - Accounting';
+    case REQUEST_CONFIRM_MARGIN_ACCOUNTING = 'Request Confirm Margin - Accounting';
     case APPROVE_IT = 'Approve - IT';
+    case CONFIRM_MARGIN_MKT_MGR = 'Confirm Margin - MKT Mgr';
     case RELEASED_MKT_STAFF = 'Released - MKT Staff';
     case REJECT = 'Reject';
     case UPLOAD_REVISED = 'Upload (Revised)';

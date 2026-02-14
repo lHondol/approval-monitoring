@@ -31,10 +31,10 @@ class UserRolePermissionV3Seeder extends Seeder
             ['name' => 'revise_prerelease_so_transaction', 'guard_name' => 'web'],
             ['ui_name' => 'Can Revise Prerelease SO Transaction']
         );
-        $canSalesAreaApprovePrereleaseSo = Permission::updateOrCreate(
-            ['name' => 'sales_area_approve_prerelease_so_transaction', 'guard_name' => 'web'],
-            ['ui_name' => 'Can Sales Area Approve Prerelease SO Transaction']
-        );
+        // $canSalesAreaApprovePrereleaseSo = Permission::updateOrCreate(
+        //     ['name' => 'sales_area_approve_prerelease_so_transaction', 'guard_name' => 'web'],
+        //     ['ui_name' => 'Can Sales Area Approve Prerelease SO Transaction']
+        // );
         $canRndDrawingApprovePrereleaseSo = Permission::updateOrCreate(
             ['name' => 'rnd_drawing_approve_prerelease_so_transaction', 'guard_name' => 'web'],
             ['ui_name' => 'Can RnD Drawing Approve Prerelease SO Transaction']
@@ -47,10 +47,10 @@ class UserRolePermissionV3Seeder extends Seeder
             ['name' => 'accounting_approve_prerelease_so_transaction', 'guard_name' => 'web'],
             ['ui_name' => 'Can Accounting Approve Prerelease SO Transaction']
         );
-        $canITApprovePrereleaseSo = Permission::updateOrCreate(
-            ['name' => 'it_approve_prerelease_so_transaction', 'guard_name' => 'web'],
-            ['ui_name' => 'Can IT Approve Prerelease SO Transaction']
-        );
+        // $canITApprovePrereleaseSo = Permission::updateOrCreate(
+        //     ['name' => 'it_approve_prerelease_so_transaction', 'guard_name' => 'web'],
+        //     ['ui_name' => 'Can IT Approve Prerelease SO Transaction']
+        // );
         $canAccountingRequestConfirmMarginPrereleaseSo = Permission::updateOrCreate(
             ['name' => 'accounting_request_confirm_margin_prerelease_so_transaction', 'guard_name' => 'web'],
             ['ui_name' => 'Can Accounting Request Confirm Margin Prerelease SO Transaction']
@@ -87,21 +87,22 @@ class UserRolePermissionV3Seeder extends Seeder
             ['name' => 'reject_prerelease_so_transaction', 'guard_name' => 'web'],
             ['ui_name' => 'Can Reject Prerelease SO Transaction']
         );
-        $canViewArea = Permission::updateOrCreate(
-            ['name' => 'view_area', 'guard_name' => 'web'],
-            ['ui_name' => 'Can View Area']
-        );
-        $canCreateArea = Permission::updateOrCreate(
-            ['name' => 'create_area', 'guard_name' => 'web'],
-            ['ui_name' => 'Can Create Area']
-        );
-        $canEditArea = Permission::updateOrCreate(
-            ['name' => 'edit_area', 'guard_name' => 'web'],
-            ['ui_name' => 'Can Edit Area']
-        );
-        $canDeleteArea = Permission::updateOrCreate(
-            ['name' => 'delete_area', 'guard_name' => 'web'],
-            ['ui_name' => 'Can Delete Area']
-        );
+
+        // $canViewArea = Permission::updateOrCreate(
+        //     ['name' => 'view_area', 'guard_name' => 'web'],
+        //     ['ui_name' => 'Can View Area']
+        // );
+        // $canCreateArea = Permission::updateOrCreate(
+        //     ['name' => 'create_area', 'guard_name' => 'web'],
+        //     ['ui_name' => 'Can Create Area']
+        // );
+        // $canEditArea = Permission::updateOrCreate(
+        //     ['name' => 'edit_area', 'guard_name' => 'web'],
+        //     ['ui_name' => 'Can Edit Area']
+        // );
+        // $canDeleteArea = Permission::updateOrCreate(
+        //     ['name' => 'delete_area', 'guard_name' => 'web'],
+        //     ['ui_name' => 'Can Delete Area']
+        // );
     }
 }

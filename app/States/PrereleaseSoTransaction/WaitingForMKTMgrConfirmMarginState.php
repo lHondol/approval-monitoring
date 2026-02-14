@@ -12,7 +12,7 @@ use App\Services\EmailService;
 use App\Services\PDFService;
 use Carbon\Carbon;
 
-class WaitingForITApprovalState implements PrereleaseSoTransactionState
+class WaitingForMKTMgrConfirmMarginState implements PrereleaseSoTransactionState
 {
     private PrereleaseSoTransaction $prereleaseSoTransaction;
     private PrereleaseSoTransactionStepService $prereleaseSoTransactionStepService;
@@ -30,23 +30,24 @@ class WaitingForITApprovalState implements PrereleaseSoTransactionState
     }
 
     public function next(object $data = null) {
-        $this->prereleaseSoTransaction->status = StatusPrereleaseSoTransaction::WAITING_MKT_STAFF_RELEASE->value;
-        $this->prereleaseSoTransaction->released_at = Carbon::now();
+        $this->prereleaseSoTransaction->status = StatusPrereleaseSoTransaction::WAITING_ACCOUNTING_APPROVAL->value;
+        $this->prereleaseSoTransaction->is_margin_confirmed = true;
         $this->prereleaseSoTransaction->save();
 
         $this->prereleaseSoTransactionStepService->createStep(
             $this->prereleaseSoTransaction, 
-            ActionPrereleaseSoTransactionStep::APPROVE_IT,
-            $data->reason ?? "Ok, Approved"
+            ActionPrereleaseSoTransactionStep::CONFIRM_MARGIN_MKT_MGR,
+            $data->reason ?? "Ok, Margin Confirmed"
         );
 
         $transactionId = $this->prereleaseSoTransaction->id;
         $soNumber = $this->prereleaseSoTransaction->so_number;
 
         dispatch(function () use ($transactionId, $soNumber) {
-            app(EmailService::class)->sendRequestPrereleaseSoReleased(
+            app(EmailService::class)->sendRequestPrereleaseSoApprovalGeneral(
                 $transactionId, 
-                $soNumber
+                $soNumber,
+                ['accounting_approve_prerelease_so_transaction']
             );
         })->afterResponse();
 
@@ -54,33 +55,6 @@ class WaitingForITApprovalState implements PrereleaseSoTransactionState
     }
 
     public function reject(object $data = null) {
-        $this->prereleaseSoTransaction->status = StatusPrereleaseSoTransaction::REVISE_NEEDED->value;
-        $this->prereleaseSoTransaction->need_revise_note = $data->reason;
-        $this->prereleaseSoTransaction->done_revised = false;
-        $this->prereleaseSoTransaction->save();
-
-        $prereleaseSoTransactionStep = $this->prereleaseSoTransactionStepService->createStep(
-            $this->prereleaseSoTransaction, 
-            ActionPrereleaseSoTransactionStep::REJECT,
-            $data->reason
-        );
-
-        $this->prereleaseSoTransactionRejectedImageService->createRejectedImages(
-            $this->prereleaseSoTransaction->id,
-            $prereleaseSoTransactionStep->id,
-            $this->prereleaseSoTransaction->filepath
-        );
-
-        $transactionId = $this->prereleaseSoTransaction->id;
-        $soNumber = $this->prereleaseSoTransaction->so_number;
-
-        dispatch(function () use ($transactionId, $soNumber) {
-            app(EmailService::class)->sendRequestRevisePrereleaseSoTransaction(
-                $transactionId,
-                $soNumber
-            );
-        })->afterResponse();
-
-        return $this->prereleaseSoTransaction;
+        
     }
 }

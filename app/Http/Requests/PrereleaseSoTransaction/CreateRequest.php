@@ -23,7 +23,8 @@ class CreateRequest extends FormRequest
     {
         return [
             "customer" => "required",
-            "area" => "required",
+            // "area" => "required",
+            "target_shipment" => "required",
             "so_number" => "required",
             "po_number" => "required",
             "description" => "nullable",

@@ -9,6 +9,7 @@
             StatusPrereleaseSoTransaction::WAITING_RND_BOM_APPROVAL->value => "pink",
             StatusPrereleaseSoTransaction::WAITING_ACCOUNTING_APPROVAL->value => "blue",
             StatusPrereleaseSoTransaction::WAITING_IT_APPROVAL->value => "violet",
+            StatusPrereleaseSoTransaction::WAITING_MKT_MGR_CONFIRM_MARGIN->value => "violet",
             StatusPrereleaseSoTransaction::WAITING_MKT_STAFF_RELEASE->value => "purple",
             StatusPrereleaseSoTransaction::RELEASED->value => "green",
             StatusPrereleaseSoTransaction::REVISE_NEEDED->value => "yellow",

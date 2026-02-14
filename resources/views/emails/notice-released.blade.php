@@ -1,12 +1,12 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Notice Finalisasi Dokumen</title>
+    <title>Notice Rilis Dokumen</title>
 </head>
 <body style="font-family: Arial, sans-serif; line-height: 1.6; color: #333;">
     <p>Yth. Ibu/Bapak {{ $name }},</p>
 
-    <p>Terdapat dokumen dengan <b>SO Number: {{ $so_number }}</b> yang sudah <strong>difinalisasikan</strong></p>
+    <p>Terdapat dokumen dengan <b>SO Number: {{ $so_number }}</b> yang sudah <strong>diriliskan</strong></p>
 
     <p>Silahkan klik link di bawah ini untuk melihat detail dokumen:</p>
 

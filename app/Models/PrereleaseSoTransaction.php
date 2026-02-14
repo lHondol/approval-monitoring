@@ -9,6 +9,7 @@ use App\States\PrereleaseSoTransaction\FinalState;
 use App\States\PrereleaseSoTransaction\ReviseNeededState;
 use App\States\PrereleaseSoTransaction\WaitingForAccountingApprovalState;
 use App\States\PrereleaseSoTransaction\WaitingForITApprovalState;
+use App\States\PrereleaseSoTransaction\WaitingForMKTMgrConfirmMarginState;
 use App\States\PrereleaseSoTransaction\WaitingForMKTStaffReleaseState;
 use App\States\PrereleaseSoTransaction\WaitingForRnDBomApprovalState;
 use App\States\PrereleaseSoTransaction\WaitingForRnDDrawingApprovalState;
@@ -41,6 +42,7 @@ class PrereleaseSoTransaction extends Model
             StatusPrereleaseSoTransaction::WAITING_RND_BOM_APPROVAL->value   => new WaitingForRnDBomApprovalState($this),
             StatusPrereleaseSoTransaction::WAITING_ACCOUNTING_APPROVAL->value   => new WaitingForAccountingApprovalState($this),
             StatusPrereleaseSoTransaction::WAITING_IT_APPROVAL->value   => new WaitingForITApprovalState($this),
+            StatusPrereleaseSoTransaction::WAITING_MKT_MGR_CONFIRM_MARGIN->value   => new WaitingForMKTMgrConfirmMarginState($this),
             StatusPrereleaseSoTransaction::WAITING_MKT_STAFF_RELEASE->value   => new WaitingForMKTStaffReleaseState($this),
             StatusPrereleaseSoTransaction::RELEASED->value   => new FinalState($this),
             StatusPrereleaseSoTransaction::REVISE_NEEDED->value   => new ReviseNeededState($this),

@@ -168,7 +168,7 @@ class PrereleaseSoTransactionsExport implements FromCollection, WithHeadings
             'IT Approved At',
             'IT Day',
     
-            'Finalized At',
+            'Released At',
 
             'Leading Time',
     

@@ -29,7 +29,7 @@ class WaitingForAccountingApprovalState implements PrereleaseSoTransactionState
     }
 
     public function next(object $data = null) {
-        $this->prereleaseSoTransaction->status = StatusPrereleaseSoTransaction::WAITING_IT_APPROVAL->value;
+        $this->prereleaseSoTransaction->status = StatusPrereleaseSoTransaction::WAITING_MKT_STAFF_RELEASE->value;
         $this->prereleaseSoTransaction->save();
 
         $this->prereleaseSoTransactionStepService->createStep(
@@ -42,10 +42,9 @@ class WaitingForAccountingApprovalState implements PrereleaseSoTransactionState
         $soNumber = $this->prereleaseSoTransaction->so_number;
 
         dispatch(function () use ($transactionId, $soNumber) {
-            app(EmailService::class)->sendRequestPrereleaseSoApprovalGeneral(
+            app(EmailService::class)->sendRequestPrereleaseSoReleased(
                 $transactionId, 
-                $soNumber,
-                ['it_approve_prerelease_so_transaction']
+                $soNumber
             );
         })->afterResponse();
 
@@ -76,6 +75,29 @@ class WaitingForAccountingApprovalState implements PrereleaseSoTransactionState
         dispatch(function () use ($transactionId, $soNumber) {
             app(EmailService::class)->sendRequestRevisePrereleaseSoTransaction(
                 $transactionId,
+                $soNumber
+            );
+        })->afterResponse();
+
+        return $this->prereleaseSoTransaction;
+    }
+
+    public function requestConfirmMargin(object $data = null) {
+        $this->prereleaseSoTransaction->status = StatusPrereleaseSoTransaction::WAITING_MKT_MGR_CONFIRM_MARGIN->value;
+        $this->prereleaseSoTransaction->save();
+
+        $this->prereleaseSoTransactionStepService->createStep(
+            $this->prereleaseSoTransaction, 
+            ActionPrereleaseSoTransactionStep::REQUEST_CONFIRM_MARGIN_ACCOUNTING,
+            $data->reason ?? "Request Margin Confirmation"
+        );
+
+        $transactionId = $this->prereleaseSoTransaction->id;
+        $soNumber = $this->prereleaseSoTransaction->so_number;
+
+        dispatch(function () use ($transactionId, $soNumber) {
+            app(EmailService::class)->sendRequestPrereleaseSoMarginConfirmation(
+                $transactionId, 
                 $soNumber
             );
         })->afterResponse();

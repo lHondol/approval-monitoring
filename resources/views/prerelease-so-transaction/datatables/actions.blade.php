@@ -8,10 +8,6 @@
             $user = auth()->user();
             $status = $data->status;
 
-            $canSalesAreaApprove =
-                $user->hasPermissionTo('sales_area_approve_prerelease_so_transaction') &&
-                $status === StatusPrereleaseSoTransaction::WAITING_SALES_AREA_APPROVAL->value;
-
             $canRndDrawingApprove =
                 $user->hasPermissionTo('rnd_drawing_approve_prerelease_so_transaction') &&
                 $status === StatusPrereleaseSoTransaction::WAITING_RND_DRAWING_APPROVAL->value;
@@ -24,37 +20,42 @@
                 $user->hasPermissionTo('accounting_approve_prerelease_so_transaction') &&
                 $status === StatusPrereleaseSoTransaction::WAITING_ACCOUNTING_APPROVAL->value;
 
-            $canItApprove =
-                $user->hasPermissionTo('it_approve_prerelease_so_transaction') &&
-                $status === StatusPrereleaseSoTransaction::WAITING_IT_APPROVAL->value;
+            $canAccountingRequestConfirmMargin =
+                $user->hasPermissionTo('accounting_request_confirm_margin_prerelease_so_transaction') &&
+                $status === StatusPrereleaseSoTransaction::WAITING_ACCOUNTING_APPROVAL->value;
+                
+            $canMKTManagerConfirmMargin =
+                $user->hasPermissionTo('mkt_manager_confirm_margin_prerelease_so_transaction') &&
+                $status === StatusPrereleaseSoTransaction::WAITING_MKT_MGR_CONFIRM_MARGIN->value;
 
             $canMKTStaffRelease =
                 $user->hasPermissionTo('mkt_staff_release_prerelease_so_transaction') &&
                 $status === StatusPrereleaseSoTransaction::WAITING_MKT_STAFF_RELEASE->value;
 
-
             $canReject =
-                ($user->hasPermissionTo('reject_prerelease_so_transaction') && $canSalesAreaApprove) ||
                 ($user->hasPermissionTo('reject_prerelease_so_transaction') && $canRndDrawingApprove) ||
                 ($user->hasPermissionTo('reject_prerelease_so_transaction') && $canRndBomApprove) ||
                 ($user->hasPermissionTo('reject_prerelease_so_transaction') && $canAccountingApprove) ||
-                ($user->hasPermissionTo('reject_prerelease_so_transaction') && $canItApprove);
+                ($user->hasPermissionTo('reject_prerelease_so_transaction') && $canMKTManagerConfirmMargin);
+
         @endphp
 
         @if (auth()->user()->hasAnyPermission(['view_prerelease_so_transaction']))
             <a href="{{ route('prereleaseSoTransactionDetail', $data->id) }}" class="item">Detail</a>
         @endif
 
-        @if ($canSalesAreaApprove || $canRndDrawingApprove || $canRndBomApprove || $canAccountingApprove || $canItApprove || $canMKTStaffRelease || $canReject)
+        @if ($canRndDrawingApprove || $canRndBomApprove || $canAccountingApprove || $canAccountingRequestConfirmMargin || $canMKTManagerConfirmMargin || $canMKTStaffRelease || $canReject)
             <a href="{{ route('prereleaseSoTransactionApprovalForm', $data->id) }}" class="item">
                 @if ($canMKTStaffRelease)
-                    Finalize
+                    Release
+                @elseif ($canMKTManagerConfirmMargin)
+                    Confirm Margin
                 @else
                     Approval
                 @endif
             </a>
         @endif
-        
+
         @if (auth()->user()->hasPermissionTo('revise_prerelease_so_transaction') &&
             $data->status === StatusPrereleaseSoTransaction::REVISE_NEEDED->value
         )

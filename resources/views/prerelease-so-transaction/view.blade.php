@@ -16,7 +16,7 @@
                     <div class="item" data-value="Waiting For RnD BOM Approval">Waiting For Approval RnD BOM</div>
                     <div class="item" data-value="Waiting For Accounting Approval">Waiting For Approval Accounting</div>
                     <div class="item" data-value="Waiting For IT Approval">Waiting For Approval IT</div>
-                    <div class="item" data-value="Finalized">Finalized</div>
+                    <div class="item" data-value="Released">Released</div>
                 </div>
             </div>
             <div class="flex gap-3" id="additionalRevisedFilter">
@@ -43,7 +43,7 @@
                     <th>PO Number</th>
                     <th>Description</th>
                     <th>Created At</th>
-                    <th>Finalized At</th>
+                    <th>Released At</th>
                     <th>Leading Time</th>
                     <th>Status</th>
                     <th>Actions</th>
@@ -59,7 +59,7 @@
                     <th class="!font-bold">PO Number</th>
                     <th class="!font-bold">Description</th>
                     <th class="!font-bold">Created At</th>
-                    <th class="!font-bold">Finalized At</th>
+                    <th class="!font-bold">Released At</th>
                     <th class="!font-bold">Status</th>
                     <th class="!font-bold">Actions</th>
                 </tr>

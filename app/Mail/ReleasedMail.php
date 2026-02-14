@@ -9,7 +9,7 @@ use Illuminate\Mail\Mailables\Content;
 use Illuminate\Mail\Mailables\Envelope;
 use Illuminate\Queue\SerializesModels;
 
-class FinalizedMail extends Mailable
+class ReleasedMail extends Mailable
 {
     use Queueable, SerializesModels;
     private string $link;
@@ -32,7 +32,7 @@ class FinalizedMail extends Mailable
     public function envelope(): Envelope
     {
         return new Envelope(
-            subject: 'Notice Finalisasi Dokumen',
+            subject: 'Notice Rilis Dokumen',
         );
     }
 
@@ -42,7 +42,7 @@ class FinalizedMail extends Mailable
     public function content(): Content
     {
         return new Content(
-            view: 'emails.notice-finalized',
+            view: 'emails.notice-released',
             with: [
                 'link' => $this->link,
                 'name' => $this->name,

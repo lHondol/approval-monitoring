@@ -9,7 +9,7 @@ use Illuminate\Mail\Mailables\Content;
 use Illuminate\Mail\Mailables\Envelope;
 use Illuminate\Queue\SerializesModels;
 
-class WaitingFinalizeMail extends Mailable
+class WaitingMarginConfirmationMail extends Mailable
 {
     use Queueable, SerializesModels;
     private string $link;
@@ -31,7 +31,7 @@ class WaitingFinalizeMail extends Mailable
     public function envelope(): Envelope
     {
         return new Envelope(
-            subject: 'Permintaan Finalisasi Dokumen',
+            subject: 'Permintaan Konfirmasi Margin',
         );
     }
 
@@ -41,7 +41,7 @@ class WaitingFinalizeMail extends Mailable
     public function content(): Content
     {
         return new Content(
-            view: 'emails.waiting-finalize',
+            view: 'emails.waiting-margin-confirmation',
             with: [
                 'link'=> $this->link,
                 'name' => $this->name,
