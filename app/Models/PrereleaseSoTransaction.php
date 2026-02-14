@@ -56,4 +56,12 @@ class PrereleaseSoTransaction extends Model
     public function area() {
         return $this->belongsTo(Area::class);
     }
+
+    public function notificationReads()
+    {
+        return $this->hasMany(
+            PrereleaseSoNotificationRead::class,
+            'prerelease_so_transaction_id'
+        );
+    }
 }

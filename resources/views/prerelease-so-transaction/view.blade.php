@@ -11,11 +11,11 @@
                 <div class="default text">Filter Status</div>
                 <div class="menu">
                     <div class="item" data-value="Waiting">Waiting For Approval</div>
-                    <div class="item" data-value="Waiting For Sales Area Approval">Waiting For Approval Sales Area</div>
                     <div class="item" data-value="Waiting For RnD Drawing Approval">Waiting For Approval RnD Drawing</div>
                     <div class="item" data-value="Waiting For RnD BOM Approval">Waiting For Approval RnD BOM</div>
                     <div class="item" data-value="Waiting For Accounting Approval">Waiting For Approval Accounting</div>
-                    <div class="item" data-value="Waiting For IT Approval">Waiting For Approval IT</div>
+                    <div class="item" data-value="Waiting for MKT Manager Confirm Margin">Waiting for MKT Manager Confirm Margin</div>
+                    <div class="item" data-value="Waiting for MKT Staff Release">Waiting for MKT Staff Release</div>
                     <div class="item" data-value="Released">Released</div>
                 </div>
             </div>

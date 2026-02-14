@@ -5,16 +5,22 @@ namespace App\Http\Controllers;
 use App\Http\Requests\PrereleaseSoTransaction\ApprovalRequest;
 use App\Http\Requests\PrereleaseSoTransaction\CreateRequest;
 use App\Http\Requests\PrereleaseSoTransaction\ReviseRequest;
-use App\Models\User;
 use App\Services\PrereleaseSoTransactionService;
 use App\Services\EmailService;
+use App\Services\PrereleaseSoNotificationReadService;
 use Illuminate\Http\Request;
 
 class PrereleaseSoTransactionController extends Controller
 {
     private $prereleaseSoTransactionService;
-    public function __construct(PrereleaseSoTransactionService $prereleaseSoTransactionService, EmailService $emailService) {
+    private $prereleaseSoNotificationReadService;
+    public function __construct(
+        PrereleaseSoTransactionService $prereleaseSoTransactionService,
+        PrereleaseSoNotificationReadService $prereleaseSoNotificationReadService
+    ) 
+    {
         $this->prereleaseSoTransactionService = $prereleaseSoTransactionService;
+        $this->prereleaseSoNotificationReadService = $prereleaseSoNotificationReadService;
     }
 
     public function view() {
@@ -52,6 +58,9 @@ class PrereleaseSoTransactionController extends Controller
         $data = $this->prereleaseSoTransactionService->getDetail($id);
         if (!$data)
             return redirect()->back();
+        
+        $this->prereleaseSoNotificationReadService->markAsRead($data->id);
+        
         return view('prerelease-so-transaction.detail', compact('data'));
     }
 
@@ -68,6 +77,10 @@ class PrereleaseSoTransactionController extends Controller
     public function approvalForm(Request $request) {
         $id = $request->id;
         $data = $this->prereleaseSoTransactionService->getDetail($id);
+        if (!$data)
+            return redirect()->back();
+
+        $this->prereleaseSoNotificationReadService->markAsRead($data->id);
         return view('prerelease-so-transaction.approval', compact('data'));
     }
 
@@ -94,6 +107,11 @@ class PrereleaseSoTransactionController extends Controller
         $months = $this->prereleaseSoTransactionService->getMonths();
         $id = $request->id;
         $data = $this->prereleaseSoTransactionService->getDetail($id);
+
+        if (!$data)
+            return redirect()->back();
+        
+        $this->prereleaseSoNotificationReadService->markAsRead($data->id);
         return view('prerelease-so-transaction.revise', compact('data', 'customers', 'areas', 'months'));
     }
 
