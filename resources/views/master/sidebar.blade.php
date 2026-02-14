@@ -82,8 +82,13 @@
                 @endif
 
                 @if (auth()->user()->hasAnyPermission(['view_prerelease_so_transaction']))
-                    <a href="{{ route('prereleaseSoTransactionView') }}" class="{{ navClass('prerelase-so-transactions*') }}">
-                        Prerelease So Transactions
+                    <a href="{{ route('prereleaseSoTransactionView') }}" 
+                        class="{{ navClass('prerelease-so-transactions*') }} !flex justify-between items-center">
+                        <span>Prerelease So Transactions</span>
+                        <div id="prereleaseBadge" 
+                            class="bg-yellow-600 min-w-[50px] text-center text-sm rounded" 
+                            style="display:none;">
+                        </div>
                     </a>
                 @endif
 
@@ -179,4 +184,30 @@
     
     $(window).on('resize', resetSidebarOnResize);
     resetSidebarOnResize();
+
+    function loadPrereleaseBadge() {
+        $.ajax({
+            url: "{{ route('prereleaseSoTransactionGetBadgeCount') }}",
+            type: "GET",
+            success: function (response) {
+                const badge = $('#prereleaseBadge');
+
+                if (response.count > 0) {
+                    badge.text(response.count).show();
+                } else {
+                    badge.hide();
+                }
+            },
+            error: function () {
+                console.log('Failed to fetch badge count');
+            }
+        });
+    }
+
+    $(document).ready(function () {
+        loadPrereleaseBadge();
+
+        // Refresh every 10 seconds
+        setInterval(loadPrereleaseBadge, 10000);
+    });
 </script>

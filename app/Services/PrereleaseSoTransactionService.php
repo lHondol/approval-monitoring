@@ -93,7 +93,7 @@ class PrereleaseSoTransactionService
             $query->whereIn('status', $status);
         })
         // ->when($filterByArea, function ($query) {
-        //     $userId = auth()->user()->id;
+        //     auth()->user()Id = auth()->user()->id;
         
         //     $query->whereHas('area.users', function ($q) use ($userId) {
         //         $q->where('users.id', $userId);
@@ -386,17 +386,32 @@ class PrereleaseSoTransactionService
     }
 
     public function getBadgeCount() {
-        
-        $nonAreaPermissions = [
-            'rnd_drawing_approve_prerelease_so_transaction', 
-            'rnd_bom_approve_prerelease_so_transaction', 
-            'accounting_approve_prerelease_so_transaction', 
-            'it_approve_prerelease_so_transaction',
-            'mkt_staff_release_prerelease_so_transaction' 
-        ];
+        $statuses = [];
 
-        $status = [];
+            if (auth()->user()->hasPermissionTo('rnd_drawing_approve_prerelease_so_transaction')) {
+                $statuses[] = StatusPrereleaseSoTransaction::WAITING_RND_DRAWING_APPROVAL->value;
+            }
+            
+            if (auth()->user()->hasPermissionTo('rnd_bom_approve_prerelease_so_transaction')) {
+                $statuses[] = StatusPrereleaseSoTransaction::WAITING_RND_BOM_APPROVAL->value;
+            }
+
+            if (auth()->user()->hasPermissionTo('accounting_approve_prerelease_so_transaction')) {
+                $statuses[] = StatusPrereleaseSoTransaction::WAITING_ACCOUNTING_APPROVAL->value;
+            }
+
+            if (auth()->user()->hasPermissionTo('accounting_request_confirm_margin_prerelease_so_transaction')) {
+                $statuses[] = StatusPrereleaseSoTransaction::WAITING_ACCOUNTING_APPROVAL->value;
+            }
+            
+            if (auth()->user()->hasPermissionTo('mkt_manager_confirm_margin_prerelease_so_transaction')) {
+                $statuses[] = StatusPrereleaseSoTransaction::WAITING_MKT_MGR_CONFIRM_MARGIN->value;
+            }
+
+            if (auth()->user()->hasPermissionTo('mkt_staff_release_prerelease_so_transaction')) {
+                $statuses[] = StatusPrereleaseSoTransaction::WAITING_MKT_STAFF_RELEASE->value;
+            }
         
-        return PrereleaseSoTransaction::where()->count();
+        return PrereleaseSoTransaction::whereIn("status", $statuses)->count();
     }
 }

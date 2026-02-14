@@ -118,4 +118,12 @@ class PrereleaseSoTransactionController extends Controller
 
         return redirect()->route('prereleaseSoTransactionView');
     }
+
+    public function getBadgeCount() {
+        $count = $this->prereleaseSoTransactionService->getBadgeCount();
+
+        return response()->json([
+            'count' => $count
+        ]);
+    }
 }
