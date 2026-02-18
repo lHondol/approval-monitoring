@@ -30,6 +30,7 @@ class PrereleaseSoTransactionsExport implements FromCollection, WithHeadings
             ->when($to, fn ($q) =>
                 $q->whereDate('created_at', '<=', $to)
             )
+            ->orderByDesc('is_urgent')
             ->orderByDesc('created_at')
             ->get()
             ->map(function ($transaction) {
@@ -105,6 +106,18 @@ class PrereleaseSoTransactionsExport implements FromCollection, WithHeadings
                     Carbon::now()
                 );
 
+                $targetShipment = '';
+
+                if ($transaction->target_shipment_month && $transaction->target_shipment_year) {
+                    $date = \Carbon\Carbon::createFromDate(
+                        $transaction->target_shipment_year,
+                        $transaction->target_shipment_month,
+                        1
+                    );
+
+                    $targetShipment = $date->format('F Y'); // March 2026
+                }
+
                 return [
                     'Customer Name'        => $transaction->customer->name ?? '',
                     'Area'                => $transaction->area->name ?? '',
@@ -133,7 +146,11 @@ class PrereleaseSoTransactionsExport implements FromCollection, WithHeadings
                     'Released At'         => $fmt($transaction->released_at),
 
                     'Leading Time'         => $leadingTimeDay,
+
+                    'Target Shipment'      => $targetShipment,
                 
+                    'Is Urgent'            => $transaction->is_urgent ? 'Yes' : 'No',
+
                     'Status'               => $transaction->status,
                     'As Additional Data'   => $transaction->as_additional_data ? 'Yes' : 'No',
                     'As Revision Data'     => $transaction->as_revision_data ? 'Yes' : 'No',
@@ -171,7 +188,9 @@ class PrereleaseSoTransactionsExport implements FromCollection, WithHeadings
             'Released At',
 
             'Leading Time',
-    
+
+            'Target Shipment',
+            'Is Urgent',
             'Status',
             'As Additional Data',
             'As Revision Data',

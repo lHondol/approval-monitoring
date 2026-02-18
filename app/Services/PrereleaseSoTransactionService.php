@@ -86,6 +86,8 @@ class PrereleaseSoTransactionService
             'prerelease_so_transactions.done_revised',
             'prerelease_so_transactions.customer_id',
             'prerelease_so_transactions.is_urgent',
+            'prerelease_so_transactions.target_shipment_month',
+            'prerelease_so_transactions.target_shipment_year'
             // 'prerelease_so_transactions.area_id',
         ])->with(['customer', 'area'])
         ->orderBy('is_urgent', 'desc')
@@ -119,6 +121,19 @@ class PrereleaseSoTransactionService
             ->startOfDay()
             ->diffInDays(Carbon::now()->startOfDay());
             return "$days day(s)"; 
+        })
+        ->addColumn('target_shipment', function ($row) {
+            if (!$row->target_shipment_month || !$row->target_shipment_year) {
+                return '';
+            }
+
+            $date = Carbon::createFromDate(
+                $row->target_shipment_year,
+                $row->target_shipment_month,
+                1
+            );
+
+            return $date->format('F Y'); // March 2026
         })       
         ->addColumn('actions', function($row) {
             return $this->renderActionButtons($row);
@@ -333,11 +348,8 @@ class PrereleaseSoTransactionService
 
     public function getMonths() {
         $months = [];
-        $now = now();
 
-        $start = $now->day > 11
-            ? $now->copy()->addMonths(2)->startOfMonth()
-            : $now->copy()->addMonth()->startOfMonth();
+        $start = now()->copy()->addMonth()->startOfMonth();
 
         for ($i = 0; $i < 12; $i++) {
             $date = $start->copy()->addMonths($i);

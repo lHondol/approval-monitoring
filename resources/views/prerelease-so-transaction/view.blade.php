@@ -45,6 +45,7 @@
                     <th>Created At</th>
                     <th>Released At</th>
                     <th>Leading Time</th>
+                    <th>Target Shipment</th>
                     <th>Status</th>
                     <th>Actions</th>
                 </tr>
@@ -60,6 +61,8 @@
                     <th class="!font-bold">Description</th>
                     <th class="!font-bold">Created At</th>
                     <th class="!font-bold">Released At</th>
+                    <th class="!font-bold">Leading Time</th>
+                    <th class="!font-bold">Target Shipment</th>
                     <th class="!font-bold">Status</th>
                     <th class="!font-bold">Actions</th>
                 </tr>
@@ -94,6 +97,7 @@
                     { data: 'created_at', name: 'created_at', width: 130 },
                     { data: 'released_at', name: 'released_at', width: 130 },
                     { data: 'leadtime', name: 'leadtime', width: 130 },
+                    { data: 'target_shipment', name: 'target_shipment', width: 130 },
                     { data: 'status', name: 'status', width: 200 },
                     { data: 'as_revision_data', name: 'as_revision_data', visible: false },
                     { data: 'as_additional_data', name: 'as_additional_data', visible: false },
