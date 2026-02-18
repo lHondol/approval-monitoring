@@ -316,21 +316,51 @@
             const targetDropdown = $('#targetShipmentsDropdown');
             targetDropdown.dropdown();
 
+            const today = new Date().getDate(); // current day (1–31)
+
+            // If day > 11 → take second item, else first item
+            let defaultItem;
+
+            if (today > 11) {
+                defaultItem = targetDropdown.find('.menu .item').eq(1); // second item
+            } else {
+                defaultItem = targetDropdown.find('.menu .item').eq(0); // first item
+            }
+
+            if (defaultItem.length) {
+                const value = defaultItem.data('value');
+                targetDropdown.dropdown('set selected', value);
+            }
+
             const form = $('#reviseForm');
             const submitBtn = $('#submitBtn');
             const modal = $('#isUrgentConfirmModal');
             const hiddenInput = $('#isUrgentConfirmationAction');
 
             submitBtn.on('click', function (e) {
-                e.preventDefault(); // stop normal submit
-                const today = new Date();
-                const currentDay = today.getDate(); // 1 - 31
+                e.preventDefault();
 
-                if (currentDay > 11) {
+                const today = new Date().getDate();
+
+                const targetDropdown = $('#targetShipmentsDropdown');
+
+                // Get currently selected value
+                const selectedValue = targetDropdown.dropdown('get value');
+
+                // Get first item's value dynamically
+                const firstItemValue = targetDropdown
+                    .find('.menu .item')
+                    .eq(0)
+                    .data('value');
+
+                const isFirstItem = selectedValue == firstItemValue;
+
+                if (today > 11 && isFirstItem) {
                     // Show confirmation modal
                     modal.modal('show');
                 } else {
                     // Submit directly
+                    hiddenInput.val(0);
                     form[0].submit();
                 }
             });
@@ -341,8 +371,7 @@
             });
 
             $('#noBtn').on('click', function () {
-                hiddenInput.val(0);
-                form[0].submit();
+                modal.modal('hide');
             });
         });
     </script>

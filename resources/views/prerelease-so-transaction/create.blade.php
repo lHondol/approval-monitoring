@@ -339,8 +339,7 @@
             });
 
             $('#noBtn').on('click', function () {
-                hiddenInput.val(0);
-                form[0].submit();
+                modal.modal('hide');
             });
         });
     </script>
