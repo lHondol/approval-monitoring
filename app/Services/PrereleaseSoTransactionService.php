@@ -333,8 +333,11 @@ class PrereleaseSoTransactionService
 
     public function getMonths() {
         $months = [];
+        $now = now();
 
-        $start = now()->addMonth()->startOfMonth();
+        $start = $now->day > 11
+            ? $now->copy()->addMonths(2)->startOfMonth()
+            : $now->copy()->addMonth()->startOfMonth();
 
         for ($i = 0; $i < 12; $i++) {
             $date = $start->copy()->addMonths($i);
