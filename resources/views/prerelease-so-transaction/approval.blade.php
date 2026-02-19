@@ -34,10 +34,12 @@
                         $data->status === StatusPrereleaseSoTransaction::WAITING_MKT_MGR_CONFIRM_MARGIN->value;
 
                     $released = $data->status === StatusPrereleaseSoTransaction::RELEASED->value;
+
+                    $needRevised = $data->status === StatusPrereleaseSoTransaction::REVISE_NEEDED->value;
                 @endphp
                 <div class="field">
                     <label class="!text-base">
-                        @if ($canRelease || !auth()->user()->hasPermissionTo('reject_prerelease_so_transaction'))
+                        @if ($canRelease || !auth()->user()->hasPermissionTo('mkt_admin_reject_prerelease_so_transaction'))
                             Reason
                         @else
                             Reason (Must be fill if reject)
@@ -69,7 +71,7 @@
                         <button class="ui button customButton" type="submit" name="action" value="request-confirm-margin">Request Confirm Margin</button>
                     @endif
 
-                    @if (auth()->user()->hasPermissionTo('reject_prerelease_so_transaction') && !$canMKTManagerConfirmMargin)
+                    @if (auth()->user()->hasAnyPermission(['reject_prerelease_so_transaction', 'mkt_admin_reject_prerelease_so_transaction']) && !$canMKTManagerConfirmMargin && !$needRevised)
                         <button class="ui button customButton" style="--btn-color: #e74c3c;" type="submit" name="action" value="reject">Reject</button>
                     @endif
                 </div>
