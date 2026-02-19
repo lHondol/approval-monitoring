@@ -25,12 +25,12 @@
                 @endphp
                 @if ($data->status === StatusDrawingTransaction::WAITING_2ND_APPROVAL->value && !$data->so_number)
                     <div class="field flex-1">
-                        <label class="!text-base"">Sales Order Number (SO)</label>
-                        <input type="text" name="so_number" placeholder="Sales Order Number"">
+                        <label class="!text-base">Sales Order Number (SO)</label>
+                        <input type="text" name="so_number" placeholder="Sales Order Number">
                     </div>
                 @endif
                 <div class="field">
-                    <label class="!text-base"">Reason (Must be fill if reject)</label>
+                    <label class="!text-base">Reason (Must be fill if reject)</label>
                     <textarea style="resize: none;" name="reason" placeholder="Reason"></textarea>
                 </div>
                 <div>

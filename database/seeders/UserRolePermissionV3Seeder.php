@@ -88,6 +88,11 @@ class UserRolePermissionV3Seeder extends Seeder
             ['ui_name' => 'Can Reject Prerelease SO Transaction']
         );
 
+        $canMktAdminRejectPrereleaseSo = Permission::updateOrCreate(
+            ['name' => 'mkt_admin_reject_prerelease_so_transaction', 'guard_name' => 'web'],
+            ['ui_name' => 'Can Mkt Admin Reject Prerelease SO Transaction']
+        );
+
         // $canViewArea = Permission::updateOrCreate(
         //     ['name' => 'view_area', 'guard_name' => 'web'],
         //     ['ui_name' => 'Can View Area']

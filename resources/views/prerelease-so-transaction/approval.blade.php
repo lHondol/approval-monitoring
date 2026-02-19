@@ -32,10 +32,12 @@
                     $canMKTManagerConfirmMargin =
                         auth()->user()->hasPermissionTo('mkt_manager_confirm_margin_prerelease_so_transaction') &&
                         $data->status === StatusPrereleaseSoTransaction::WAITING_MKT_MGR_CONFIRM_MARGIN->value;
+
+                    $released = $data->status === StatusPrereleaseSoTransaction::RELEASED->value;
                 @endphp
                 <div class="field">
-                    <label class="!text-base"">
-                        @if ($canRelease)
+                    <label class="!text-base">
+                        @if ($canRelease || !auth()->user()->hasPermissionTo('reject_prerelease_so_transaction'))
                             Reason
                         @else
                             Reason (Must be fill if reject)
@@ -44,14 +46,14 @@
                     <textarea style="resize: none;" name="reason" placeholder="Reason"></textarea>
                 </div>
                 <div>
-                    @if (auth()->user()->hasAnyPermission([
+                    @if ((auth()->user()->hasAnyPermission([
                         'sales_area_approve_prerelease_so_transaction',
                         'rnd_drawing_approve_prerelease_so_transaction',
                         'rnd_bom_approve_prerelease_so_transaction',
                         'accounting_approve_prerelease_so_transaction',
                         'accounting_request_confirm_margin_prerelease_so_transaction',
                         'it_approve_prerelease_so_transaction',
-                    ]) || $canRelease || $canMKTManagerConfirmMargin)
+                    ]) || $canRelease || $canMKTManagerConfirmMargin) && !$released)
                         <button class="ui button customButton" type="submit" name="action" value="approve">
                             @if ($canRelease)
                                 Release
@@ -67,7 +69,7 @@
                         <button class="ui button customButton" type="submit" name="action" value="request-confirm-margin">Request Confirm Margin</button>
                     @endif
 
-                    @if (auth()->user()->hasPermissionTo('reject_prerelease_so_transaction') && !$canRelease && !$canMKTManagerConfirmMargin)
+                    @if (auth()->user()->hasPermissionTo('reject_prerelease_so_transaction') && !$canMKTManagerConfirmMargin)
                         <button class="ui button customButton" style="--btn-color: #e74c3c;" type="submit" name="action" value="reject">Reject</button>
                     @endif
                 </div>

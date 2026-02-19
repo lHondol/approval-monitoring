@@ -41,6 +41,28 @@ class EmailService
         }
     }
 
+    
+    public function sendPrereleaseSoRejectNoticeGeneral($transactionId, $so_number, $permissions) {
+        
+        $users = User::query();
+        
+        foreach ($permissions as $perm) {
+            $users->whereHas('roles.permissions', function ($query) use ($perm) {
+                $query->where('name', $perm);
+            });
+        }
+        
+        $users = $users->get();
+
+        foreach ($users as $user) {
+            $transactionUrl = url("drawing-transactions/detail/{$transactionId}");
+            $name = $user->name;
+            $email = $user->email;
+            Mail::to($email)->send(new RejectionMail($transactionUrl, $name, $so_number));
+        }
+    }
+
+
     public function sendRequestPrereleaseSoApprovalSalesArea($transactionId, $areaId, $so_number) {
         $permissions = ['sales_area_approve_prerelease_so_transaction'];
         

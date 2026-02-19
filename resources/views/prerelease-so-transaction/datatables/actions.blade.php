@@ -32,11 +32,16 @@
                 $user->hasPermissionTo('mkt_staff_release_prerelease_so_transaction') &&
                 $status === StatusPrereleaseSoTransaction::WAITING_MKT_STAFF_RELEASE->value;
 
+            $released = $user->hasPermissionTo('mkt_admin_reject_prerelease_so_transaction') &&
+                $status === StatusPrereleaseSoTransaction::RELEASED->value;
+
             $canReject =
                 ($user->hasPermissionTo('reject_prerelease_so_transaction') && $canRndDrawingApprove) ||
                 ($user->hasPermissionTo('reject_prerelease_so_transaction') && $canRndBomApprove) ||
                 ($user->hasPermissionTo('reject_prerelease_so_transaction') && $canAccountingApprove) ||
-                ($user->hasPermissionTo('reject_prerelease_so_transaction') && $canMKTManagerConfirmMargin);
+                ($user->hasPermissionTo('reject_prerelease_so_transaction') && $canAccountingRequestConfirmMargin) ||
+                ($user->hasPermissionTo('mkt_admin_reject_prerelease_so_transaction') && $canMKTStaffRelease) ||
+                $released;
 
         @endphp
 
@@ -50,6 +55,8 @@
                     Release
                 @elseif ($canMKTManagerConfirmMargin)
                     Confirm Margin
+                @elseif ($released)
+                    Reject
                 @else
                     Approval
                 @endif

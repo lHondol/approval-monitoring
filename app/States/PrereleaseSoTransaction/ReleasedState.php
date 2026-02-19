@@ -12,7 +12,7 @@ use App\Services\EmailService;
 use App\Services\PDFService;
 use Carbon\Carbon;
 
-class WaitingForMKTStaffReleaseState implements PrereleaseSoTransactionState
+class ReleasedState implements PrereleaseSoTransactionState
 {
     private PrereleaseSoTransaction $prereleaseSoTransaction;
     private PrereleaseSoTransactionStepService $prereleaseSoTransactionStepService;
@@ -30,17 +30,7 @@ class WaitingForMKTStaffReleaseState implements PrereleaseSoTransactionState
     }
 
     public function next(object $data = null) {
-        $this->prereleaseSoTransaction->status = StatusPrereleaseSoTransaction::RELEASED->value;
-        $this->prereleaseSoTransaction->released_at = Carbon::now();
-        $this->prereleaseSoTransaction->save();
-
-        $this->prereleaseSoTransactionStepService->createStep(
-            $this->prereleaseSoTransaction, 
-            ActionPrereleaseSoTransactionStep::RELEASED_MKT_STAFF,
-            $data->reason ?? "Ok, Released"
-        );
-
-        return $this->prereleaseSoTransaction;
+        
     }
 
     public function reject(object $data = null) {

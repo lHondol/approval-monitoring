@@ -6,6 +6,7 @@ use App\Enums\StatusPrereleaseSoTransaction;
 use App\Interfaces\PrereleaseSoTransactionState;
 use App\States\DrawingTransaction\WaitingForBomApprovalState;
 use App\States\PrereleaseSoTransaction\FinalState;
+use App\States\PrereleaseSoTransaction\ReleasedState;
 use App\States\PrereleaseSoTransaction\ReviseNeededState;
 use App\States\PrereleaseSoTransaction\WaitingForAccountingApprovalState;
 use App\States\PrereleaseSoTransaction\WaitingForITApprovalState;
@@ -44,7 +45,7 @@ class PrereleaseSoTransaction extends Model
             StatusPrereleaseSoTransaction::WAITING_IT_APPROVAL->value   => new WaitingForITApprovalState($this),
             StatusPrereleaseSoTransaction::WAITING_MKT_MGR_CONFIRM_MARGIN->value   => new WaitingForMKTMgrConfirmMarginState($this),
             StatusPrereleaseSoTransaction::WAITING_MKT_STAFF_RELEASE->value   => new WaitingForMKTStaffReleaseState($this),
-            StatusPrereleaseSoTransaction::RELEASED->value   => new FinalState($this),
+            StatusPrereleaseSoTransaction::RELEASED->value   => new ReleasedState($this),
             StatusPrereleaseSoTransaction::REVISE_NEEDED->value   => new ReviseNeededState($this),
         };
     }

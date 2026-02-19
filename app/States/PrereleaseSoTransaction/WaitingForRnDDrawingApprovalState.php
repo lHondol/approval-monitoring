@@ -74,6 +74,19 @@ class WaitingForRnDDrawingApprovalState implements PrereleaseSoTransactionState
         $soNumber = $this->prereleaseSoTransaction->so_number;
 
         dispatch(function () use ($transactionId, $soNumber) {
+            app(EmailService::class)->sendPrereleaseSoRejectNoticeGeneral(
+                $transactionId,
+                $soNumber,
+                [
+                    'rnd_drawing_approve_prerelease_so_transaction',
+                    'rnd_bom_approve_prerelease_so_transaction',
+                    'accounting_approve_prerelease_so_transaction',
+                    'mkt_staff_release_prerelease_so_transaction'
+                ]
+            );
+        })->afterResponse();
+
+        dispatch(function () use ($transactionId, $soNumber) {
             app(EmailService::class)->sendRequestRevisePrereleaseSoTransaction(
                 $transactionId,
                 $soNumber
