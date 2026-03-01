@@ -33,7 +33,7 @@
                         auth()->user()->hasPermissionTo('mkt_manager_confirm_margin_prerelease_so_transaction') &&
                         $data->status === StatusPrereleaseSoTransaction::WAITING_MKT_MGR_CONFIRM_MARGIN->value;
 
-                    $released = $data->status === StatusPrereleaseSoTransaction::RELEASED->value;
+                    $released = $data->status === StatusPrereleaseSoTransaction::RELEASED_WAITING_PO_KACA_APPROVAL->value;
 
                     $needRevised = $data->status === StatusPrereleaseSoTransaction::REVISE_NEEDED->value;
                 @endphp
@@ -55,6 +55,7 @@
                         'accounting_approve_prerelease_so_transaction',
                         'accounting_request_confirm_margin_prerelease_so_transaction',
                         'it_approve_prerelease_so_transaction',
+                        'po_kaca_released_approve_prerelease_so_transaction'
                     ]) || $canRelease || $canMKTManagerConfirmMargin) && !$released)
                         <button class="ui button customButton" type="submit" name="action" value="approve">
                             @if ($canRelease)

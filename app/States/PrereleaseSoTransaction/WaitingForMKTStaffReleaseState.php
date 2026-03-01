@@ -30,7 +30,7 @@ class WaitingForMKTStaffReleaseState implements PrereleaseSoTransactionState
     }
 
     public function next(object $data = null) {
-        $this->prereleaseSoTransaction->status = StatusPrereleaseSoTransaction::RELEASED->value;
+        $this->prereleaseSoTransaction->status = StatusPrereleaseSoTransaction::RELEASED_WAITING_PO_KACA_APPROVAL->value;
         $this->prereleaseSoTransaction->released_at = Carbon::now();
         $this->prereleaseSoTransaction->save();
 

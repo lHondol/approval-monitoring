@@ -32,6 +32,10 @@
                 $user->hasPermissionTo('mkt_staff_release_prerelease_so_transaction') &&
                 $status === StatusPrereleaseSoTransaction::WAITING_MKT_STAFF_RELEASE->value;
 
+            $canPoKacaApprove =
+                $user->hasPermissionTo('po_kaca_released_approve_prerelease_so_transaction') &&
+                $status === StatusPrereleaseSoTransaction::RELEASED_WAITING_PO_KACA_APPROVAL->value;
+
             $canMktAdminReject = $user->hasPermissionTo('mkt_admin_reject_prerelease_so_transaction') &&
                 $status !== StatusPrereleaseSoTransaction::REVISE_NEEDED->value;
 
@@ -40,9 +44,10 @@
                 ($user->hasPermissionTo('reject_prerelease_so_transaction') && $canRndBomApprove) ||
                 ($user->hasPermissionTo('reject_prerelease_so_transaction') && $canAccountingApprove) ||
                 ($user->hasPermissionTo('reject_prerelease_so_transaction') && $canAccountingRequestConfirmMargin) ||
+                ($user->hasPermissionTo('reject_prerelease_so_transaction') && $canPoKacaApprove) ||
                 $canMktAdminReject;
             
-            $released = $status === StatusPrereleaseSoTransaction::RELEASED->value;
+            $released = $status === StatusPrereleaseSoTransaction::RELEASED_WAITING_PO_KACA_APPROVAL->value;
 
         @endphp
 

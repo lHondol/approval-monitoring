@@ -13,6 +13,7 @@ enum ActionPrereleaseSoTransactionStep: string
     case APPROVE_IT = 'Approve - IT';
     case CONFIRM_MARGIN_MKT_MGR = 'Confirm Margin - MKT Mgr';
     case RELEASED_MKT_STAFF = 'Released - MKT Staff';
+    case APPROVE_PO_KACA = 'Approve - PO Kaca';
     case REJECT = 'Reject';
     case UPLOAD_REVISED = 'Upload (Revised)';
 }

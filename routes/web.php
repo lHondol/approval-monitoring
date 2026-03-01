@@ -326,6 +326,9 @@ Route::get('/app-update', function () {
     // Update V1 Finalized Status Prerelease So
     Artisan::call('app:update-finalized-prerelease-so-transaction-status');
 
+    // Update V2 Released Status Prerelease So
+    Artisan::call('app:update-released-prerelease-so-transaction-status');
+
     // Run storage:link
     Artisan::call('storage:link');
 
