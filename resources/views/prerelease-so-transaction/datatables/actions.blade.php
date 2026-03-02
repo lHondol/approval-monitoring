@@ -46,7 +46,10 @@
                 ($user->hasPermissionTo('reject_prerelease_so_transaction') && $canAccountingRequestConfirmMargin) ||
                 $canMktAdminReject;
             
-            $released = $status === StatusPrereleaseSoTransaction::RELEASED_PO_KACA_DONE->value;
+            $released = (
+                $data->status === StatusPrereleaseSoTransaction::RELEASED_PO_KACA_DONE->value ||
+                $data->status === StatusPrereleaseSoTransaction::RELEASED_PO_KACA_NONE->value
+            );
 
         @endphp
 

@@ -17,6 +17,8 @@
                     <div class="item" data-value="Waiting for MKT Manager Confirm Margin">Waiting for MKT Manager Confirm Margin</div>
                     <div class="item" data-value="Waiting for MKT Staff Release">Waiting for MKT Staff Release</div>
                     <div class="item" data-value="Released">Released</div>
+                    <div class="item" data-value="Released, PO Kaca Done">Released, PO Kaca Done</div>
+                    <div class="item" data-value="Released, PO Tanpa Kaca">Released, PO Tanpa Kaca</div>
                 </div>
             </div>
             <div class="flex gap-3" id="additionalRevisedFilter">

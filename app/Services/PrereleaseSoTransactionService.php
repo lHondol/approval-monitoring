@@ -52,6 +52,7 @@ class PrereleaseSoTransactionService
             StatusPrereleaseSoTransaction::WAITING_MKT_STAFF_RELEASE->value => "purple",
             StatusPrereleaseSoTransaction::RELEASED_WAITING_PO_KACA_APPROVAL->value => "grey",
             StatusPrereleaseSoTransaction::RELEASED_PO_KACA_DONE->value => "green",
+            StatusPrereleaseSoTransaction::RELEASED_PO_KACA_NONE->value => "green",
             StatusPrereleaseSoTransaction::REVISE_NEEDED->value => "yellow",
         };
     }

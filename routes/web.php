@@ -123,11 +123,11 @@ Route::middleware('auth')
         ->post('/prerelease-so-transactions/revise/{id}', 'revise')
         ->name('prereleaseSoTransactionRevise');
 
-    Route::middleware('permission:rnd_drawing_approve_prerelease_so_transaction|rnd_bom_approve_prerelease_so_transaction|accounting_approve_prerelease_so_transaction|accounting_request_confirm_margin_prerelease_so_transaction|mkt_manager_confirm_margin_prerelease_so_transaction|reject_prerelease_so_transaction|mkt_admin_reject_prerelease_so_transaction')
+    Route::middleware('permission:rnd_drawing_approve_prerelease_so_transaction|rnd_bom_approve_prerelease_so_transaction|accounting_approve_prerelease_so_transaction|accounting_request_confirm_margin_prerelease_so_transaction|mkt_manager_confirm_margin_prerelease_so_transaction|reject_prerelease_so_transaction|mkt_admin_reject_prerelease_so_transaction|po_kaca_released_approve_prerelease_so_transaction')
         ->get('/prerelease-so-transactions/approval/{id}', 'approvalForm')
         ->name('prereleaseSoTransactionApprovalForm');
 
-    Route::middleware('permission:rnd_drawing_approve_prerelease_so_transaction|rnd_bom_approve_prerelease_so_transaction|accounting_approve_prerelease_so_transaction|accounting_request_confirm_margin_prerelease_so_transaction|mkt_manager_confirm_margin_prerelease_so_transaction|reject_prerelease_so_transaction|mkt_admin_reject_prerelease_so_transaction')
+    Route::middleware('permission:rnd_drawing_approve_prerelease_so_transaction|rnd_bom_approve_prerelease_so_transaction|accounting_approve_prerelease_so_transaction|accounting_request_confirm_margin_prerelease_so_transaction|mkt_manager_confirm_margin_prerelease_so_transaction|reject_prerelease_so_transaction|mkt_admin_reject_prerelease_so_transaction|po_kaca_released_approve_prerelease_so_transaction')
         ->post('/prerelease-so-transactions/approval/{id}', 'approval')
         ->name('prereleaseSoTransactionApproval');
     

@@ -6,13 +6,12 @@ use App\Enums\ActionPrereleaseSoTransactionStep;
 use App\Enums\StatusPrereleaseSoTransaction;
 use App\Interfaces\PrereleaseSoTransactionState;
 use App\Models\PrereleaseSoTransaction;
-use App\Services\PrereleaseSoTransactionRejectedImageService;
-use App\Services\PrereleaseSoTransactionStepService;
 use App\Services\EmailService;
 use App\Services\PDFService;
-use Carbon\Carbon;
+use App\Services\PrereleaseSoTransactionRejectedImageService;
+use App\Services\PrereleaseSoTransactionStepService;
 
-class ReleasedWaitingForPoKacaApprovalState implements PrereleaseSoTransactionState
+class ReleasePoKacaNoneState implements PrereleaseSoTransactionState
 {
     private PrereleaseSoTransaction $prereleaseSoTransaction;
     private PrereleaseSoTransactionStepService $prereleaseSoTransactionStepService;
@@ -30,20 +29,7 @@ class ReleasedWaitingForPoKacaApprovalState implements PrereleaseSoTransactionSt
     }
 
     public function next(object $data = null) {
-        if (isset($data->tanpa_kaca) && $data->tanpa_kaca === "1") {
-            $this->prereleaseSoTransaction->status = StatusPrereleaseSoTransaction::RELEASED_PO_KACA_NONE->value;
-        } else {
-            $this->prereleaseSoTransaction->status = StatusPrereleaseSoTransaction::RELEASED_PO_KACA_DONE->value;
-        }
-        $this->prereleaseSoTransaction->save();
 
-        $this->prereleaseSoTransactionStepService->createStep(
-            $this->prereleaseSoTransaction, 
-            ActionPrereleaseSoTransactionStep::APPROVE_PO_KACA,
-            $data->reason ?? "Ok, Approved"
-        );
-
-        return $this->prereleaseSoTransaction;
     }
 
     public function reject(object $data = null) {
