@@ -13,6 +13,6 @@ enum StatusPrereleaseSoTransaction: string
     case WAITING_MKT_STAFF_RELEASE = 'Waiting for MKT Staff Release';
     case RELEASED_WAITING_PO_KACA_APPROVAL = 'Released, Waiting for PO Kaca Approval';
     case RELEASED_PO_KACA_DONE = 'Released, PO Kaca Done';
-    case RELEASED_PO_KACA_NONE = 'Released, PO Tanpa Kaca';
+    case RELEASED_PO_KACA_NONE = 'Released, Tanpa PO Kaca';
     case REVISE_NEEDED = 'Revise Needed';
 }

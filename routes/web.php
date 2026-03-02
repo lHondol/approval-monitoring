@@ -329,6 +329,9 @@ Route::get('/app-update', function () {
     // Update V2 Released Status Prerelease So
     Artisan::call('app:update-released-prerelease-so-transaction-status');
 
+    // Update V2 Releases, PO Tanpa Kaca
+    Artisan::call('app:update-released-po-tanpa-kaca-prerelease-so-transaction-status');
+
     // Run storage:link
     Artisan::call('storage:link');
 

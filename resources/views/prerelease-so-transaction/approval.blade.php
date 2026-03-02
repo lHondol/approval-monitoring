@@ -4,7 +4,7 @@
     @include('shared.appbar', ['backRoute' => 'prereleaseSoTransactionView', 'title' => 'Approval Prerelease So Transaction'])
     <div class="flex justify-center">
         <div class="ui card !w-[800px] !p-8">
-            <form class="ui form" method="post" action="{{ route('prereleaseSoTransactionApproval', $data->id) }}" enctype="multipart/form-data">
+            <form id="approvalForm" class="ui form" method="post" action="{{ route('prereleaseSoTransactionApproval', $data->id) }}" enctype="multipart/form-data">
                 @csrf
 
                 <input type="hidden" name="active_tab" id="active_tab_global">
@@ -77,8 +77,7 @@
                     @endif
 
                     @if ($canPoKaca)
-                        <input hidden name="tanpa_kaca" value="1">
-                        <button class="ui button customButton" type="submit" name="action" value="approve">
+                        <button id="approveTanpaKacaBtn" class="ui button customButton" type="button">
                             Approve Tanpa Kaca
                         </button>
                     @endif
@@ -95,3 +94,35 @@
         </div>
     </div>
 @endsection
+
+@push('scripts')
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    const btn = document.getElementById('approveTanpaKacaBtn');
+    const form = document.getElementById('approvalForm');
+
+    if (btn) {
+        btn.addEventListener('click', function () {
+
+            // Create hidden input
+            const input = document.createElement('input');
+            input.type = 'hidden';
+            input.name = 'tanpa_kaca';
+            input.value = '1';
+
+            form.appendChild(input);
+
+            // Also make sure action=approve is sent
+            const actionInput = document.createElement('input');
+            actionInput.type = 'hidden';
+            actionInput.name = 'action';
+            actionInput.value = 'approve';
+
+            form.appendChild(actionInput);
+
+            form.submit();
+        });
+    }
+});
+</script>
+@endpush

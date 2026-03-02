@@ -18,7 +18,7 @@
                     <div class="item" data-value="Waiting for MKT Staff Release">Waiting for MKT Staff Release</div>
                     <div class="item" data-value="Released">Released</div>
                     <div class="item" data-value="Released, PO Kaca Done">Released, PO Kaca Done</div>
-                    <div class="item" data-value="Released, PO Tanpa Kaca">Released, PO Tanpa Kaca</div>
+                    <div class="item" data-value="Released, Tanpa PO Kaca">Released, Tanpa PO Kaca</div>
                 </div>
             </div>
             <div class="flex gap-3" id="additionalRevisedFilter">
