@@ -76,13 +76,13 @@ class PrereleaseSoTransactionsExport implements FromCollection, WithHeadings
 
                 $uploadAt = optional($steps['Upload'] ?? null)?->done_at;
 
-                $salesAreaAt = $nextStep(
-                    $uploadAt,
-                    optional($steps['Approve - Sales Area'] ?? null)?->done_at
-                );
+                // $salesAreaAt = $nextStep(
+                //     $uploadAt,
+                //     optional($steps['Approve - Sales Area'] ?? null)?->done_at
+                // );
 
                 $rndDrawingAt = $nextStep(
-                    $salesAreaAt,
+                    $uploadAt,
                     optional($steps['Approve - RnD Drawing'] ?? null)?->done_at
                 );
 
@@ -96,9 +96,16 @@ class PrereleaseSoTransactionsExport implements FromCollection, WithHeadings
                     optional($steps['Approve - Accounting'] ?? null)?->done_at
                 );
 
-                $itAt = $nextStep(
-                    $accountingAt,
-                    optional($steps['Approve - IT'] ?? null)?->done_at
+                // $itAt = $nextStep(
+                //     $accountingAt,
+                //     optional($steps['Approve - IT'] ?? null)?->done_at
+                // );
+
+                $releasedAt = $transaction->released_at;
+
+                $poKacaAt = $nextStep(
+                    $releasedAt,
+                    optional($steps['Approve - PO Kaca'] ?? null)?->done_at
                 );
 
                 $leadingTimeDay = $days(
@@ -128,11 +135,11 @@ class PrereleaseSoTransactionsExport implements FromCollection, WithHeadings
                 
                     'Upload Done At'       => $fmt($uploadAt),
                 
-                    'Sales Area Approved'  => $fmt($salesAreaAt),
-                    'Sales Area Day'       => $days($uploadAt, $salesAreaAt),
+                    // 'Sales Area Approved'  => $fmt($salesAreaAt),
+                    // 'Sales Area Day'       => $days($uploadAt, $salesAreaAt),
                 
                     'RnD Drawing Approved' => $fmt($rndDrawingAt),
-                    'RnD Drawing Day'      => $days($salesAreaAt, $rndDrawingAt),
+                    'RnD Drawing Day'      => $days($uploadAt, $rndDrawingAt),
                 
                     'RnD BOM Approved'     => $fmt($rndBomAt),
                     'RnD BOM Day'          => $days($rndDrawingAt, $rndBomAt),
@@ -140,10 +147,13 @@ class PrereleaseSoTransactionsExport implements FromCollection, WithHeadings
                     'Accounting Approved'  => $fmt($accountingAt),
                     'Accounting Day'       => $days($rndBomAt, $accountingAt),
                 
-                    'IT Approved'          => $fmt($itAt),
-                    'IT Day'               => $days($accountingAt, $itAt),
+                    // 'IT Approved'          => $fmt($itAt),
+                    // 'IT Day'               => $days($accountingAt, $itAt),
                 
-                    'Released At'         => $fmt($transaction->released_at),
+                    'Released At'          => $releasedAt,
+
+                    'PO Kaca Approved'     => $poKacaAt,
+                    'PO Kaca Day'          => $days($releasedAt, $poKacaAt),
 
                     'Leading Time'         => $leadingTimeDay,
 
@@ -170,8 +180,8 @@ class PrereleaseSoTransactionsExport implements FromCollection, WithHeadings
     
             'Upload Done At',
     
-            'Sales Area Approved At',
-            'Sales Area Day',
+            // 'Sales Area Approved At',
+            // 'Sales Area Day',
     
             'RnD Drawing Approved At',
             'RnD Drawing Day',
@@ -182,10 +192,13 @@ class PrereleaseSoTransactionsExport implements FromCollection, WithHeadings
             'Accounting Approved At',
             'Accounting Day',
     
-            'IT Approved At',
-            'IT Day',
+            // 'IT Approved At',
+            // 'IT Day',
     
             'Released At',
+
+            'PO Kaca Approved',
+            'PO Kaca Day',
 
             'Leading Time',
 
