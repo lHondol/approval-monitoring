@@ -33,9 +33,10 @@
                         auth()->user()->hasPermissionTo('mkt_manager_confirm_margin_prerelease_so_transaction') &&
                         $data->status === StatusPrereleaseSoTransaction::WAITING_MKT_MGR_CONFIRM_MARGIN->value;
 
-                    $released = $data->status === StatusPrereleaseSoTransaction::RELEASED_WAITING_PO_KACA_APPROVAL->value;
+                    $released = $data->status === StatusPrereleaseSoTransaction::RELEASED_PO_KACA_DONE->value;
 
                     $needRevised = $data->status === StatusPrereleaseSoTransaction::REVISE_NEEDED->value;
+                    
                 @endphp
                 <div class="field">
                     <label class="!text-base">

@@ -81,7 +81,8 @@ class WaitingForRnDDrawingApprovalState implements PrereleaseSoTransactionState
                     'rnd_drawing_approve_prerelease_so_transaction',
                     'rnd_bom_approve_prerelease_so_transaction',
                     'accounting_approve_prerelease_so_transaction',
-                    'mkt_staff_release_prerelease_so_transaction'
+                    'mkt_staff_release_prerelease_so_transaction',
+                    'po_kaca_released_approve_prerelease_so_transaction'
                 ]
             );
         })->afterResponse();

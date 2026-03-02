@@ -6,13 +6,12 @@ use App\Enums\ActionPrereleaseSoTransactionStep;
 use App\Enums\StatusPrereleaseSoTransaction;
 use App\Interfaces\PrereleaseSoTransactionState;
 use App\Models\PrereleaseSoTransaction;
-use App\Services\PrereleaseSoTransactionRejectedImageService;
-use App\Services\PrereleaseSoTransactionStepService;
 use App\Services\EmailService;
 use App\Services\PDFService;
-use Carbon\Carbon;
+use App\Services\PrereleaseSoTransactionRejectedImageService;
+use App\Services\PrereleaseSoTransactionStepService;
 
-class WaitingForMKTStaffReleaseState implements PrereleaseSoTransactionState
+class ReleasePoKacaDoneState implements PrereleaseSoTransactionState
 {
     private PrereleaseSoTransaction $prereleaseSoTransaction;
     private PrereleaseSoTransactionStepService $prereleaseSoTransactionStepService;
@@ -30,28 +29,7 @@ class WaitingForMKTStaffReleaseState implements PrereleaseSoTransactionState
     }
 
     public function next(object $data = null) {
-        $this->prereleaseSoTransaction->status = StatusPrereleaseSoTransaction::RELEASED_WAITING_PO_KACA_APPROVAL->value;
-        $this->prereleaseSoTransaction->released_at = Carbon::now();
-        $this->prereleaseSoTransaction->save();
 
-        $this->prereleaseSoTransactionStepService->createStep(
-            $this->prereleaseSoTransaction, 
-            ActionPrereleaseSoTransactionStep::RELEASED_MKT_STAFF,
-            $data->reason ?? "Ok, Released"
-        );
-
-        $transactionId = $this->prereleaseSoTransaction->id;
-        $soNumber = $this->prereleaseSoTransaction->so_number;
-
-        dispatch(function () use ($transactionId, $soNumber) {
-            app(EmailService::class)->sendRequestPrereleaseSoApprovalGeneral(
-                $transactionId, 
-                $soNumber,
-                ['po_kaca_released_approve_prerelease_so_transaction']
-            );
-        })->afterResponse();
-
-        return $this->prereleaseSoTransaction;
     }
 
     public function reject(object $data = null) {

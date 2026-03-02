@@ -44,10 +44,9 @@
                 ($user->hasPermissionTo('reject_prerelease_so_transaction') && $canRndBomApprove) ||
                 ($user->hasPermissionTo('reject_prerelease_so_transaction') && $canAccountingApprove) ||
                 ($user->hasPermissionTo('reject_prerelease_so_transaction') && $canAccountingRequestConfirmMargin) ||
-                ($user->hasPermissionTo('reject_prerelease_so_transaction') && $canPoKacaApprove) ||
                 $canMktAdminReject;
             
-            $released = $status === StatusPrereleaseSoTransaction::RELEASED_WAITING_PO_KACA_APPROVAL->value;
+            $released = $status === StatusPrereleaseSoTransaction::RELEASED_PO_KACA_DONE->value;
 
         @endphp
 
@@ -55,14 +54,14 @@
             <a href="{{ route('prereleaseSoTransactionDetail', $data->id) }}" class="item">Detail</a>
         @endif
 
-        @if ($canRndDrawingApprove || $canRndBomApprove || $canAccountingApprove || $canAccountingRequestConfirmMargin || $canMKTManagerConfirmMargin || $canMKTStaffRelease || $canReject)
+        @if ($canRndDrawingApprove || $canRndBomApprove || $canAccountingApprove || $canAccountingRequestConfirmMargin || $canMKTManagerConfirmMargin || $canMKTStaffRelease || $canPoKacaApprove || $canReject)
             <a href="{{ route('prereleaseSoTransactionApprovalForm', $data->id) }}" class="item">
                 @if ($canMKTStaffRelease)
                     Release
                 @elseif ($canMKTManagerConfirmMargin)
                     Confirm Margin
                 @elseif ($canMktAdminReject && $released)
-                    Reject
+                    Rejection
                 @else
                     Approval
                 @endif

@@ -3,6 +3,7 @@
 namespace App\Console\Commands;
 
 use App\Models\DrawingTransaction;
+use App\Models\PrereleaseSoTransaction;
 use Illuminate\Console\Command;
 
 class UpdateReleasedPreleaseSoTransactionStatus extends Command
@@ -26,7 +27,7 @@ class UpdateReleasedPreleaseSoTransactionStatus extends Command
      */
     public function handle()
     {
-        DrawingTransaction::where('status', 'Released')->update([
+        PrereleaseSoTransaction::where('status', 'Released')->update([
             'status' => 'Released, Waiting for PO Kaca Approval'
         ]);
     }

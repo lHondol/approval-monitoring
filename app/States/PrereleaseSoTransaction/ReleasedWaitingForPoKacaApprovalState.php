@@ -43,6 +43,47 @@ class ReleasedWaitingForPoKacaApprovalState implements PrereleaseSoTransactionSt
     }
 
     public function reject(object $data = null) {
-        
+        $this->prereleaseSoTransaction->status = StatusPrereleaseSoTransaction::REVISE_NEEDED->value;
+        $this->prereleaseSoTransaction->need_revise_note = $data->reason;
+        $this->prereleaseSoTransaction->done_revised = false;
+        $this->prereleaseSoTransaction->save();
+
+        $prereleaseSoTransactionStep = $this->prereleaseSoTransactionStepService->createStep(
+            $this->prereleaseSoTransaction, 
+            ActionPrereleaseSoTransactionStep::REJECT,
+            $data->reason
+        );
+
+        $this->prereleaseSoTransactionRejectedImageService->createRejectedImages(
+            $this->prereleaseSoTransaction->id,
+            $prereleaseSoTransactionStep->id,
+            $this->prereleaseSoTransaction->filepath
+        );
+
+        $transactionId = $this->prereleaseSoTransaction->id;
+        $soNumber = $this->prereleaseSoTransaction->so_number;
+
+        dispatch(function () use ($transactionId, $soNumber) {
+            app(EmailService::class)->sendPrereleaseSoRejectNoticeGeneral(
+                $transactionId,
+                $soNumber,
+                [
+                    'rnd_drawing_approve_prerelease_so_transaction',
+                    'rnd_bom_approve_prerelease_so_transaction',
+                    'accounting_approve_prerelease_so_transaction',
+                    'mkt_staff_release_prerelease_so_transaction',
+                    'po_kaca_released_approve_prerelease_so_transaction'
+                ]
+            );
+        })->afterResponse();
+
+        dispatch(function () use ($transactionId, $soNumber) {
+            app(EmailService::class)->sendRequestRevisePrereleaseSoTransaction(
+                $transactionId,
+                $soNumber
+            );
+        })->afterResponse();
+
+        return $this->prereleaseSoTransaction;
     }
 }

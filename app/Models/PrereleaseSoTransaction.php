@@ -8,6 +8,7 @@ use App\States\DrawingTransaction\WaitingForBomApprovalState;
 use App\States\PrereleaseSoTransaction\FinalState;
 use App\States\PrereleaseSoTransaction\ReleasedState;
 use App\States\PrereleaseSoTransaction\ReleasedWaitingForPoKacaApprovalState;
+use App\States\PrereleaseSoTransaction\ReleasePoKacaDoneState;
 use App\States\PrereleaseSoTransaction\ReviseNeededState;
 use App\States\PrereleaseSoTransaction\WaitingForAccountingApprovalState;
 use App\States\PrereleaseSoTransaction\WaitingForITApprovalState;
@@ -47,7 +48,7 @@ class PrereleaseSoTransaction extends Model
             StatusPrereleaseSoTransaction::WAITING_MKT_MGR_CONFIRM_MARGIN->value   => new WaitingForMKTMgrConfirmMarginState($this),
             StatusPrereleaseSoTransaction::WAITING_MKT_STAFF_RELEASE->value   => new WaitingForMKTStaffReleaseState($this),
             StatusPrereleaseSoTransaction::RELEASED_WAITING_PO_KACA_APPROVAL->value   => new ReleasedWaitingForPoKacaApprovalState($this),
-            StatusPrereleaseSoTransaction::RELEASED_PO_KACA_DONE->value   => new FinalState($this),
+            StatusPrereleaseSoTransaction::RELEASED_PO_KACA_DONE->value   => new ReleasePoKacaDoneState($this),
             StatusPrereleaseSoTransaction::REVISE_NEEDED->value   => new ReviseNeededState($this),
         };
     }
