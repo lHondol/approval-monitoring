@@ -351,7 +351,7 @@ class PrereleaseSoTransactionService
     public function getMonths() {
         $months = [];
 
-        $start = now()->copy()->addMonth()->startOfMonth();
+        $start = now()->copy()->addMonthNoOverflow()->startOfMonth();
 
         for ($i = 0; $i < 12; $i++) {
             $date = $start->copy()->addMonths($i);
