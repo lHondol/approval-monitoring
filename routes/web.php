@@ -8,6 +8,7 @@ use App\Http\Controllers\PasswordController;
 use App\Http\Controllers\PrereleaseSoTransactionController;
 use App\Http\Controllers\ReportingController;
 use App\Http\Controllers\RoleController;
+use App\Http\Controllers\SampleTransactionController;
 use App\Http\Controllers\UserController;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Artisan;
@@ -299,6 +300,31 @@ Route::controller(PasswordController::class)
 //         ->name('areaDelete');
 // });
 
+Route::middleware('auth')
+->controller(SampleTransactionController::class)
+->group(function () {
+
+    Route::middleware('permission:view_sample_transaction')
+        ->get('/sample-transactions', 'view')
+        ->name('sampleTransactionView');
+
+    Route::middleware('permission:view_sample_transaction')
+        ->get('/sample-transactions/data', 'getData')
+        ->name('sampleTransactionData');
+
+    Route::middleware('permission:view_sample_transaction')
+        ->get('/sample-transactions/detail/{id}', 'getDetail')
+        ->name('sampleTransactionDetail');
+
+    Route::middleware('permission:create_sample_transaction')
+        ->get('/sample-transactions/create', 'createForm')
+        ->name('sampleTransactionCreateForm');
+
+    Route::middleware('permission:create_sample_transaction')
+        ->post('/sample-transactions/create', 'create')
+        ->name('sampleTransactionCreate');
+});
+
 Route::controller(ReportingController::class)
 ->group(function () {
     Route::get('/reportings', 'view')
@@ -319,6 +345,7 @@ Route::get('/app-update', function () {
     // Run Seeder
     Artisan::call('db:seed --class=UserRolePermissionV2Seeder');
     Artisan::call('db:seed --class=UserRolePermissionV3Seeder');
+    Artisan::call('db:seed --class=UserRolePermissionV4Seeder');
 
     // Update V1 Distributed Status Drawing
     Artisan::call('app:update-distributed-drawing-transaction-status');

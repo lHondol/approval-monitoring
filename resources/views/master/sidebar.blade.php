@@ -131,6 +131,33 @@
                     </div>
                 @endif
 
+                @if (auth()->user()->hasAnyPermission(['view_sample_transaction']))
+                    <div class="relative">
+                        <button
+                            class="parentMenu w-full text-left !flex justify-between items-center {{ navParentClass(['sample-transactions*']) }}"
+                            onclick="document.getElementById('sampleManagementMenu').classList.toggle('hidden');
+                                    document.getElementById('sampleManagementIcon').classList.toggle('-rotate-90');">
+                            <span>Sample Transactions</span>
+                            <i id="sampleManagementIcon"
+                            class="angle left icon transition-transform duration-200
+                            {{ request()->is('sample-transactions*') ? '-rotate-90' : '' }}"></i>
+                        </button>
+
+                        <div id="sampleManagementMenu" class="{{ isParentOpen(['sample-transactions*', 'roles*']) }}">
+                            @if (auth()->user()->hasPermissionTo('view_sample_transaction'))
+                                <a href="{{ route('sampleTransactionView') }}" class="{{ navClass('sample-transactions*') }}">
+                                    Sample Transactions
+                                </a>
+                            @endif
+                            @if (auth()->user()->hasPermissionTo('view_sample_transaction'))
+                                <a href="{{ route('sampleTransactionView') }}" class="{{ navClass('sample-transactions*') }}">
+                                    Calendar View
+                                </a>
+                            @endif
+                        </div>
+                    </div>
+                @endif
+
                 <a href="{{ route('passwordChangeForm') }}" class="{{ navClass('password*') }}">
                     Change Password
                 </a>

@@ -39,7 +39,7 @@ class CustomerService
     }
 
     public function create($data) {
-        $customer = new customer();
+        $customer = new Customer();
         
         $uuid =  Uuid::uuid4()->toString();
         $customer->id =$uuid;
