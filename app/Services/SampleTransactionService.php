@@ -27,7 +27,7 @@ class SampleTransactionService
     public function getData() {
         return DataTables::of(
             SampleTransaction::select([
-                'id', 
+                'sample_transactions.id', 
                 'so_number', 
                 'customer_id', 
                 'so_created_at', 
@@ -47,21 +47,21 @@ class SampleTransactionService
         })
         ->filter(function($query) {
             if ($search = request('search.value')) {
-                $query->leftJoin('customers', 'customers.id', '=', 'sample.customer_id');
+                $query->leftJoin('customers', 'customers.id', '=', 'sample_transactions.customer_id');
         
                 $query->where(function ($q) use ($search) {
-                    $q->where('sample.so_number', 'LIKE', "%{$search}%")
+                    $q->where('sample_transactions.so_number', 'LIKE', "%{$search}%")
                         ->orWhere('customers.name', 'LIKE', "%{$search}%")
                         ->orWhereRaw(
-                            "DATE_FORMAT(sample.so_created_at, '%d %b %Y %H:%i:%s') LIKE ?",
+                            "DATE_FORMAT(sample_transactions.so_created_at, '%d %b %Y %H:%i:%s') LIKE ?",
                             ["%{$search}%"]
                         )
                         ->orWhereRaw(
-                            "DATE_FORMAT(sample.shipment_request, '%d %b %Y %H:%i:%s') LIKE ?",
+                            "DATE_FORMAT(sample_transactions.shipment_request, '%d %b %Y %H:%i:%s') LIKE ?",
                             ["%{$search}%"]
                         )
                         ->orWhereRaw(
-                            "DATE_FORMAT(sample.picture_received_at, '%d %b %Y %H:%i:%s') LIKE ?",
+                            "DATE_FORMAT(sample_transactions.picture_received_at, '%d %b %Y %H:%i:%s') LIKE ?",
                             ["%{$search}%"]
                         );
                       
@@ -99,9 +99,9 @@ class SampleTransactionService
         $sample->id =$uuid;
         $sample->so_number = $data->so_number;
         $sample->customer_id = $data->customer;
-        $sample->so_created_at = $data->so_created_at;
-        $sample->shipment_request = $data->shipment_request;
-        $sample->picture_receive_at = $data->picture_receiev_at;
+        $sample->so_created_at = Carbon::parse($data->so_created_at);
+        $sample->shipment_request = Carbon::parse($data->shipment_request);
+        $sample->picture_received_at = Carbon::parse($data->picture_received_at);
         $sample->save();
 
         return $sample;
@@ -116,9 +116,9 @@ class SampleTransactionService
 
         $sample->so_number = $data->so_number;
         $sample->customer_id = $data->customer;
-        $sample->so_created_at = $data->so_created_at;
-        $sample->shipment_request = $data->shipment_request;
-        $sample->picture_receiev_at = $data->picture_receiev_at;
+        $sample->so_created_at = Carbon::parse($data->so_created_at);
+        $sample->shipment_request = Carbon::parse($data->shipment_request);
+        $sample->picture_received_at = Carbon::parse($data->picture_received_at);
         $sample->save();
 
         return $sample;

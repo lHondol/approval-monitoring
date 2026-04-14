@@ -2,7 +2,7 @@
 
 @section('content')
     <div>
-        <table id="customers" class="ui celled table">
+        <table id="sampleTransactions" class="ui celled table">
             <thead>
                 <tr>
                     <th>So Number</th>
@@ -33,7 +33,7 @@
     <script src="{{ asset('js/custom.js') }}"></script>
     <script>
         const customersTable = $(document).ready(function() {
-            $('#customers').DataTable({
+            $('#sampleTransactions').DataTable({
                 processing: true,
                 serverSide: true,
                 ajax: "{{ route('sampleTransactionData') }}",

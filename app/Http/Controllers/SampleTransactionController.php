@@ -2,8 +2,8 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Requests\Customer\CreateRequest;
-use App\Http\Requests\Customer\EditRequest;
+use App\Http\Requests\SampleTransaction\CreateRequest;
+use App\Http\Requests\SampleTransaction\EditRequest;
 use App\Services\SampleTransactionService;
 use Illuminate\Http\Request;
 
@@ -36,7 +36,7 @@ class SampleTransactionController extends Controller
     public function create(CreateRequest $request) {
         $data = $request->all();
         $this->sampleTransactionService->create((object) $data);
-        return redirect()->route('customerView');
+        return redirect()->route('sampleTransactionView');
     }
 
     public function editForm(Request $request) {
@@ -51,12 +51,12 @@ class SampleTransactionController extends Controller
             $request->route()->parameters()
         );
         $this->sampleTransactionService->edit((object) $data);
-        return redirect()->route('customerView');
+        return redirect()->route('sampleTransactionView');
     }
 
     public function remove(Request $request) {
         $id = $request->id;
         $this->sampleTransactionService->remove($id);
-        return redirect()->route('customerView');
+        return redirect()->route('sampleTransactionView');
     }
 }

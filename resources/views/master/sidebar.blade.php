@@ -137,7 +137,7 @@
                             class="parentMenu w-full text-left !flex justify-between items-center {{ navParentClass(['sample-transactions*']) }}"
                             onclick="document.getElementById('sampleManagementMenu').classList.toggle('hidden');
                                     document.getElementById('sampleManagementIcon').classList.toggle('-rotate-90');">
-                            <span>Sample Transactions</span>
+                            <span>Sample Management</span>
                             <i id="sampleManagementIcon"
                             class="angle left icon transition-transform duration-200
                             {{ request()->is('sample-transactions*') ? '-rotate-90' : '' }}"></i>

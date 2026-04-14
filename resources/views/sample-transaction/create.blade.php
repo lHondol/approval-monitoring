@@ -4,7 +4,7 @@
     @include('shared.appbar', ['backRoute' => 'sampleTransactionView', 'title' => 'Create New Sample Transaction'])
     <div class="flex justify-center">
         <div class="ui card !w-[800px] !p-8">
-            <form class="ui form" method="post" action="{{ route('customerCreate') }}" enctype="multipart/form-data">
+            <form class="ui form" method="post" action="{{ route('sampleTransactionCreate') }}" enctype="multipart/form-data">
                 @csrf
 
                 @if ($errors->any())
