@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\SampleTransaction\CreateProcessRequest;
 use App\Http\Requests\SampleTransaction\CreateRequest;
 use App\Http\Requests\SampleTransaction\EditRequest;
 use App\Services\SampleTransactionService;
@@ -57,6 +58,19 @@ class SampleTransactionController extends Controller
     public function remove(Request $request) {
         $id = $request->id;
         $this->sampleTransactionService->remove($id);
+        return redirect()->route('sampleTransactionView');
+    }
+
+    public function createProcessForm(Request $request) {
+        $processes = $this->sampleTransactionService->getProcesses();
+        $sampleTransaction = $this->sampleTransactionService->getSimpleTransaction($request->sampleTransactionId);
+        return view ('sample-transaction.create-process', compact('processes', 'sampleTransaction'));
+    }
+
+    public function createProcess(CreateProcessRequest $request) {
+        $data = $request->all();
+        $data['files'] = $request->file('files');
+        $this->sampleTransactionService->createProcess($request->sampleTransactionId, (object) $data);
         return redirect()->route('sampleTransactionView');
     }
 }

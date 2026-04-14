@@ -42,7 +42,7 @@ class CustomerService
         $customer = new Customer();
         
         $uuid =  Uuid::uuid4()->toString();
-        $customer->id =$uuid;
+        $customer->id = $uuid;
         $customer->name = $data->name;
         $customer->save();
 

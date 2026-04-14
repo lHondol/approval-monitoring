@@ -259,7 +259,7 @@ class PrereleaseSoTransactionService
         $prereleaseSoTransaction = new PrereleaseSoTransaction();
         
         $uuid =  Uuid::uuid4()->toString();
-        $prereleaseSoTransaction->id =$uuid;
+        $prereleaseSoTransaction->id = $uuid;
 
         $prereleaseSoTransaction->customer_id = $data->customer;
         // $prereleaseSoTransaction->area_id = $data->area;

@@ -17,7 +17,7 @@ return new class extends Migration
             ->references('id')
             ->on('sample_transactions')
             ->cascadeOnDelete();
-            $table->string('proses_name');
+            $table->string('process_name');
             $table->dateTime('start_at');
             $table->dateTime('finish_at');
             $table->string('filepath');

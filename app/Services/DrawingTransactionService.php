@@ -243,7 +243,7 @@ class DrawingTransactionService
         $drawingTransaction = new DrawingTransaction();
         
         $uuid =  Uuid::uuid4()->toString();
-        $drawingTransaction->id =$uuid;
+        $drawingTransaction->id = $uuid;
 
         $drawingTransaction->customer_id = $data->customer;
         $drawingTransaction->po_number = $data->po_number;

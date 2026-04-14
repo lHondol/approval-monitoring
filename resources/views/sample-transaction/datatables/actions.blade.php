@@ -6,7 +6,7 @@
         @endif
         
         @if (auth()->user()->hasPermissionTo('create_sample_transaction_process'))
-            <a href="{{ route('sampleTransactionDetail', $data->id) }}" class="item">Create Process</a>
+            <a href="{{ route('sampleTransactionCreateProcess', $data->id) }}" class="item">Create Process</a>
         @endif
     </div>
 </div>

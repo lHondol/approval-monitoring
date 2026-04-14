@@ -4,18 +4,23 @@ namespace App\Services;
 
 use App\Models\Customer;
 use App\Models\SampleTransaction;
+use App\Models\SampleTransactionProcess;
 use Carbon\Carbon;
 use Ramsey\Uuid\Uuid;
 use Yajra\DataTables\DataTables;
 
 class SampleTransactionService
 {
+    private FileService $fileService;
+
     /**
      * Create a new class instance.
      */
-    public function __construct()
+    public function __construct(
+        FileService $fileService, 
+    )
     {
-        //
+        $this->fileService = $fileService;
     }
 
     private function renderActionButtons($row)
@@ -92,11 +97,16 @@ class SampleTransactionService
         return $sample;
     }
 
+    public function getSimpleTransaction($id) {
+        $sample = SampleTransaction::select('id', 'so_number')->where('id', $id)->first();
+        return $sample;
+    }
+
     public function create($data) {
         $sample = new SampleTransaction();
         
         $uuid =  Uuid::uuid4()->toString();
-        $sample->id =$uuid;
+        $sample->id = $uuid;
         $sample->so_number = $data->so_number;
         $sample->customer_id = $data->customer;
         $sample->so_created_at = Carbon::parse($data->so_created_at);
@@ -138,5 +148,35 @@ class SampleTransactionService
 
     public function getCustomers() {
         return Customer::select(['id', 'name'])->get();   
+    }
+
+    
+    public function getProcesses() {
+        return [
+            "Pembahanan",
+            "Laminating",
+            "Process Center",
+            "CNC",
+            "Finishing/Cat",
+            "Finish Good"
+        ];
+    }
+
+    public function createProcess($sampleTransactionId, $data) {
+        $sample = new SampleTransactionProcess();
+        
+        $uuid =  Uuid::uuid4()->toString();
+        $sample->id = $uuid;
+        $sample->sample_transaction_id = $sampleTransactionId;
+        $sample->process_name = $data->process;
+        $sample->start_at = Carbon::parse($data->start_at);
+        $sample->finish_at = Carbon::parse($data->finish_at);
+        
+        $filePaths = $this->fileService->storeFiles($data->files);
+        $sample->filepath = $filePaths[0];
+
+        $sample->save();
+
+        return $sample;
     }
 }

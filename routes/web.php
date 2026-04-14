@@ -323,6 +323,14 @@ Route::middleware('auth')
     Route::middleware('permission:create_sample_transaction')
         ->post('/sample-transactions/create', 'create')
         ->name('sampleTransactionCreate');
+
+    Route::middleware('permission:create_sample_transaction_process')
+        ->get('/sample-transactions/create-process/{sampleTransactionId}', 'createProcessForm')
+        ->name('sampleTransactionCreateProcessForm');
+
+    Route::middleware('permission:create_sample_transaction_process')
+        ->post('/sample-transactions/create-process/{sampleTransactionId}', 'createProcess')
+        ->name('sampleTransactionCreateProcess');
 });
 
 Route::controller(ReportingController::class)

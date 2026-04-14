@@ -83,7 +83,7 @@ class AreaService
         $area = new Area();
         
         $uuid =  Uuid::uuid4()->toString();
-        $area->id =$uuid;
+        $area->id = $uuid;
         $area->name = $data->name;
         $area->save();
 

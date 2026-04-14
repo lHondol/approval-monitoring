@@ -83,7 +83,7 @@ class RoleService
         $role = new Role();
         
         $uuid =  Uuid::uuid4()->toString();
-        $role->id =$uuid;
+        $role->id = $uuid;
         $role->name = $data->name;
         $role->save();
 

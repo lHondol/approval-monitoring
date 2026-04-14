@@ -86,7 +86,7 @@
                     </div>
                 </div>
                 <div class="field hidden" id="additionalDataNoteWrapper">
-                    <label class="!text-base"">Additional Data Note</label>
+                    <label class="!text-base">Additional Data Note</label>
                     <textarea style="resize: none;" name="additional_data_note" placeholder="Additional Data Note" rows="3"></textarea>
                 </div>
                 <div class="field">
