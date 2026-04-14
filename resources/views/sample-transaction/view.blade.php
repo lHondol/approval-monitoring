@@ -5,6 +5,7 @@
         <table id="sampleTransactions" class="ui celled table">
             <thead>
                 <tr>
+                    <th>Processes</th>
                     <th>So Number</th>
                     <th>Customer Name</th>
                     <th>So Created At</th>
@@ -17,6 +18,7 @@
             </tbody>
             <tfoot>
                 <tr>
+                    <th class="!font-bold">Processes</th>
                     <th class="!font-bold">So Number</th>
                     <th class="!font-bold">Customer Name</th>
                     <th class="!font-bold">So Created At</th>
@@ -38,6 +40,14 @@
                 serverSide: true,
                 ajax: "{{ route('sampleTransactionData') }}",
                 columns: [
+                    {
+                        targets: 0,
+                        className: 'dt-control',
+                        orderable: false,
+                        searchable: false,
+                        data: null,
+                        defaultContent: '',
+                    },
                     { data: 'so_number', name: 'so_number' },
                     { data: 'customer_name', name: 'customer_name' },
                     { data: 'so_created_at', name: 'so_created_at' },
@@ -57,7 +67,10 @@
                     topStart: {
                         buttons: [
                             'pageLength', 
-                            'colvis'
+                            {
+                                extend: 'colvis',
+                                columns: ':gt(0)'
+                            }
                         ]
                     },
                     topEnd: {
@@ -82,6 +95,90 @@
                     initDropdownPortal();
                 }
             });
-        });        
+        });       
+        
+        $('#sampleTransactions tbody').on('click', 'td.dt-control', function () {
+            let tr = $(this).closest('tr');
+            let row = $('#sampleTransactions').DataTable().row(tr);
+
+            if (row.child.isShown()) {
+                row.child.hide();
+                tr.removeClass('shown');
+            } else {
+                row.child(format(row.data())).show();
+                tr.addClass('shown');
+
+                setTimeout(() => {
+                    initDropdownPortal();
+                }, 0);
+            }
+        });
+
+        function format(data) {
+            let processes = data.processes;
+
+            if (typeof processes === 'string') {
+                processes = JSON.parse(processes);
+            }
+
+            let html = `<table class="ui celled table" style="width:100%; margin:10px 0;">
+                <thead>
+                    <tr>
+                        <th style="padding:13px 11px !important;">Process Name</th>
+                        <th style="padding:13px 11px !important;">Start At</th>
+                        <th style="padding:13px 11px !important;">Finish At</th>
+                        <th style="padding:13px 11px !important;">Total Day</th>
+                        <th style="text-align:center;">Picture</th>
+                        <th style="text-align:center;">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>`;
+
+            const routeTemplate = {
+                edit: "{{ route('sampleTransactionEditProcessForm', ':id') }}",
+                delete: "{{ route('sampleTransactionDeleteProcess', ':id') }}"
+            };
+
+            if (processes && processes.length > 0) {
+                processes.forEach(p => {
+                    
+                    let editUrl = routeTemplate.edit.replace(':id', p.id);
+                    let deleteUrl = routeTemplate.delete.replace(':id', p.id);
+
+                    html += `
+                        <tr>
+                            <td>${p.process_name}</td>
+                            <td>${p.start_at ?? ''}</td>
+                            <td>${p.finish_at ?? ''}</td>
+                            <td>${p.total_day ?? ''}</td>
+                            <td style="text-align:center;">
+                                ${
+                                    p.file_url 
+                                    ? `<a href="${p.file_url}" target="_blank" class="ui icon">
+                                        <i class="file alternate large icon"></i>
+                                    </a>`
+                                    : '-'
+                                }
+                            </td>
+                            <td style="text-align:center;">
+                                <div class="ui dropdown action-dropdown button">
+                                    Actions <i class="dropdown icon"></i>
+
+                                    <div class="menu">
+                                        <a href="${editUrl}" class="item">Edit</a>
+                                        <a href="${deleteUrl}" class="item">Remove</a>
+                                    </div>
+                                </div>
+                            </td>
+                        </tr>
+                    `;
+                });
+            } else {
+                html += `<tr><td colspan="4" class="text-center">No Data</td></tr>`;
+            }
+
+            html += `</tbody></table>`;
+            return html;
+        }
     </script>
 @endpush

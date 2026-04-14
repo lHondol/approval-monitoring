@@ -324,6 +324,18 @@ Route::middleware('auth')
         ->post('/sample-transactions/create', 'create')
         ->name('sampleTransactionCreate');
 
+    Route::middleware('permission:edit_sample_transaction')
+        ->get('/sample-transactions/edit/{id}', 'editForm')
+        ->name('sampleTransactionEditForm');
+
+    Route::middleware('permission:edit_sample_transaction')
+        ->post('/sample-transactions/edit/{id}', 'edit')
+        ->name('sampleTransactionEdit');
+        
+    Route::middleware('permission:delete_sample_transaction')
+        ->get('/sample-transactions/delete/{id}', 'remove')
+        ->name('sampleTransactionDelete');
+
     Route::middleware('permission:create_sample_transaction_process')
         ->get('/sample-transactions/create-process/{sampleTransactionId}', 'createProcessForm')
         ->name('sampleTransactionCreateProcessForm');
@@ -331,6 +343,18 @@ Route::middleware('auth')
     Route::middleware('permission:create_sample_transaction_process')
         ->post('/sample-transactions/create-process/{sampleTransactionId}', 'createProcess')
         ->name('sampleTransactionCreateProcess');
+
+    Route::middleware('permission:edit_sample_transaction_process')
+        ->get('/sample-transactions/edit-process/{id}', 'editProcessForm')
+        ->name('sampleTransactionEditProcessForm');
+
+    Route::middleware('permission:edit_sample_transaction_process')
+        ->post('/sample-transactions/edit-process/{id}', 'editProcess')
+        ->name('sampleTransactionEditProcess');
+
+    Route::middleware('permission:delete_sample_transaction_process')
+        ->get('/sample-transactions/delete-process/{id}', 'removeProcess')
+        ->name('sampleTransactionDeleteProcess');
 });
 
 Route::controller(ReportingController::class)

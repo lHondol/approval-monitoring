@@ -41,9 +41,10 @@ class SampleTransactionController extends Controller
     }
 
     public function editForm(Request $request) {
+        $customers = $this->sampleTransactionService->getCustomers();
         $id = $request->id;
         $data = $this->sampleTransactionService->getDetail($id, true);
-        return view('sample-transaction.edit', compact('data'));
+        return view('sample-transaction.edit', compact('data', 'customers'));
     }
 
     public function edit(EditRequest $request) {
@@ -68,9 +69,34 @@ class SampleTransactionController extends Controller
     }
 
     public function createProcess(CreateProcessRequest $request) {
-        $data = $request->all();
+        $data = array_merge(
+            $request->all(),
+            $request->route()->parameters()
+        );
         $data['files'] = $request->file('files');
-        $this->sampleTransactionService->createProcess($request->sampleTransactionId, (object) $data);
+        $this->sampleTransactionService->createProcess((object) $data);
+        return redirect()->route('sampleTransactionView');
+    }
+
+    public function editProcessForm(Request $request) {
+        $customers = $this->sampleTransactionService->getCustomers();
+        $id = $request->id;
+        $data = $this->sampleTransactionService->getDetail($id, true);
+        return view('sample-transaction.edit', compact('data', 'customers'));
+    }
+
+    public function editProcess(EditRequest $request) {
+        $data = array_merge(
+            $request->all(),
+            $request->route()->parameters()
+        );
+        $this->sampleTransactionService->editProcess((object) $data);
+        return redirect()->route('sampleTransactionView');
+    }
+
+    public function removeProcess(Request $request) {
+        $id = $request->id;
+        $this->sampleTransactionService->removeProcess($id);
         return redirect()->route('sampleTransactionView');
     }
 }

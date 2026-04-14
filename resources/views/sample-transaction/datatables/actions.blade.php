@@ -4,6 +4,14 @@
         @if (auth()->user()->hasPermissionTo('view_sample_transaction'))
             <a href="{{ route('sampleTransactionDetail', $data->id) }}" class="item">Detail</a>
         @endif
+
+        @if (auth()->user()->hasPermissionTo('edit_sample_transaction'))
+            <a href="{{ route('sampleTransactionEditForm', $data->id) }}" class="item">Edit</a>
+        @endif
+
+        @if (auth()->user()->hasPermissionTo('delete_sample_transaction'))
+            <a href="{{ route('sampleTransactionDelete', $data->id) }}" class="item">Remove</a>
+        @endif
         
         @if (auth()->user()->hasPermissionTo('create_sample_transaction_process'))
             <a href="{{ route('sampleTransactionCreateProcess', $data->id) }}" class="item">Create Process</a>

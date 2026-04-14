@@ -22,7 +22,6 @@ class EditRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'so_number' => 'required',
             'customer' => 'required',
             'so_created_at' => 'required',
             'shipment_request' => 'required',

@@ -21,9 +21,25 @@ class UserRolePermissionV4Seeder extends Seeder
             ['name' => 'create_sample_transaction', 'guard_name' => 'web'],
             ['ui_name' => 'Can Create Sample Transaction']
         );
+        $canEditSample = Permission::updateOrCreate(
+            ['name' => 'edit_sample_transaction', 'guard_name' => 'web'],
+            ['ui_name' => 'Can Edit Sample Transaction']
+        );
+        $canDeleteSample = Permission::updateOrCreate(
+            ['name' => 'delete_sample_transaction', 'guard_name' => 'web'],
+            ['ui_name' => 'Can Delete Sample Transaction']
+        );
         $canCreateSampleProcess = Permission::updateOrCreate(
             ['name' => 'create_sample_transaction_process', 'guard_name' => 'web'],
             ['ui_name' => 'Can Create Sample Transaction Process']
+        );
+        $canEditSampleProcess = Permission::updateOrCreate(
+            ['name' => 'edit_sample_transaction_process', 'guard_name' => 'web'],
+            ['ui_name' => 'Can Edit Sample Transaction Process']
+        );
+        $canDeleteSampleProcess = Permission::updateOrCreate(
+            ['name' => 'delete_sample_transaction_process', 'guard_name' => 'web'],
+            ['ui_name' => 'Can Delete Sample Transaction Process']
         );
     }
 }

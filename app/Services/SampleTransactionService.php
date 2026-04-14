@@ -31,7 +31,7 @@ class SampleTransactionService
 
     public function getData() {
         return DataTables::of(
-            SampleTransaction::select([
+            SampleTransaction::with('processes')->select([
                 'sample_transactions.id', 
                 'so_number', 
                 'customer_id', 
@@ -46,7 +46,29 @@ class SampleTransactionService
         ->orderColumn('customer_name', function($query, $order) {
             $query->leftJoin('customers', 'customers.id', '=', 'sample_transactions.customer_id')
                   ->orderBy('customers.name', $order);
-        })    
+        })
+        ->addColumn('processes', function($row) {
+            return collect($row->processes)->map(function($p) {
+                return [
+                    'process_name' => $p->process_name,
+                    'start_at' => $p->start_at 
+                        ? \Carbon\Carbon::parse($p->start_at)->format('d M Y H:i:s') 
+                        : '',
+                    'finish_at' => $p->finish_at 
+                        ? \Carbon\Carbon::parse($p->finish_at)->format('d M Y H:i:s') 
+                        : '',
+                    'total_day' => ($p->start_at && $p->finish_at)
+                        ? \Carbon\Carbon::parse($p->start_at)->startOfDay()
+                            ->diffInDays(
+                                \Carbon\Carbon::parse($p->finish_at)->startOfDay()
+                            )
+                        : '',
+                    'file_url' => $p->filepath 
+                        ? asset('storage/' . $p->filepath)
+                        : null,
+                ];
+            })->values()->all();
+        }) 
         ->addColumn('actions', function($row) {
             return $this->renderActionButtons($row);
         })
@@ -88,7 +110,7 @@ class SampleTransactionService
                 return Carbon::parse($row->picture_received_at)->format('d M Y H:i:s');
             return '';
         })
-        ->rawColumns(['customer_name', 'actions'])
+        ->rawColumns(['customer_name', 'processes', 'actions'])
         ->make(true);
     }
 
@@ -118,13 +140,12 @@ class SampleTransactionService
     }
 
     public function edit($data) {
-        $sample = SampleTransaction::find($data->id);
+        $sample = SampleTransaction::with(['customer'])->where('id', $data->id)->first();
 
         if (!$sample) {
             return null;
         }
-
-        $sample->so_number = $data->so_number;
+        
         $sample->customer_id = $data->customer;
         $sample->so_created_at = Carbon::parse($data->so_created_at);
         $sample->shipment_request = Carbon::parse($data->shipment_request);
@@ -162,12 +183,12 @@ class SampleTransactionService
         ];
     }
 
-    public function createProcess($sampleTransactionId, $data) {
+    public function createProcess($data) {
         $sample = new SampleTransactionProcess();
         
         $uuid =  Uuid::uuid4()->toString();
         $sample->id = $uuid;
-        $sample->sample_transaction_id = $sampleTransactionId;
+        $sample->sample_transaction_id = $data->sampleTransactionId;
         $sample->process_name = $data->process;
         $sample->start_at = Carbon::parse($data->start_at);
         $sample->finish_at = Carbon::parse($data->finish_at);
@@ -178,5 +199,35 @@ class SampleTransactionService
         $sample->save();
 
         return $sample;
+    }
+
+    public function editProcess($data) {
+        $sample = new SampleTransactionProcess();
+        
+        $uuid =  Uuid::uuid4()->toString();
+        $sample->id = $uuid;
+        $sample->sample_transaction_id = $data->sampleTransactionId;
+        $sample->process_name = $data->process;
+        $sample->start_at = Carbon::parse($data->start_at);
+        $sample->finish_at = Carbon::parse($data->finish_at);
+        
+        $filePaths = $this->fileService->storeFiles($data->files);
+        $sample->filepath = $filePaths[0];
+
+        $sample->save();
+
+        return $sample;
+    }
+
+    public function removeProcess($id) {
+        $sampleProcess = SampleTransactionProcess::find($id);
+
+        if (!$sampleProcess) {
+            return null;
+        }
+
+        $sampleProcess->delete();
+
+        return $sampleProcess;
     }
 }

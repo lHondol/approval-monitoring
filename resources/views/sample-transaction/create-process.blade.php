@@ -179,11 +179,13 @@
             const finishAt = $('#finish-at');
     
             startAt.calendar({
-                type: 'datetime'
+                type: 'datetime',
+                endCalendar: finishAt
             });
     
             finishAt.calendar({
-                type: 'datetime'
+                type: 'datetime',
+                startCalendar: startAt
             });
         });
     </script>
