@@ -30,6 +30,19 @@ class SampleTransactionService
         return view('sample-transaction.datatables.actions', compact('data'));
     }
 
+    public function getForCalendar($start, $end)
+    {
+        return SampleTransaction::join('customers', 'customers.id', '=', 'sample_transactions.customer_id')
+        ->whereBetween('so_created_at', [$start, $end])
+        ->selectRaw("
+            sample_transactions.id,
+            customers.name as customer_name,
+            so_number,
+            DATE(so_created_at) as start
+        ")
+        ->get();
+    }
+
     public function getData() {
         return DataTables::of(
             SampleTransaction::with('processes')->select([

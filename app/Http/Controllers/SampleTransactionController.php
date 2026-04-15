@@ -17,6 +17,14 @@ class SampleTransactionController extends Controller
         $this->sampleTransactionService = $sampleTransactionService;
     }
 
+    public function calendarView() {
+        return view('sample-transaction.calendar.view');
+    }
+
+    public function getDataForCalendar(Request $request) {
+        return $this->sampleTransactionService->getForCalendar($request->start, $request->end);
+    }
+
     public function view() {
         return view('sample-transaction.view');
     }

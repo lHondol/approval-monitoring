@@ -1,10 +1,18 @@
 @php
-    function isActive($path) {
-        return request()->is($path);
+    function isActive($path, $except = [])
+    {
+        $request = request();
+        foreach ($except as $ex) {
+            if ($request->is($ex)) {
+                return false;
+            }
+        }
+
+        return $request->is($path);
     }
 
-    function navClass($routeName) {
-        return isActive($routeName)
+    function navClass($routeName, $except = []) {
+        return isActive($routeName, $except)
             ? 'w-full bg-gray-400 bg-opacity-30'
             : '';
     }
@@ -145,12 +153,12 @@
 
                         <div id="sampleManagementMenu" class="{{ isParentOpen(['sample-transactions*', 'roles*']) }}">
                             @if (auth()->user()->hasPermissionTo('view_sample_transaction'))
-                                <a href="{{ route('sampleTransactionView') }}" class="{{ navClass('sample-transactions*') }}">
+                                <a href="{{ route('sampleTransactionView') }}" class="{{ navClass('sample-transactions*', ['sample-transactions/calendar*']) }}">
                                     Sample Transactions
                                 </a>
                             @endif
                             @if (auth()->user()->hasPermissionTo('view_sample_transaction'))
-                                <a href="{{ route('sampleTransactionView') }}" class="{{ navClass('sample-transactions*') }}">
+                                <a href="{{ route('sampleTransactionCalendarView') }}" class="{{ navClass('sample-transactions/calendar*') }}">
                                     Calendar View
                                 </a>
                             @endif

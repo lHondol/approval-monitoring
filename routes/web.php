@@ -305,6 +305,14 @@ Route::middleware('auth')
 ->group(function () {
 
     Route::middleware('permission:view_sample_transaction')
+        ->get('/sample-transactions/calendar', 'calendarView')
+        ->name('sampleTransactionCalendarView');
+
+    Route::middleware('permission:view_sample_transaction')
+        ->get('/sample-transactions/calendar/data', 'getDataForCalendar')
+        ->name('sampleTransactionCalendarData');
+
+    Route::middleware('permission:view_sample_transaction')
         ->get('/sample-transactions', 'view')
         ->name('sampleTransactionView');
 
