@@ -6,6 +6,7 @@ use App\Http\Requests\SampleTransaction\CreateProcessRequest;
 use App\Http\Requests\SampleTransaction\CreateRequest;
 use App\Http\Requests\SampleTransaction\EditProcessRequest;
 use App\Http\Requests\SampleTransaction\EditRequest;
+use App\Services\EmailService;
 use App\Services\SampleTransactionService;
 use Illuminate\Http\Request;
 
@@ -37,7 +38,13 @@ class SampleTransactionController extends Controller
 
     public function create(CreateRequest $request) {
         $data = $request->all();
-        $this->sampleTransactionService->create((object) $data);
+        $sample = $this->sampleTransactionService->create((object) $data);
+
+        dispatch(function () use ($sample) {
+            app(EmailService::class)->sendNoticeSampleCreatedOrUpdated($sample->id, $sample->so_number);
+        })->afterResponse();
+
+
         return redirect()->route('sampleTransactionView');
     }
 
@@ -53,7 +60,11 @@ class SampleTransactionController extends Controller
             $request->all(),
             $request->route()->parameters()
         );
-        $this->sampleTransactionService->edit((object) $data);
+        $sample = $this->sampleTransactionService->edit((object) $data);
+
+        dispatch(function () use ($sample) {
+            app(EmailService::class)->sendNoticeSampleCreatedOrUpdated($sample->id, $sample->so_number);
+        })->afterResponse();
         return redirect()->route('sampleTransactionView');
     }
 

@@ -1,27 +1,6 @@
 @extends('master.layout')
 
 @section('content')
-    <style>
-        .hover-preview {
-            transition: box-shadow 0.2s ease, transform 0.2s ease;
-            border-radius: 4px;
-            overflow: hidden;
-            cursor: pointer;
-        }
-
-        .hover-preview:hover {
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
-        }
-
-        .hover-preview button {
-            opacity: 0;
-            transition: opacity 0.3s ease;
-        }
-
-        .hover-preview:hover button {
-            opacity: 1;
-        }
-    </style>
     @include('shared.appbar', ['backRoute' => 'sampleTransactionView', 'title' => 'Create New Sample Transaction Process'])
     <div class="flex justify-center">
         <div class="ui card !w-[800px] !p-8">

@@ -6,6 +6,7 @@ use App\Mail\DistributedMail;
 use App\Mail\ReleasedMail;
 use App\Mail\NeedReviseMail;
 use App\Mail\RejectionMail;
+use App\Mail\SampleUpsertMail;
 use App\Mail\WaitingApprovalMail;
 use App\Mail\WaitingReleaseMail;
 use App\Mail\WaitingMarginConfirmationMail;
@@ -20,6 +21,27 @@ class EmailService
     public function __construct()
     {
         //
+    }
+
+    public function sendNoticeSampleCreatedOrUpdated($transactionId, $so_number) {
+        $permissions = ['create_sample_transaction_process'];
+
+        $users = User::query();
+        
+        foreach ($permissions as $perm) {
+            $users->whereHas('roles.permissions', function ($query) use ($perm) {
+                $query->where('name', $perm);
+            });
+        }
+
+        $users = $users->get();
+
+        foreach ($users as $user) {
+            $createProcessUrl = url("sample-transactions/create-process/{$transactionId}");
+            $name = $user->name;
+            $email = $user->email;
+            Mail::to($email)->send(new SampleUpsertMail($createProcessUrl, $name, $so_number));
+        }
     }
 
     public function sendRequestPrereleaseSoApprovalGeneral($transactionId, $so_number, $permissions) {
