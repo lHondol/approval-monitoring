@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\ActivityLogController;
 use App\Http\Controllers\AreaController;
 use App\Http\Controllers\Auth\AuthController;
 use App\Http\Controllers\CustomerController;
@@ -372,6 +373,18 @@ Route::controller(ReportingController::class)
     Route::post('/reportings/export', 'export')
         ->name('reportingExport')->middleware('auth');
 });
+
+Route::middleware('auth')
+    ->controller(ActivityLogController::class)
+    ->group(function () {
+
+        Route::get('/activity-logs', 'view')
+            ->name('activityLogView');
+
+        Route::get('/activity-logs/data', 'getData')
+            ->name('activityLogData');
+
+    });
 
 Route::get('/app-update', function () {
     // Optional: add a secret key for security

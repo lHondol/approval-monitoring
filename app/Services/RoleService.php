@@ -9,12 +9,15 @@ use Yajra\DataTables\DataTables;
 
 class RoleService
 {
+    private ActivityLogService $activityLogService;
     /**
      * Create a new class instance.
      */
-    public function __construct()
+    public function __construct(
+        ActivityLogService $activityLogService
+    )
     {
-        //
+        $this->activityLogService = $activityLogService;
     }
 
     private function renderActionButtons($row)
@@ -89,6 +92,13 @@ class RoleService
 
         $role->syncPermissions(explode(',', $data->permissions));
 
+        $this->activityLogService->create((object) [
+            'action' => 'CREATE',
+            'module' => 'Role',
+            'description' => 'Create Role',
+            'subject_id' => $uuid
+        ]);
+
         return $role;
     }
 
@@ -104,6 +114,13 @@ class RoleService
 
         $role->syncPermissions(explode(',', $data->permissions));
 
+        $this->activityLogService->create((object) [
+            'action' => 'UPDATE',
+            'module' => 'Role',
+            'description' => 'Update Role',
+            'subject_id' => $data->id
+        ]);
+
         return $role;
     }
 
@@ -115,6 +132,13 @@ class RoleService
         }
 
         $role->delete();
+
+        $this->activityLogService->create((object) [
+            'action' => 'DELETE',
+            'module' => 'Role',
+            'description' => 'Delete Role',
+            'subject_id' => $id
+        ]);
 
         return $role;
     }

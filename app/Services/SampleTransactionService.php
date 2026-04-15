@@ -13,15 +13,18 @@ use Yajra\DataTables\DataTables;
 class SampleTransactionService
 {
     private FileService $fileService;
+    private ActivityLogService $activityLogService;
 
     /**
      * Create a new class instance.
      */
     public function __construct(
-        FileService $fileService, 
+        FileService $fileService,
+        ActivityLogService $activityLogService
     )
     {
         $this->fileService = $fileService;
+        $this->activityLogService = $activityLogService;
     }
 
     private function renderActionButtons($row)
@@ -151,6 +154,13 @@ class SampleTransactionService
         $sample->picture_received_at = Carbon::parse($data->picture_received_at);
         $sample->save();
 
+        $this->activityLogService->create((object) [
+            'action' => 'CREATE',
+            'module' => 'Sample Transaction',
+            'description' => 'Create Sample',
+            'subject_id' => $uuid
+        ]);
+
         return $sample;
     }
 
@@ -166,6 +176,13 @@ class SampleTransactionService
         $sample->shipment_request = Carbon::parse($data->shipment_request);
         $sample->picture_received_at = Carbon::parse($data->picture_received_at);
         $sample->save();
+
+        $this->activityLogService->create((object) [
+            'action' => 'UPDATE',
+            'module' => 'Sample Transaction',
+            'description' => 'Update Sample',
+            'subject_id' => $data->id
+        ]);
 
         return $sample;
     }
@@ -193,6 +210,13 @@ class SampleTransactionService
                 $this->fileService->deleteFile($process->filepath);
             }
         }
+
+        $this->activityLogService->create((object) [
+            'action' => 'DELETE',
+            'module' => 'Sample Transaction',
+            'description' => 'Delete Sample',
+            'subject_id' => $id
+        ]);
 
         return $sample;
     }
@@ -233,6 +257,13 @@ class SampleTransactionService
 
         $sampleProcess->save();
 
+        $this->activityLogService->create((object) [
+            'action' => 'CREATE',
+            'module' => 'Sample Transaction Process',
+            'description' => 'Create Sample Process',
+            'subject_id' => $uuid
+        ]);
+
         return $sampleProcess;
     }
 
@@ -263,6 +294,13 @@ class SampleTransactionService
         }
     
         $sampleProcess->save();
+
+        $this->activityLogService->create((object) [
+            'action' => 'UPDATE',
+            'module' => 'Sample Transaction Process',
+            'description' => 'Update Sample Process',
+            'subject_id' => $data->id
+        ]);
     
         return $sampleProcess;
     }
@@ -281,6 +319,13 @@ class SampleTransactionService
         if ($deleted && !empty($filepath)) {
             $this->fileService->deleteFile($filepath);
         }
+
+        $this->activityLogService->create((object) [
+            'action' => 'DELETE',
+            'module' => 'Sample Transaction Process',
+            'description' => 'Delete Sample Process',
+            'subject_id' => $id
+        ]);
 
         return $sampleProcess;
     }

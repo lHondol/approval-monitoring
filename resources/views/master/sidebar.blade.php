@@ -169,6 +169,10 @@
                 <a href="{{ route('passwordChangeForm') }}" class="{{ navClass('password*') }}">
                     Change Password
                 </a>
+
+                <a href="{{ route('activityLogView') }}" class="{{ navClass('activity-logs*') }}">
+                    Activity Logs
+                </a>
             </div>
 
             <div class="bg-gray-400 bg-opacity-30 shrink-0">
