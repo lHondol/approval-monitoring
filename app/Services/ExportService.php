@@ -4,6 +4,7 @@ namespace App\Services;
 
 use App\Exports\DrawingTransactionsExport;
 use App\Exports\PrereleaseSoTransactionsExport;
+use App\Exports\SampleTransactionsExport;
 use Exception;
 
 class ExportService
@@ -24,12 +25,18 @@ class ExportService
         return new PrereleaseSoTransactionsExport($fromDate, $toDate);
     }
 
+    private function exportSampleTransaction($fromDate, $toDate) {
+        return new SampleTransactionsExport($fromDate, $toDate);
+    }
+
     public function export($topic, $fromDate, $toDate) {
         switch ($topic) {
             case 'drawing_transaction':
                 return $this->exportDrawingTransaction($fromDate, $toDate);
             case 'prerelease_so_transaction':
-                    return $this->exportPrereleaseSoTransaction($fromDate, $toDate);
+                return $this->exportPrereleaseSoTransaction($fromDate, $toDate);
+            case 'sample_transaction':
+                return $this->exportSampleTransaction($fromDate, $toDate);
             default:
                 throw new Exception("Topic not exists", 1);
         }

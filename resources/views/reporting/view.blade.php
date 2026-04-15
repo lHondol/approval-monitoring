@@ -21,7 +21,8 @@
                 @php
                     $topics = [
                         ["token" => "drawing_transaction","name" => "Drawing Transaction"],
-                        ["token" => "prerelease_so_transaction","name" => "Prerelease So Transaction"]
+                        ["token" => "prerelease_so_transaction","name" => "Prerelease So Transaction"],
+                        ["token" => "sample_transaction","name" => "Sample Transaction"]
                     ]
                 @endphp
                 <div class="field flex-1">

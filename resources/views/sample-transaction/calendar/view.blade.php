@@ -57,6 +57,7 @@
                         .then(response => response.json())
                         .then(data => {
                             const mapped = data.map(e => ({
+                                id: e.id,
                                 start: e.start,
                                 title: '', // required but unused
                                 extendedProps: {
@@ -67,6 +68,10 @@
                             successCallback(mapped);
                         })
                         .catch(() => failureCallback());
+                },
+                eventClick: function(info) {
+                    const id = info.event.id;
+                    window.location.href = `/sample-transactions/detail/${id}`;
                 }
             });
 

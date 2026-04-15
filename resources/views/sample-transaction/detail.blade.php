@@ -47,25 +47,35 @@
             </div>
 
             <div class="font-bold mb-1">Process</div>
-            <div class="flex flex-col items-center">
-                @foreach ($data->processes as $p)
-                    <div class="w-full ui !my-3 segment flex justify-between gap-3 !p-8 rounded shadow-sm border border-gray-200">
-                        <div class="flex flex-col flex-wrap justify-center items-start gap-4">
-                            <p class="m-0"><strong>Process Name:</strong> {{ $p->process_name }}</p>
-                            <p class="m-0"><strong>Start At:</strong> {{ \Carbon\Carbon::parse($p->start_at)->format('d M Y H:i:s') }}</p>
-                            <p class="m-0"><strong>Finish At:</strong> {{ \Carbon\Carbon::parse($p->finish_at)->format('d M Y H:i:s') }}</p>
+            @if (count($data->processes) > 0)
+                <div class="flex flex-col items-center">
+                    @foreach ($data->processes as $p)
+                        <div class="w-full ui !my-3 segment flex justify-between gap-3 !p-8 rounded shadow-sm border border-gray-200">
+                            <div class="flex flex-col flex-wrap justify-center items-start gap-4">
+                                <p class="m-0"><strong>Process Name:</strong> {{ $p->process_name }}</p>
+                                <p class="m-0"><strong>Start At:</strong> {{ \Carbon\Carbon::parse($p->start_at)->format('d M Y H:i:s') }}</p>
+                                <p class="m-0"><strong>Finish At:</strong> {{ \Carbon\Carbon::parse($p->finish_at)->format('d M Y H:i:s') }}</p>
+                            </div>
+                            <div>
+                                @if ($p->filepath)
+                                    <div class="flex flex-wrap gap-2" 
+                                        id="previewContainer_{{ $p->id }}" 
+                                        style="min-height: 150px;">
+                                    </div>
+                                @endif
+                            </div>
                         </div>
-                        <div>
-                            @if ($p->filepath)
-                                <div class="flex flex-wrap gap-2" 
-                                    id="previewContainer_{{ $p->id }}" 
-                                    style="min-height: 150px;">
-                                </div>
-                            @endif
+                    @endforeach
+                </div>
+            @else
+                <div class="mb-4">
+                    <div class="ui input w-full !cursor-default opacity-70">
+                        <div class="w-full px-5 py-2 rounded bg-gray-100 !text-black">
+                            -- No Process Yet --
                         </div>
                     </div>
-                @endforeach
-            </div>
+                </div>
+            @endif
         </div>
     </div>
 @endsection
@@ -85,7 +95,7 @@
 
                 const wrapper = document.createElement('div');
                 wrapper.classList.add('hover-preview');
-                
+
                 wrapper.style.width = "120px";
                 wrapper.style.height = "150px";
                 wrapper.style.cursor = "pointer";
