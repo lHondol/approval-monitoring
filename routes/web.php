@@ -163,7 +163,7 @@ Route::middleware('auth')
         ->name('userEdit');
 
     Route::middleware('permission:delete_user')
-        ->get('/users/delete/{id}', 'remove')
+        ->delete('/users/delete/{id}', 'remove')
         ->name('userDelete');
 });
 
@@ -200,7 +200,7 @@ Route::middleware('auth')
         ->name('roleEdit');
 
     Route::middleware('permission:delete_role')
-        ->get('/roles/delete/{id}', 'remove')
+        ->delete('/roles/delete/{id}', 'remove')
         ->name('roleDelete');
 });
 
@@ -237,7 +237,7 @@ Route::middleware('auth')
         ->name('customerEdit');
 
     Route::middleware('permission:delete_customer')
-        ->get('/customers/delete/{id}', 'remove')
+        ->delete('/customers/delete/{id}', 'remove')
         ->name('customerDelete');
 });
 
@@ -296,7 +296,7 @@ Route::controller(PasswordController::class)
 //         ->name('areaEdit');
 
 //     Route::middleware('permission:delete_area')
-//         ->get('/areas/delete/{id}', 'remove')
+//         ->delete('/areas/delete/{id}', 'remove')
 //         ->name('areaDelete');
 // });
 
@@ -333,7 +333,7 @@ Route::middleware('auth')
         ->name('sampleTransactionEdit');
         
     Route::middleware('permission:delete_sample_transaction')
-        ->get('/sample-transactions/delete/{id}', 'remove')
+        ->delete('/sample-transactions/delete/{id}', 'remove')
         ->name('sampleTransactionDelete');
 
     Route::middleware('permission:create_sample_transaction_process')
@@ -353,7 +353,7 @@ Route::middleware('auth')
         ->name('sampleTransactionEditProcess');
 
     Route::middleware('permission:delete_sample_transaction_process')
-        ->get('/sample-transactions/delete-process/{id}', 'removeProcess')
+        ->delete('/sample-transactions/delete-process/{id}', 'removeProcess')
         ->name('sampleTransactionDeleteProcess');
 });
 

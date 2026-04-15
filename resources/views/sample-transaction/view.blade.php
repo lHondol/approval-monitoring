@@ -114,6 +114,10 @@
             }
         });
 
+        const actionTemplate = @json(
+            view('js-templates.sample-transaction-process.actions')->render()
+        );
+
         function format(data) {
             let processes = data.processes;
 
@@ -142,8 +146,8 @@
             if (processes && processes.length > 0) {
                 processes.forEach(p => {
                     
-                    let editUrl = routeTemplate.edit.replace(':id', p.id);
-                    let deleteUrl = routeTemplate.delete.replace(':id', p.id);
+                    let actions = actionTemplate
+                        .replaceAll('__ID__', p.id);
 
                     html += `
                         <tr>
@@ -161,14 +165,7 @@
                                 }
                             </td>
                             <td style="text-align:center;">
-                                <div class="ui dropdown action-dropdown button">
-                                    Actions <i class="dropdown icon"></i>
-
-                                    <div class="menu">
-                                        <a href="${editUrl}" class="item">Edit</a>
-                                        <a href="${deleteUrl}" class="item">Remove</a>
-                                    </div>
-                                </div>
+                                ${actions}
                             </td>
                         </tr>
                     `;

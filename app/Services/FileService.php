@@ -41,4 +41,13 @@ class FileService
 
         return $storedFiles;
     }
+
+    public function deleteFile($path)
+    {
+        $fullPath = storage_path('app/public/' . $path);
+
+        if (file_exists($fullPath)) {
+            unlink($fullPath);
+        }
+    }
 }

@@ -9,9 +9,12 @@
             <a href="{{ route('sampleTransactionEditForm', $data->id) }}" class="item">Edit</a>
         @endif
 
-        @if (auth()->user()->hasPermissionTo('delete_sample_transaction'))
-            <a href="{{ route('sampleTransactionDelete', $data->id) }}" class="item">Remove</a>
-        @endif
+        <x-dropdown.delete
+            :route="route('sampleTransactionDelete', $data->id)"
+            :id="$data->id"
+            permission="delete_sample_transaction"
+            label="Remove"
+        />
         
         @if (auth()->user()->hasPermissionTo('create_sample_transaction_process'))
             <a href="{{ route('sampleTransactionCreateProcess', $data->id) }}" class="item">Create Process</a>

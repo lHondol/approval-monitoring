@@ -9,8 +9,11 @@
             <a href="{{ route('roleEditForm', $data->id) }}" class="item">Edit</a>
         @endif
 
-        @if (auth()->user()->hasPermissionTo('delete_role'))
-            <a href="{{ route('roleDelete', $data->id) }}" class="item">Remove</a>
-        @endif
+        <x-dropdown.delete
+            :route="route('roleDelete', $data->id)"
+            :id="$data->id"
+            permission="delete_role"
+            label="Remove"
+        />
     </div>
 </div>

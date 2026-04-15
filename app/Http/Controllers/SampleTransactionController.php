@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\SampleTransaction\CreateProcessRequest;
 use App\Http\Requests\SampleTransaction\CreateRequest;
+use App\Http\Requests\SampleTransaction\EditProcessRequest;
 use App\Http\Requests\SampleTransaction\EditRequest;
 use App\Services\SampleTransactionService;
 use Illuminate\Http\Request;
@@ -73,23 +74,24 @@ class SampleTransactionController extends Controller
             $request->all(),
             $request->route()->parameters()
         );
-        $data['files'] = $request->file('files');
+        $data['file'] = $request->file('file');
         $this->sampleTransactionService->createProcess((object) $data);
         return redirect()->route('sampleTransactionView');
     }
 
     public function editProcessForm(Request $request) {
-        $customers = $this->sampleTransactionService->getCustomers();
+        $processes = $this->sampleTransactionService->getProcesses();
         $id = $request->id;
-        $data = $this->sampleTransactionService->getDetail($id, true);
-        return view('sample-transaction.edit', compact('data', 'customers'));
+        $data = $this->sampleTransactionService->getProcessDetail($id, true);
+        return view('sample-transaction.edit-process', compact('data', 'processes'));
     }
 
-    public function editProcess(EditRequest $request) {
+    public function editProcess(EditProcessRequest $request) {
         $data = array_merge(
             $request->all(),
             $request->route()->parameters()
         );
+        $data['file'] = $request->file('file');
         $this->sampleTransactionService->editProcess((object) $data);
         return redirect()->route('sampleTransactionView');
     }

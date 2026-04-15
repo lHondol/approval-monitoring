@@ -4,7 +4,7 @@ namespace App\Http\Requests\SampleTransaction;
 
 use Illuminate\Foundation\Http\FormRequest;
 
-class CreateProcessRequest extends FormRequest
+class EditProcessRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -25,7 +25,8 @@ class CreateProcessRequest extends FormRequest
             'process' => 'required',
             'start_at' => 'required',
             'finish_at' => 'required',
-            'file' => 'required|image|max:5120',
+            'file' => 'nullable|file|image',
+            'existing_file' => 'nullable|string',
         ];
     }
 
@@ -40,9 +41,19 @@ class CreateProcessRequest extends FormRequest
     public function messages(): array
     {
         return [
-            'file.required' => 'Please upload at least one file.',
             'file.mimes' => 'Each file must be a image',
             'file.max' => 'Each file must not exceed 5MB.',
         ];
+    }
+
+    public function withValidator($validator)
+    {
+        $validator->after(function ($validator) {
+    
+            if (!$this->hasFile('file') && !$this->filled('existing_file')) {
+                $validator->errors()->add('file', 'Please upload at least one file.');
+            }
+    
+        });
     }
 }

@@ -6,6 +6,7 @@ use App\Models\Customer;
 use App\Models\SampleTransaction;
 use App\Models\SampleTransactionProcess;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\DB;
 use Ramsey\Uuid\Uuid;
 use Yajra\DataTables\DataTables;
 
@@ -50,6 +51,7 @@ class SampleTransactionService
         ->addColumn('processes', function($row) {
             return collect($row->processes)->map(function($p) {
                 return [
+                    'id' => $p->id,
                     'process_name' => $p->process_name,
                     'start_at' => $p->start_at 
                         ? \Carbon\Carbon::parse($p->start_at)->format('d M Y H:i:s') 
@@ -156,13 +158,28 @@ class SampleTransactionService
     }
 
     public function remove($id) {
-        $sample = SampleTransaction::find($id);
+        $sample = SampleTransaction::with('processes')->find($id);
 
         if (!$sample) {
             return null;
         }
 
-        $sample->delete();
+        $processes = $sample->processes;
+
+        DB::transaction(function () use ($sample, $processes) {
+    
+            foreach ($processes as $process) {
+                $process->delete();
+            }
+    
+            $sample->delete();
+        });
+    
+        foreach ($processes as $process) {
+            if (!empty($process->filepath)) {
+                $this->fileService->deleteFile($process->filepath);
+            }
+        }
 
         return $sample;
     }
@@ -183,40 +200,58 @@ class SampleTransactionService
         ];
     }
 
-    public function createProcess($data) {
-        $sample = new SampleTransactionProcess();
-        
-        $uuid =  Uuid::uuid4()->toString();
-        $sample->id = $uuid;
-        $sample->sample_transaction_id = $data->sampleTransactionId;
-        $sample->process_name = $data->process;
-        $sample->start_at = Carbon::parse($data->start_at);
-        $sample->finish_at = Carbon::parse($data->finish_at);
-        
-        $filePaths = $this->fileService->storeFiles($data->files);
-        $sample->filepath = $filePaths[0];
-
-        $sample->save();
-
-        return $sample;
+    public function getProcessDetail($id) {
+        $process = SampleTransactionProcess::with(['sample'])->where('id', $id)->first();
+        return $process;
     }
 
-    public function editProcess($data) {
-        $sample = new SampleTransactionProcess();
+    public function createProcess($data) {
+        $sampleProcess = new SampleTransactionProcess();
         
         $uuid =  Uuid::uuid4()->toString();
-        $sample->id = $uuid;
-        $sample->sample_transaction_id = $data->sampleTransactionId;
-        $sample->process_name = $data->process;
-        $sample->start_at = Carbon::parse($data->start_at);
-        $sample->finish_at = Carbon::parse($data->finish_at);
+        $sampleProcess->id = $uuid;
+        $sampleProcess->sample_transaction_id = $data->sampleTransactionId;
+        $sampleProcess->process_name = $data->process;
+        $sampleProcess->start_at = Carbon::parse($data->start_at);
+        $sampleProcess->finish_at = Carbon::parse($data->finish_at);
         
-        $filePaths = $this->fileService->storeFiles($data->files);
-        $sample->filepath = $filePaths[0];
+        $filePaths = $this->fileService->storeFiles($data->file);
+        $sampleProcess->filepath = $filePaths[0];
 
-        $sample->save();
+        $sampleProcess->save();
 
-        return $sample;
+        return $sampleProcess;
+    }
+
+    public function editProcess($data)
+    {
+        $sampleProcess = SampleTransactionProcess::where('id', $data->id)->first();
+
+        if (!$sampleProcess) {
+            return null;
+        }
+
+        $sampleProcess->process_name = $data->process;
+        $sampleProcess->start_at = Carbon::parse($data->start_at);
+        $sampleProcess->finish_at = Carbon::parse($data->finish_at);
+    
+        if (!empty($data->file)) {
+    
+            if (!empty($sampleProcess->filepath)) {
+                $this->fileService->deleteFile($sampleProcess->filepath);
+            }
+
+            $filePaths = $this->fileService->storeFiles($data->file);
+            $sampleProcess->filepath = $filePaths[0];
+    
+        } elseif (!empty($data->existing_file)) {
+    
+            $sampleProcess->filepath = $data->existing_file;
+        }
+    
+        $sampleProcess->save();
+    
+        return $sampleProcess;
     }
 
     public function removeProcess($id) {
@@ -226,7 +261,13 @@ class SampleTransactionService
             return null;
         }
 
-        $sampleProcess->delete();
+        $filepath = $sampleProcess->filepath;
+
+        $deleted = $sampleProcess->delete();
+
+        if ($deleted && !empty($filepath)) {
+            $this->fileService->deleteFile($filepath);
+        }
 
         return $sampleProcess;
     }

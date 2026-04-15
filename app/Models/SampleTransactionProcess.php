@@ -22,4 +22,8 @@ class SampleTransactionProcess extends Model
         'start_at'     => 'datetime',
         'finish_at'     => 'datetime'
     ];
+
+    public function sample() {
+        return $this->belongsTo(SampleTransaction::class, 'sample_transaction_id');
+    }
 }

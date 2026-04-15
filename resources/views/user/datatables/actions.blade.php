@@ -8,9 +8,12 @@
         @if (auth()->user()->hasPermissionTo('edit_user'))
             <a href="{{ route('userEditForm', $data->id) }}" class="item">Edit</a>
         @endif
-        
-        @if (auth()->user()->hasPermissionTo('delete_user'))
-            <a href="{{ route('userDelete', $data->id) }}" class="item">Remove</a>
-        @endif
+
+        <x-dropdown.delete
+            :route="route('userDelete', $data->id)"
+            :id="$data->id"
+            permission="delete_user"
+            label="Remove"
+        />
     </div>
 </div>
