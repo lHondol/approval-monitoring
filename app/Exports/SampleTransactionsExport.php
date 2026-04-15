@@ -57,7 +57,7 @@ class SampleTransactionsExport implements FromCollection, WithHeadings, WithEven
                         'Proses' => $p->process_name,
                         'Start' => $start ? $start->format('Y-m-d H:i') : '',
                         'Finish' => $finish ? $finish->format('Y-m-d H:i') : '',
-                        'Total Hari' => $days,
+                        'Total Hari' => (string)$days,
                     ];
                 }
 
