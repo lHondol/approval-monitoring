@@ -242,7 +242,10 @@
             }
         });
     }
+</script>
 
+@if (auth()->user()->hasAnyPermission(['view_prerelease_so_transaction']))
+<script>
     $(document).ready(function () {
         loadPrereleaseBadge();
 
@@ -250,3 +253,4 @@
         setInterval(loadPrereleaseBadge, 10000);
     });
 </script>
+@endif

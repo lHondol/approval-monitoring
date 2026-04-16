@@ -110,17 +110,17 @@
 
     <script>
         $(document).ready(function () {
-
+            
             const fileInput = document.getElementById('fileInput');
             const previewContainer = document.getElementById('previewContainer');
 
-            fileInput._files = [];
+            fileInput._files = fileInput._files || [];
 
             function renderExisting(fileUrl) {
                 if (!fileUrl) return;
 
                 const wrapper = document.createElement('div');
-                wrapper.classList.add('hover-preview');
+                wrapper.classList.add('hover-preview', 'existing-file');
 
                 wrapper.style.position = 'relative';
                 wrapper.style.width = '120px';
@@ -166,60 +166,73 @@
 
             renderExisting(existingFile);
 
-            fileInput.addEventListener('change', function (event) {
+            fileInput.addEventListener('change', function(event) {
+                // Remove the existing file display
+                document.querySelectorAll('.existing-file').forEach(el => el.remove());
+                document.querySelector('input[name="existing_file"]').value = '';
 
-                previewContainer.innerHTML = '';
-                fileInput._files = [];
+                const newFiles = Array.from(event.target.files);
 
-                const file = event.target.files[0];
-                if (!file) return;
+                for (let file of newFiles) {
+                    const index = fileInput._files.length;
+                    fileInput._files.push(file);
 
-                fileInput._files.push(file);
+                    // Only process image
+                    if (!file.type.startsWith('image/')) continue;
 
-                const imageUrl = URL.createObjectURL(file);
+                    const imageUrl = URL.createObjectURL(file);
 
-                const wrapper = document.createElement('div');
-                wrapper.classList.add('hover-preview');
+                    const wrapper = document.createElement('div');
+                    wrapper.classList.add('hover-preview');
 
-                wrapper.style.position = 'relative';
-                wrapper.style.width = '120px';
-                wrapper.style.height = '150px';
-                wrapper.style.flexShrink = '0';
+                    wrapper.style.position = 'relative';
+                    wrapper.style.width = '120px';
+                    wrapper.style.height = '150px';
+                    wrapper.style.flexShrink = '0';
 
-                const img = document.createElement('img');
-                img.src = imageUrl;
-                img.style.width = '100%';
-                img.style.height = '100%';
-                img.style.objectFit = 'cover';
-                img.style.borderRadius = '6px';
+                    const img = document.createElement('img');
+                    img.src = imageUrl;
+                    img.style.width = '100%';
+                    img.style.height = '100%';
+                    img.style.objectFit = 'cover';
+                    img.style.borderRadius = '6px';
 
-                wrapper.appendChild(img);
+                    wrapper.appendChild(img);
 
-                const btn = document.createElement('button');
-                btn.type = 'button';
-                btn.className = 'ui red mini circular icon button';
-                btn.style.position = 'absolute';
-                btn.style.top = '5px';
-                btn.style.right = '5px';
-                btn.innerHTML = '<i class="close icon"></i>';
+                    // Click → open image
+                    wrapper.addEventListener('click', (e) => {
+                        if (e.target.tagName.toLowerCase() === 'i') return;
+                        window.open(imageUrl, '_blank');
+                    });
 
-                btn.addEventListener('click', (e) => {
-                    e.stopPropagation();
-                    wrapper.remove();
-                    fileInput.value = '';
-                    fileInput._files = [];
-                });
+                    // Remove button
+                    const btn = document.createElement('button');
+                    btn.type = 'button';
+                    btn.className = 'ui red mini circular icon button';
+                    btn.style.position = 'absolute';
+                    btn.style.top = '5px';
+                    btn.style.right = '5px';
+                    btn.style.opacity = '0.85';
+                    btn.innerHTML = '<i class="close icon"></i>';
 
-                wrapper.addEventListener('click', () => {
-                    window.open(imageUrl, '_blank');
-                });
+                    btn.addEventListener('click', (e) => {
+                        e.stopPropagation();
+                        wrapper.remove();
+                        fileInput._files[index] = null;
 
-                wrapper.appendChild(btn);
-                previewContainer.appendChild(wrapper);
+                        const dataTransfer = new DataTransfer();
+                        fileInput._files.forEach(f => { if (f) dataTransfer.items.add(f); });
+                        fileInput.files = dataTransfer.files;
+                    });
 
-                const dt = new DataTransfer();
-                fileInput._files.forEach(f => dt.items.add(f));
-                fileInput.files = dt.files;
+                    wrapper.appendChild(btn);
+                    previewContainer.appendChild(wrapper);
+                }
+
+                // Rebuild input files
+                const dataTransfer = new DataTransfer();
+                fileInput._files.forEach(f => { if (f) dataTransfer.items.add(f); });
+                fileInput.files = dataTransfer.files;
             });
 
             $('#processesDropdown').dropdown();

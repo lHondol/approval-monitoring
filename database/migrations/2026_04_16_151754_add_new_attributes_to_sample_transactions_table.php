@@ -1,0 +1,30 @@
+<?php
+
+use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
+
+return new class extends Migration
+{
+    /**
+     * Run the migrations.
+     */
+    public function up(): void
+    {
+        Schema::table('sample_transactions', function (Blueprint $table) {
+            $table->string('note')->nullable();
+            $table->string('filepath')->nullable(); // nullable in db to prevent old data error // validate in request for required
+        });
+    }
+
+    /**
+     * Reverse the migrations.
+     */
+    public function down(): void
+    {
+        Schema::table('sample_transactions', function (Blueprint $table) {
+            $table->dropColumn('note');
+            $table->dropColumn('filepath');
+        });
+    }
+};

@@ -76,7 +76,7 @@
                     </div>
                 </div>
                 <div class="field hidden" id="revisionDataNoteWrapper">
-                    <label class="!text-base"">Revision Data Note</label>
+                    <label class="!text-base">Revision Data Note</label>
                     <textarea style="resize: none;" name="revision_data_note" placeholder="Revision Data Note" rows="3"></textarea>
                 </div>
                 <div class="field">

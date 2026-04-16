@@ -41,8 +41,18 @@
                 <div class="font-bold mb-1">Picture Received At</div>
                 <div class="ui input w-full !cursor-default opacity-70">
                     <div class="w-full px-5 py-2 rounded bg-gray-100 !text-black">
-                        {{ $data->picture_received_at }}
+                        {{ $data->picture_received_at ?? '-- Not Receive Yet --' }}
                     </div>
+                </div>
+            </div>
+
+            <div class="mb-4">
+                <div class="font-bold mb-1">Uploaded File</div>
+                <div class="ui input w-full !cursor-default opacity-70">
+                    <div class="flex flex-wrap gap-2" 
+                    id="previewContainer_{{ $data->id }}" 
+                    style="min-height: 150px;">
+                </div>
                 </div>
             </div>
 
@@ -81,7 +91,22 @@
 @endsection
 
 @push('scripts')
+    <!-- PDF.js -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.min.js"></script>
     <script>
+        pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.worker.min.js';
+    </script>
+    <script src="{{ asset('js/custom.js') }}"></script>
+    <script>
+        // Prepare data for JS
+        const dataList = @json([[
+            'id' => $data->id,
+            'filepath' => $data->filepath
+        ]]);
+
+        // Call your function
+        initPreviewFile(dataList);
+
         async function initFilePreview(dataList) {
             console.log(document.querySelectorAll('[id^="previewContainer_"]'))
             for (const dt of dataList) {

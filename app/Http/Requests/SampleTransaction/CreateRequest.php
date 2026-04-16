@@ -26,7 +26,27 @@ class CreateRequest extends FormRequest
             'customer' => 'required',
             'so_created_at' => 'required',
             'shipment_request' => 'required',
-            'picture_received_at' => 'required'
+            // 'picture_received_at' => 'required',
+            'note' => 'nullable',
+            'files' => 'required|array|min:1',
+            'files.*' => 'sometimes|file|mimes:pdf|max:5120',
+        ];
+    }
+
+    public function attributes(): array
+    {
+        return [
+            'files' => 'files',
+            'files.*' => 'files',
+        ];
+    }
+
+    public function messages(): array
+    {
+        return [
+            'files.required' => 'Please upload at least one file.',
+            'files.*.mimes' => 'Each file must be a pdf',
+            'files.*.max' => 'Each file must not exceed 5MB.',
         ];
     }
 }

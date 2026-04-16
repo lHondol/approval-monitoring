@@ -6,12 +6,14 @@ use App\Models\Customer;
 use App\Models\SampleTransaction;
 use App\Models\SampleTransactionProcess;
 use Carbon\Carbon;
+use Exception;
 use Illuminate\Support\Facades\DB;
 use Ramsey\Uuid\Uuid;
 use Yajra\DataTables\DataTables;
 
 class SampleTransactionService
 {
+    private PDFService $pdfService;
     private FileService $fileService;
     private ActivityLogService $activityLogService;
 
@@ -19,10 +21,12 @@ class SampleTransactionService
      * Create a new class instance.
      */
     public function __construct(
+        PDFService $pdfService,
         FileService $fileService,
         ActivityLogService $activityLogService
     )
     {
+        $this->pdfService = $pdfService;
         $this->fileService = $fileService;
         $this->activityLogService = $activityLogService;
     }
@@ -142,6 +146,14 @@ class SampleTransactionService
         return $sample;
     }
 
+    public function mergePdf($files, $sampleTransactionId) {
+        $timestamp = now()->format('Ymd_His');
+
+        $newFileName = "{$sampleTransactionId}_{$timestamp}.pdf";
+
+        return $this->pdfService->mergePdf($files, $newFileName, "sample-pdfs");
+    }
+
     public function create($data) {
         $sample = new SampleTransaction();
         
@@ -151,7 +163,22 @@ class SampleTransactionService
         $sample->customer_id = $data->customer;
         $sample->so_created_at = Carbon::parse($data->so_created_at);
         $sample->shipment_request = Carbon::parse($data->shipment_request);
-        $sample->picture_received_at = Carbon::parse($data->picture_received_at);
+        
+        if (isset($data->note)) {
+            $sample->note = $data->note;
+        }
+
+        try {
+            $mergedFilePath = $this->mergePdf(
+                $data->files, 
+                $uuid,
+            );
+        } catch (Exception $execption) {
+            return null;
+        }
+
+        $sample->filepath = $mergedFilePath;
+
         $sample->save();
 
         $this->activityLogService->create((object) [
@@ -174,7 +201,33 @@ class SampleTransactionService
         $sample->customer_id = $data->customer;
         $sample->so_created_at = Carbon::parse($data->so_created_at);
         $sample->shipment_request = Carbon::parse($data->shipment_request);
-        $sample->picture_received_at = Carbon::parse($data->picture_received_at);
+
+        if (isset($data->note)) {
+            $sample->note = $data->note;
+        }
+
+        if (!empty($data->files)) {
+    
+            if (!empty($sample->filepath)) {
+                $this->fileService->deleteFile($sample->filepath);
+            }
+
+            try {
+                $mergedFilePath = $this->mergePdf(
+                    $data->files, 
+                    $sample->id,
+                );
+            } catch (Exception $execption) {
+                return null;
+            }
+
+            $sample->filepath = $mergedFilePath;
+    
+        } elseif (!empty($data->existing_file)) {
+    
+            $sample->filepath = $data->existing_file;
+        }
+
         $sample->save();
 
         $this->activityLogService->create((object) [
@@ -195,21 +248,26 @@ class SampleTransactionService
         }
 
         $processes = $sample->processes;
+        $filepath = $sample->filepath;
 
-        DB::transaction(function () use ($sample, $processes) {
+        DB::transaction(function () use ($sample, $processes, $filepath) {
     
             foreach ($processes as $process) {
                 $process->delete();
             }
     
-            $sample->delete();
-        });
-    
-        foreach ($processes as $process) {
-            if (!empty($process->filepath)) {
-                $this->fileService->deleteFile($process->filepath);
+            $deleted = $sample->delete();
+
+            foreach ($processes as $process) {
+                if (!empty($process->filepath)) {
+                    $this->fileService->deleteFile($process->filepath);
+                }
             }
-        }
+    
+            if ($deleted && !empty($filepath)) {
+                $this->fileService->deleteFile($filepath);
+            }
+        });
 
         $this->activityLogService->create((object) [
             'action' => 'DELETE',
