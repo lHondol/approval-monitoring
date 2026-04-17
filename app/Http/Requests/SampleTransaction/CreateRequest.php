@@ -24,7 +24,7 @@ class CreateRequest extends FormRequest
         return [
             'so_number' => 'required',
             'customer' => 'required',
-            'so_created_at' => 'required',
+            // 'so_created_at' => 'required',
             'shipment_request' => 'required',
             // 'picture_received_at' => 'required',
             'note' => 'nullable',

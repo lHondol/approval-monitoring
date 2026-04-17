@@ -23,7 +23,7 @@ class EditProcessRequest extends FormRequest
     {
         return [
             'finish_note' => 'nullable',
-            'file' => 'nullable|file|image',
+            'file' => 'required|file|image',
             'existing_file' => 'nullable|string',
         ];
     }

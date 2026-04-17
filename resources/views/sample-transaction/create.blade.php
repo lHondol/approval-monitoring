@@ -36,17 +36,6 @@
                         </div>
                     </div>
                 </div>
-
-                <div class="field">
-                    <label class="!text-base">SO Created At</label>
-                    <div id="so-created-at" class="ui calendar">
-                        <div class="ui input left icon">
-                            <i class="calendar icon"></i>
-                            <input type="text" name="so_created_at" placeholder="YYYY-MM-DD HH:MM AM">
-                        </div>
-                    </div>
-                </div>
-
                 
                 <div class="field">
                     <label class="!text-base">Shipment Request</label>
@@ -182,12 +171,7 @@
             
             $('#customersDropdown').dropdown();
             
-            const soCreatedAt = $('#so-created-at');
             const shipmentRequest = $('#shipment-request');
-
-            soCreatedAt.calendar({
-                type: 'datetime'
-            });
 
             shipmentRequest.calendar({
                 type: 'datetime'

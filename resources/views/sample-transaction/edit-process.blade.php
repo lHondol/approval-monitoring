@@ -216,20 +216,6 @@
             });
 
             $('#processesDropdown').dropdown();
-
-            const startAt = $('#start-at');
-            const finishAt = $('#finish-at');
-
-            startAt.calendar({
-                type: 'datetime',
-                endCalendar: finishAt
-            });
-
-            finishAt.calendar({
-                type: 'datetime',
-                startCalendar: startAt
-            });
-
         });
     </script>
 @endsection

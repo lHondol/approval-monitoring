@@ -10,7 +10,8 @@
                     <th>Customer Name</th>
                     <th>So Created At</th>
                     <th>Shipment Request</th>
-                    <th>Picture Received At</th>
+                    <th>Drawing Received At</th>
+                    <th>Approve Note</th>
                     <th>Actions</th>
                 </tr>
             </thead>
@@ -23,7 +24,8 @@
                     <th class="!font-bold">Customer Name</th>
                     <th class="!font-bold">So Created At</th>
                     <th class="!font-bold">Shipment Request</th>
-                    <th class="!font-bold">Picture Received At</th>
+                    <th class="!font-bold">Drawing Received At</th>
+                    <th class="!font-bold">Approve Note</th>
                     <th class="!font-bold">Actions</th>
                 </tr>
             </tfoot>
@@ -53,6 +55,7 @@
                     { data: 'so_created_at', name: 'so_created_at' },
                     { data: 'shipment_request', name: 'shipment_request' },
                     { data: 'picture_received_at', name: 'picture_received_at' },
+                    { data: 'picture_received_note', name: 'picture_received_note' },
                     { data: 'actions', name: 'actions', width: 120 },
                 ],
                 columnDefs: [
@@ -127,12 +130,15 @@
 
             let html = `<table class="ui celled table" style="width:100%; margin:10px 0;">
                 <thead>
-                    <tr>
+                    <tr style="background-color:#f9fafb !important;">
                         <th style="padding:13px 11px !important;">Process Name</th>
                         <th style="padding:13px 11px !important;">Start At</th>
                         <th style="padding:13px 11px !important;">Finish At</th>
                         <th style="padding:13px 11px !important;">Total Day</th>
-                        <th style="text-align:center;">Picture</th>
+                        <th style="text-align:center;">Start Picture</th>
+                        <th style="text-align:center;">Finish Picture</th>
+                        <th style="padding:13px 11px !important;">Start Note</th>
+                        <th style="padding:13px 11px !important;">Finish Note</th>
                         <th style="text-align:center;">Actions</th>
                     </tr>
                 </thead>
@@ -166,13 +172,24 @@
                             <td>${p.total_day ?? ''}</td>
                             <td style="text-align:center;">
                                 ${
-                                    p.file_url 
-                                    ? `<a href="${p.file_url}" target="_blank" class="ui icon">
+                                    p.start_file_url 
+                                    ? `<a href="${p.start_file_url}" target="_blank" class="ui icon">
                                         <i class="file alternate large icon"></i>
                                     </a>`
                                     : ''
                                 }
                             </td>
+                            <td style="text-align:center;">
+                                ${
+                                    p.finish_file_url 
+                                    ? `<a href="${p.finish_file_url}" target="_blank" class="ui icon">
+                                        <i class="file alternate large icon"></i>
+                                    </a>`
+                                    : ''
+                                }
+                            </td>
+                            <td>${p.start_note ?? ''}</td>
+                            <td>${p.finish_note ?? ''}</td>
                             <td style="text-align:center;">
                                 ${actions}
                             </td>

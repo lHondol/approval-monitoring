@@ -78,7 +78,7 @@
                                 <p class="m-0"><strong>Finish Note:</strong> {{ $p->finish_note ?? '-' }}</p>
                             </div>
                             <div>
-                                @if ($p->filepath)
+                                @if ($p->start_filepath || $p->finish_filepath)
                                     <div class="flex flex-wrap gap-2" 
                                         id="previewContainer_{{ $p->id }}" 
                                         style="min-height: 150px;">
@@ -119,39 +119,45 @@
         initPreviewFile(dataList);
 
         async function initFilePreview(dataList) {
-            console.log(document.querySelectorAll('[id^="previewContainer_"]'))
             for (const dt of dataList) {
-
-                if (!dt.filepath) continue;
 
                 const container = document.getElementById('previewContainer_' + dt.id);
                 if (!container) continue;
 
-                const fileUrl = "/storage/" + dt.filepath;
+                const files = [
+                    dt.start_filepath,
+                    dt.finish_filepath
+                ];
 
-                const wrapper = document.createElement('div');
-                wrapper.classList.add('hover-preview');
+                for (const fp of files) {
+                    if (!fp) continue;
 
-                wrapper.style.width = "120px";
-                wrapper.style.height = "150px";
-                wrapper.style.cursor = "pointer";
-                wrapper.style.borderRadius = "6px";
-                wrapper.style.overflow = "hidden";
-                wrapper.style.background = "#f5f5f5";
+                    const fileUrl = "/storage/" + fp;
 
-                const img = document.createElement('img');
-                img.src = fileUrl;
-                img.style.width = "100%";
-                img.style.height = "100%";
-                img.style.objectFit = "cover";
+                    const wrapper = document.createElement('div');
+                    wrapper.classList.add('hover-preview');
 
-                wrapper.appendChild(img);
+                    wrapper.style.width = "120px";
+                    wrapper.style.height = "150px";
+                    wrapper.style.cursor = "pointer";
+                    wrapper.style.borderRadius = "6px";
+                    wrapper.style.overflow = "hidden";
+                    wrapper.style.background = "#f5f5f5";
 
-                wrapper.addEventListener('click', () => {
-                    window.open(fileUrl, '_blank');
-                });
+                    const img = document.createElement('img');
+                    img.src = fileUrl;
+                    img.style.width = "100%";
+                    img.style.height = "100%";
+                    img.style.objectFit = "cover";
 
-                container.appendChild(wrapper);
+                    wrapper.appendChild(img);
+
+                    wrapper.addEventListener('click', () => {
+                        window.open(fileUrl, '_blank');
+                    });
+
+                    container.appendChild(wrapper);
+                }
             }
         }
 

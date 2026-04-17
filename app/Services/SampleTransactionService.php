@@ -45,7 +45,7 @@ class SampleTransactionService
             sample_transactions.id,
             customers.name as customer_name,
             so_number,
-            DATE(so_created_at) as start
+            DATE(shipment_request) as start
         ")
         ->get();
     }
@@ -60,7 +60,8 @@ class SampleTransactionService
                 'customer_id', 
                 'so_created_at', 
                 'shipment_request', 
-                'picture_received_at'
+                'picture_received_at',
+                'picture_received_note'
             ])
         )
         ->addColumn('customer_name', function($row) {
@@ -87,9 +88,14 @@ class SampleTransactionService
                                 \Carbon\Carbon::parse($p->finish_at)->startOfDay()
                             )
                         : '',
-                    'file_url' => $p->filepath 
-                        ? asset('storage/' . $p->filepath)
+                    'start_note' => $p->start_note ?? '',
+                    'finish_note' => $p->finish_note ?? '',
+                    'start_file_url' => $p->start_filepath 
+                        ? asset('storage/' . $p->start_filepath)
                         : null,
+                    'finish_file_url' => $p->finish_filepath 
+                        ? asset('storage/' . $p->finish_filepath)
+                        : null
                 ];
             })->values()->all();
         }) 
@@ -165,7 +171,7 @@ class SampleTransactionService
         $sample->id = $uuid;
         $sample->so_number = $data->so_number;
         $sample->customer_id = $data->customer;
-        $sample->so_created_at = Carbon::parse($data->so_created_at);
+        $sample->so_created_at = Carbon::now();
         $sample->shipment_request = Carbon::parse($data->shipment_request);
         
         if (isset($data->note)) {
@@ -263,8 +269,11 @@ class SampleTransactionService
             $deleted = $sample->delete();
 
             foreach ($processes as $process) {
-                if (!empty($process->filepath)) {
-                    $this->fileService->deleteFile($process->filepath);
+                if (!empty($process->start_filepath)) {
+                    $this->fileService->deleteFile($process->start_filepath);
+                }
+                if (!empty($process->finish_filepath)) {
+                    $this->fileService->deleteFile($process->finish_filepath);
                 }
             }
     
@@ -344,8 +353,8 @@ class SampleTransactionService
 
         // $sampleProcess->finish_at = Carbon::parse($data->finish_at);
         
-        // $filePaths = $this->fileService->storeFiles($data->file);
-        // $sampleProcess->filepath = $filePaths[0];
+        $filePaths = $this->fileService->storeFiles($data->file);
+        $sampleProcess->start_filepath = $filePaths[0];
 
         $sampleProcess->save();
 
@@ -381,16 +390,16 @@ class SampleTransactionService
     
         if (!empty($data->file)) {
     
-            if (!empty($sampleProcess->filepath)) {
-                $this->fileService->deleteFile($sampleProcess->filepath);
+            if (!empty($sampleProcess->finish_filepath)) {
+                $this->fileService->deleteFile($sampleProcess->finish_filepath);
             }
 
             $filePaths = $this->fileService->storeFiles($data->file);
-            $sampleProcess->filepath = $filePaths[0];
+            $sampleProcess->finish_filepath = $filePaths[0];
     
         } elseif (!empty($data->existing_file)) {
     
-            $sampleProcess->filepath = $data->existing_file;
+            $sampleProcess->finish_filepath = $data->existing_file;
         }
     
         $sampleProcess->save();
@@ -412,12 +421,18 @@ class SampleTransactionService
             return null;
         }
 
-        $filepath = $sampleProcess->filepath;
+        $start_filepath = $sampleProcess->start_filepath;
+        $finish_filepath = $sampleProcess->finish_filepath;
 
         $deleted = $sampleProcess->delete();
 
-        if ($deleted && !empty($filepath)) {
-            $this->fileService->deleteFile($filepath);
+        if ($deleted && !empty($start_filepath)) {
+            $this->fileService->deleteFile($start_filepath);
+        }
+
+        
+        if ($deleted && !empty($finish_filepath)) {
+            $this->fileService->deleteFile($finish_filepath);
         }
 
         $this->activityLogService->create((object) [
