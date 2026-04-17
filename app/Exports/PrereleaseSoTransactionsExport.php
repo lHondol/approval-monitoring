@@ -131,7 +131,7 @@ class PrereleaseSoTransactionsExport implements FromCollection, WithHeadings
                     'SO Number'            => $transaction->so_number ?? '',
                     'PO Number'            => $transaction->po_number,
                     'Description'          => $transaction->description,
-                    'Created At'           => $fmt($transaction->created_at),
+                    'Created At'           => $fmt($transaction->updated_at),
                 
                     'Upload Done At'       => $fmt($uploadAt),
                 

@@ -81,6 +81,7 @@ class PrereleaseSoTransactionService
             'prerelease_so_transactions.po_number',
             'prerelease_so_transactions.description',
             'prerelease_so_transactions.created_at',
+            'prerelease_so_transactions.updated_at',
             'prerelease_so_transactions.released_at',
             'prerelease_so_transactions.status',
             'prerelease_so_transactions.as_revision_data',
@@ -228,7 +229,7 @@ class PrereleaseSoTransactionService
             }
         })
         ->editColumn('created_at', function($row) {
-            return Carbon::parse($row->created_at)->format('d M Y H:i:s');
+            return Carbon::parse($row->updated_at)->format('d M Y H:i:s');
         })
         ->editColumn('released_at', function($row) {
             if ($row->released_at)
