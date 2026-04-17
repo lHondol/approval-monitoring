@@ -64,7 +64,9 @@
                             <div class="flex flex-col flex-wrap justify-center items-start gap-4">
                                 <p class="m-0"><strong>Process Name:</strong> {{ $p->process_name }}</p>
                                 <p class="m-0"><strong>Start At:</strong> {{ \Carbon\Carbon::parse($p->start_at)->format('d M Y H:i:s') }}</p>
-                                <p class="m-0"><strong>Finish At:</strong> {{ \Carbon\Carbon::parse($p->finish_at)->format('d M Y H:i:s') }}</p>
+                                <p class="m-0"><strong>Start Note:</strong> {{ $p->start_note ?? '-' }}</p>
+                                <p class="m-0"><strong>Finish At:</strong> {{ $p->finish_at ? \Carbon\Carbon::parse($p->finish_at)->format('d M Y H:i:s') : '-' }}</p>
+                                <p class="m-0"><strong>Finish Note:</strong> {{ $p->finish_note ?? '-' }}</p>
                             </div>
                             <div>
                                 @if ($p->filepath)

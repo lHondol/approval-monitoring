@@ -146,8 +146,17 @@
             if (processes && processes.length > 0) {
                 processes.forEach(p => {
                     
-                    let actions = actionTemplate
-                        .replaceAll('__ID__', p.id);
+                    let actions = actionTemplate.replaceAll('__ID__', p.id);
+
+                    let temp = document.createElement('div');
+                    temp.innerHTML = actions;
+
+                    if (p.finish_at) {
+                        const finishBtn = temp.querySelector('.btn-finish');
+                        if (finishBtn) finishBtn.remove();
+                    }
+
+                    actions = temp.innerHTML;
 
                     html += `
                         <tr>
@@ -161,7 +170,7 @@
                                     ? `<a href="${p.file_url}" target="_blank" class="ui icon">
                                         <i class="file alternate large icon"></i>
                                     </a>`
-                                    : '-'
+                                    : ''
                                 }
                             </td>
                             <td style="text-align:center;">

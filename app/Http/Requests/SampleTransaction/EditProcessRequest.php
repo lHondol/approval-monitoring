@@ -22,9 +22,7 @@ class EditProcessRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'process' => 'required',
-            'start_at' => 'required',
-            'finish_at' => 'required',
+            'finish_note' => 'nullable',
             'file' => 'nullable|file|image',
             'existing_file' => 'nullable|string',
         ];

@@ -52,7 +52,9 @@ class SampleTransactionService
 
     public function getData() {
         return DataTables::of(
-            SampleTransaction::with('processes')->select([
+            SampleTransaction::with(['processes' => function ($query) {
+                $query->orderBy('created_at', 'asc');
+            }])->select([
                 'sample_transactions.id', 
                 'so_number', 
                 'customer_id', 
@@ -137,7 +139,9 @@ class SampleTransactionService
     }
 
     public function getDetail($id) {
-        $sample = SampleTransaction::with(['customer', 'processes'])->where('id', $id)->first();
+        $sample = SampleTransaction::with(['customer', 'processes' => function ($query) {
+            $query->orderBy('created_at', 'asc');
+        }])->where('id', $id)->first();
         return $sample;
     }
 
@@ -307,18 +311,23 @@ class SampleTransactionService
         $sampleProcess->id = $uuid;
         $sampleProcess->sample_transaction_id = $data->sampleTransactionId;
         $sampleProcess->process_name = $data->process;
-        $sampleProcess->start_at = Carbon::parse($data->start_at);
-        $sampleProcess->finish_at = Carbon::parse($data->finish_at);
+        $sampleProcess->start_at = Carbon::now();
+
+        if (empty($sampleProcess->start_note)) {
+            $sampleProcess->start_note = $data->start_note;
+        }
+
+        // $sampleProcess->finish_at = Carbon::parse($data->finish_at);
         
-        $filePaths = $this->fileService->storeFiles($data->file);
-        $sampleProcess->filepath = $filePaths[0];
+        // $filePaths = $this->fileService->storeFiles($data->file);
+        // $sampleProcess->filepath = $filePaths[0];
 
         $sampleProcess->save();
 
         $this->activityLogService->create((object) [
-            'action' => 'CREATE',
+            'action' => 'START',
             'module' => 'Sample Transaction Process',
-            'description' => 'Create Sample Process',
+            'description' => 'Start Sample Process',
             'subject_id' => $uuid
         ]);
 
@@ -333,9 +342,17 @@ class SampleTransactionService
             return null;
         }
 
-        $sampleProcess->process_name = $data->process;
-        $sampleProcess->start_at = Carbon::parse($data->start_at);
-        $sampleProcess->finish_at = Carbon::parse($data->finish_at);
+        $action = $sampleProcess->finish_at ? 'UPDATE' : 'FINISH';
+
+        // $sampleProcess->process_name = $data->process;
+        // $sampleProcess->start_at = Carbon::parse($data->start_at);
+        if (empty($sampleProcess->finish_at)) {
+            $sampleProcess->finish_at = Carbon::now();
+        }
+
+        if (empty($sampleProcess->finish_note)) {
+            $sampleProcess->finish_note = $data->finish_note;
+        }
     
         if (!empty($data->file)) {
     
@@ -354,9 +371,9 @@ class SampleTransactionService
         $sampleProcess->save();
 
         $this->activityLogService->create((object) [
-            'action' => 'UPDATE',
+            'action' => $action,
             'module' => 'Sample Transaction Process',
-            'description' => 'Update Sample Process',
+            'description' => "{ucwords($action)} Sample Process",
             'subject_id' => $data->id
         ]);
     

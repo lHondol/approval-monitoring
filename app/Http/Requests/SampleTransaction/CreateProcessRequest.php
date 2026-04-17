@@ -23,26 +23,7 @@ class CreateProcessRequest extends FormRequest
     {
         return [
             'process' => 'required',
-            'start_at' => 'required',
-            'finish_at' => 'required',
-            'file' => 'required|image|max:5120',
-        ];
-    }
-
-    
-    public function attributes(): array
-    {
-        return [
-            'file' => 'file',
-        ];
-    }
-
-    public function messages(): array
-    {
-        return [
-            'file.required' => 'Please upload at least one file.',
-            'file.mimes' => 'Each file must be a image',
-            'file.max' => 'Each file must not exceed 5MB.',
+            'start_note' => 'nullable',
         ];
     }
 }

@@ -3,8 +3,9 @@
 
     <div class="menu">
         @if (auth()->user()->hasPermissionTo('edit_sample_transaction_process'))
-            <a href="{{ route('sampleTransactionEditProcessForm', '__ID__') }}" class="item">
-                Edit
+            <a href="{{ route('sampleTransactionEditProcessForm', '__ID__') }}"
+                class="item btn-finish">
+                Finish
             </a>
         @endif
 

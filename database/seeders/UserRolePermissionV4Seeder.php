@@ -41,5 +41,9 @@ class UserRolePermissionV4Seeder extends Seeder
             ['name' => 'delete_sample_transaction_process', 'guard_name' => 'web'],
             ['ui_name' => 'Can Delete Sample Transaction Process']
         );
+        $canApproveSample = Permission::updateOrCreate(
+            ['name' => 'approve_sample_transaction', 'guard_name' => 'web'],
+            ['ui_name' => 'Can Approve Sample Transaction']
+        );
     }
 }

@@ -47,36 +47,11 @@
                     </div>
                 </div>
 
-                <div class="field flex-1">
-                     <label class="!text-base">Process</label>
-                    <div id="processesDropdown" class="ui clearable selection dropdown">
-                        <input type="hidden" name="process" value="{{ $data->process_name }}">
-                        <i class="dropdown icon"></i>
-                        <div class="default text">Select Process</div>
-                        <div class="menu">
-                            @foreach ($processes as $process)
-                                <div class="item" data-value="{{ $process }}">{{ $process }}</div>
-                            @endforeach
-                        </div>
-                    </div>
-                </div>
-
-                <div class="field">
-                    <label class="!text-base">Start At</label>
-                    <div id="start-at" class="ui calendar">
-                        <div class="ui input left icon">
-                            <i class="calendar icon"></i>
-                            <input type="text" name="start_at" placeholder="YYYY-MM-DD HH:MM AM" value="{{ $data->start_at }}">
-                        </div>
-                    </div>
-                </div>
-
-                <div class="field">
-                    <label class="!text-base">Finish At</label>
-                    <div id="finish-at" class="ui calendar">
-                        <div class="ui input left icon">
-                            <i class="calendar icon"></i>
-                            <input type="text" name="finish_at" placeholder="YYYY-MM-DD HH:MM AM" value="{{ $data->finish_at }}">
+                <div class="mb-4">
+                    <div class="font-bold mb-1">Process</div>
+                    <div class="ui input w-full !cursor-default opacity-70">
+                        <div class="w-full px-5 py-2 rounded bg-gray-100 !text-black">
+                            {{ $data->process_name }}
                         </div>
                     </div>
                 </div>
@@ -99,7 +74,12 @@
 
                 <input type="hidden" name="existing_file" value="{{ $data->filepath }}">
 
-                <button class="ui button customButton mt-4" type="submit">Submit</button>
+                <div class="field">
+                    <label class="!text-base">Finish Note</label>
+                    <textarea style="resize: none;" name="finish_note" placeholder="Finish Note" rows="3">{{ $data->finish_note }}</textarea>
+                </div>
+
+                <button class="ui button customButton mt-4" type="submit">Finish</button>
             </form>
         </div>
     </div>
