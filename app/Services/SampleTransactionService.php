@@ -58,7 +58,8 @@ class SampleTransactionService
                 'sample_transactions.id', 
                 'so_number', 
                 'customer_id', 
-                'so_created_at', 
+                'so_created_at',
+                'note', 
                 'shipment_request', 
                 'picture_received_at',
                 'picture_received_note'

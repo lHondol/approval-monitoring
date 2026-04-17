@@ -11,6 +11,7 @@
                     <th>So Created At</th>
                     <th>Shipment Request</th>
                     <th>Drawing Received At</th>
+                    <th>Note</th>
                     <th>Approve Note</th>
                     <th>Actions</th>
                 </tr>
@@ -26,6 +27,7 @@
                     <th class="!font-bold">Shipment Request</th>
                     <th class="!font-bold">Drawing Received At</th>
                     <th class="!font-bold">Approve Note</th>
+                    <th class="!font-bold">Note</th>
                     <th class="!font-bold">Actions</th>
                 </tr>
             </tfoot>
@@ -55,6 +57,7 @@
                     { data: 'so_created_at', name: 'so_created_at' },
                     { data: 'shipment_request', name: 'shipment_request' },
                     { data: 'picture_received_at', name: 'picture_received_at' },
+                    { data: 'note', name: 'note' },
                     { data: 'picture_received_note', name: 'picture_received_note' },
                     { data: 'actions', name: 'actions', width: 120 },
                 ],
