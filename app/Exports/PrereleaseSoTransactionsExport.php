@@ -75,6 +75,8 @@ class PrereleaseSoTransactionsExport implements FromCollection, WithHeadings
                     ->map(fn ($s) => $s->sortByDesc('done_at')->first());
 
                 $uploadAt = optional($steps['Upload'] ?? null)?->done_at;
+                $uploadRevisedAt = optional($steps['Upload (Revised)'] ?? null)?->done_at;
+                $createdAt = $uploadRevisedAt ?? $uploadAt;
 
                 // $salesAreaAt = $nextStep(
                 //     $uploadAt,
@@ -131,7 +133,7 @@ class PrereleaseSoTransactionsExport implements FromCollection, WithHeadings
                     'SO Number'            => $transaction->so_number ?? '',
                     'PO Number'            => $transaction->po_number,
                     'Description'          => $transaction->description,
-                    'Created At'           => $fmt($transaction->updated_at),
+                    'Created At'           => $fmt($createdAt),
                 
                     'Upload Done At'       => $fmt($uploadAt),
                 

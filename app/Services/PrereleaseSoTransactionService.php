@@ -12,6 +12,7 @@ use App\States\PrereleaseSoTransaction\WaitingForAccountingApprovalState;
 use Carbon\Carbon;
 use Exception;
 use GuzzleHttp\Psr7\Request;
+use Illuminate\Support\Facades\DB;
 use Ramsey\Uuid\Uuid;
 use Str;
 use Yajra\DataTables\DataTables;
@@ -80,7 +81,6 @@ class PrereleaseSoTransactionService
             'prerelease_so_transactions.so_number',
             'prerelease_so_transactions.po_number',
             'prerelease_so_transactions.description',
-            'prerelease_so_transactions.created_at',
             'prerelease_so_transactions.updated_at',
             'prerelease_so_transactions.released_at',
             'prerelease_so_transactions.status',
@@ -90,7 +90,18 @@ class PrereleaseSoTransactionService
             'prerelease_so_transactions.customer_id',
             'prerelease_so_transactions.is_urgent',
             'prerelease_so_transactions.target_shipment_month',
-            'prerelease_so_transactions.target_shipment_year'
+            'prerelease_so_transactions.target_shipment_year',
+            // COMPUTED CREATED_AT
+            DB::raw("
+                (
+                    SELECT COALESCE(
+                        MAX(CASE WHEN action_done = 'Upload (Revised)' THEN done_at END),
+                        MAX(CASE WHEN action_done = 'Upload' THEN done_at END)
+                    )
+                    FROM prerelease_so_transaction_steps
+                    WHERE prerelease_so_transaction_steps.prerelease_so_transaction_id = prerelease_so_transactions.id
+                ) as created_at
+            "),
             // 'prerelease_so_transactions.area_id',
         ])->with(['customer', 'area'])
         ->orderBy('is_urgent', 'desc')
@@ -185,10 +196,19 @@ class PrereleaseSoTransactionService
                       ->orWhere('prerelease_so_transactions.description', 'LIKE', "%{$search}%")
                       ->orWhere('customers.name', 'LIKE', "%{$search}%")
                     //   ->orWhere('areas.name', 'LIKE', "%{$search}%")
-                      ->orWhereRaw(
-                          "DATE_FORMAT(prerelease_so_transactions.created_at, '%d %b %Y %H:%i:%s') LIKE ?",
-                          ["%{$search}%"]
-                      )
+                        ->orWhereRaw("
+                        DATE_FORMAT(
+                            (
+                                SELECT COALESCE(
+                                    MAX(CASE WHEN action_done = 'Upload (Revised)' THEN done_at END),
+                                    MAX(CASE WHEN action_done = 'Upload' THEN done_at END)
+                                )
+                                FROM prerelease_so_transaction_steps
+                                WHERE prerelease_so_transaction_steps.prerelease_so_transaction_id = prerelease_so_transactions.id
+                            ),
+                            '%d %b %Y %H:%i:%s'
+                        ) LIKE ?
+                    ", ["%{$search}%"])
                       ->orWhereRaw(
                           "DATE_FORMAT(prerelease_so_transactions.released_at, '%d %b %Y %H:%i:%s') LIKE ?",
                           ["%{$search}%"]
@@ -229,7 +249,21 @@ class PrereleaseSoTransactionService
             }
         })
         ->editColumn('created_at', function($row) {
-            return Carbon::parse($row->updated_at)->format('d M Y H:i:s');
+            return $row->created_at
+                ? Carbon::parse($row->created_at)->format('d M Y H:i:s')
+                : '';
+        })
+        ->orderColumn('created_at', function ($query, $order) {
+            $query->orderByRaw("
+                (
+                    SELECT COALESCE(
+                        MAX(CASE WHEN action_done = 'Upload (Revised)' THEN done_at END),
+                        MAX(CASE WHEN action_done = 'Upload' THEN done_at END)
+                    )
+                    FROM prerelease_so_transaction_steps
+                    WHERE prerelease_so_transaction_steps.prerelease_so_transaction_id = prerelease_so_transactions.id
+                ) {$order}
+            ");
         })
         ->editColumn('released_at', function($row) {
             if ($row->released_at)
