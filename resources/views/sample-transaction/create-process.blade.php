@@ -1,7 +1,7 @@
 @extends('master.layout')
 
 @section('content')
-    @include('shared.appbar', ['backRoute' => 'sampleTransactionView', 'title' => 'Create New Sample Transaction Process'])
+    @include('shared.appbar', ['backRoute' => 'sampleTransactionView', 'title' => 'Start New Sample Transaction Process'])
     <div class="flex justify-center">
         <div class="ui card !w-[800px] !p-8">
             <form class="ui form" method="post" action="{{ route('sampleTransactionCreateProcess', $sampleTransaction->id) }}" enctype="multipart/form-data">

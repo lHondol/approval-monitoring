@@ -9,6 +9,10 @@
             <a href="{{ route('sampleTransactionEditForm', $data->id) }}" class="item">Edit</a>
         @endif
 
+        @if (auth()->user()->hasPermissionTo('approve_sample_transaction') && empty($data->picture_received_at))
+            <a href="{{ route('sampleTransactionApproveForm', $data->id) }}" class="item">Approve</a>
+        @endif
+
         <x-dropdown.delete
             :route="route('sampleTransactionDelete', $data->id)"
             :id="$data->id"
@@ -16,7 +20,7 @@
             label="Remove"
         />
         
-        @if (auth()->user()->hasPermissionTo('create_sample_transaction_process'))
+        @if (auth()->user()->hasPermissionTo('create_sample_transaction_process') && !empty($data->picture_received_at))
             <a href="{{ route('sampleTransactionCreateProcess', $data->id) }}" class="item">Start Process</a>
         @endif
     </div>

@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\SampleTransaction\ApproveRequest;
 use App\Http\Requests\SampleTransaction\CreateProcessRequest;
 use App\Http\Requests\SampleTransaction\CreateRequest;
 use App\Http\Requests\SampleTransaction\EditProcessRequest;
@@ -79,6 +80,22 @@ class SampleTransactionController extends Controller
     public function remove(Request $request) {
         $id = $request->id;
         $this->sampleTransactionService->remove($id);
+        return redirect()->route('sampleTransactionView');
+    }
+
+    public function approveForm(Request $request) {
+        $id = $request->id;
+        $data = $this->sampleTransactionService->getDetail($id, true);
+        return view ('sample-transaction.approval', compact('data'));
+    }
+
+    public function approve(ApproveRequest $request) {
+        $data = array_merge(
+            $request->all(),
+            $request->route()->parameters()
+        );
+        $sample = $this->sampleTransactionService->approve((object) $data);
+        
         return redirect()->route('sampleTransactionView');
     }
 

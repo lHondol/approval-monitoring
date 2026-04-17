@@ -22,7 +22,7 @@
             opacity: 1;
         }
     </style>
-    @include('shared.appbar', ['backRoute' => 'sampleTransactionView', 'title' => 'Edit Sample Transaction Process'])
+    @include('shared.appbar', ['backRoute' => 'sampleTransactionView', 'title' => 'Finish Sample Transaction Process'])
     <div class="flex justify-center">
         <div class="ui card !w-[800px] !p-8">
             <form class="ui form" method="post" action="{{ route('sampleTransactionEditProcess', $data->id) }}" enctype="multipart/form-data">

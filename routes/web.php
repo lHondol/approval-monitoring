@@ -345,6 +345,14 @@ Route::middleware('auth')
         ->delete('/sample-transactions/delete/{id}', 'remove')
         ->name('sampleTransactionDelete');
 
+    Route::middleware('permission:approve_sample_transaction')
+        ->get('/sample-transactions/approve/{id}', 'approveForm')
+        ->name('sampleTransactionApproveForm');
+
+    Route::middleware('permission:approve_sample_transaction')
+        ->post('/sample-transactions/approve/{id}', 'approve')
+        ->name('sampleTransactionApprove');
+
     Route::middleware('permission:create_sample_transaction_process')
         ->get('/sample-transactions/create-process/{sampleTransactionId}', 'createProcessForm')
         ->name('sampleTransactionCreateProcessForm');

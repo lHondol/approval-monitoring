@@ -283,6 +283,31 @@ class SampleTransactionService
         return $sample;
     }
 
+    public function approve($data) {
+        $sample = SampleTransaction::where('id', $data->id)->first();
+
+        if (!$sample) {
+            return null;
+        }
+        
+        $sample->picture_received_at = Carbon::now();
+        
+        if (isset($data->picture_received_note)) {
+            $sample->picture_received_note = $data->picture_received_note;
+        }
+
+        $sample->save();
+
+        $this->activityLogService->create((object) [
+            'action' => 'APPROVE',
+            'module' => 'Sample Transaction',
+            'description' => 'APPROVE Sample',
+            'subject_id' => $sample->id
+        ]);
+
+        return $sample;
+    }
+
     public function getCustomers() {
         return Customer::select(['id', 'name'])->get();   
     }

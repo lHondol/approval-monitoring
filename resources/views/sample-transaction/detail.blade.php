@@ -47,6 +47,15 @@
             </div>
 
             <div class="mb-4">
+                <div class="font-bold mb-1">Approval Note</div>
+                <div class="ui input w-full !cursor-default opacity-70">
+                    <div class="w-full px-5 py-2 rounded bg-gray-100 !text-black">
+                    {{ !$data->picture_received_at ? '-- Not Receive Yet --' : ($data->picture_received_note ?? '-') }}
+                    </div>
+                </div>
+            </div>
+
+            <div class="mb-4">
                 <div class="font-bold mb-1">Uploaded File</div>
                 <div class="ui input w-full !cursor-default opacity-70">
                     <div class="flex flex-wrap gap-2" 
