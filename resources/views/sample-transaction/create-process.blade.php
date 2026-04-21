@@ -56,9 +56,8 @@
                         </button>
                     </div>
 
-                    <!-- Hidden inputs -->
-                    <input type="file" id="cameraInput" accept="image/*" capture="environment" hidden>
-                    <input type="file" id="galleryInput" accept="image/*" hidden>
+                    <!-- SINGLE hidden input -->
+                    <input type="file" name="file" id="fileInput" accept="image/*" hidden>
 
                     <!-- Preview -->
                     <div id="previewContainer" class="ui small images"
@@ -79,101 +78,72 @@
     <script>
         $(document).ready(function () {
 
-            const cameraInput = document.getElementById('cameraInput');
-            const galleryInput = document.getElementById('galleryInput');
+            const fileInput = document.getElementById('fileInput');
             const previewContainer = document.getElementById('previewContainer');
 
-            let allFiles = [];
-
-            function handleFiles(files) {
-                for (let file of files) {
-                    const index = allFiles.length;
-                    allFiles.push(file);
-
-                    if (!file.type.startsWith('image/')) continue;
-
-                    const imageUrl = URL.createObjectURL(file);
-
-                    const wrapper = document.createElement('div');
-                    wrapper.style.position = 'relative';
-                    wrapper.style.width = '120px';
-                    wrapper.style.height = '150px';
-                    wrapper.style.flexShrink = '0';
-
-                    const img = document.createElement('img');
-                    img.src = imageUrl;
-                    img.style.width = '100%';
-                    img.style.height = '100%';
-                    img.style.objectFit = 'cover';
-                    img.style.borderRadius = '6px';
-
-                    wrapper.appendChild(img);
-
-                    // Click → open image
-                    wrapper.addEventListener('click', function (e) {
-                        if (e.target.tagName.toLowerCase() === 'i') return;
-                        window.open(imageUrl, '_blank');
-                    });
-
-                    // Remove button
-                    const btn = document.createElement('button');
-                    btn.type = 'button';
-                    btn.className = 'ui red mini circular icon button';
-                    btn.style.position = 'absolute';
-                    btn.style.top = '5px';
-                    btn.style.right = '5px';
-                    btn.innerHTML = '<i class="close icon"></i>';
-
-                    btn.onclick = function (e) {
-                        e.stopPropagation();
-                        wrapper.remove();
-                        allFiles[index] = null;
-                    };
-
-                    wrapper.appendChild(btn);
-                    previewContainer.appendChild(wrapper);
-                }
-            }
-
-            // Handle camera
-            cameraInput.addEventListener('change', function (e) {
-                handleFiles(Array.from(e.target.files));
-                cameraInput.value = ''; // reset
-            });
-
-            // Handle gallery
-            galleryInput.addEventListener('change', function (e) {
-                handleFiles(Array.from(e.target.files));
-                galleryInput.value = ''; // reset
-            });
-
-            // Button triggers
+            // Open camera
             window.openCamera = function () {
-                cameraInput.click();
+                fileInput.setAttribute('capture', 'environment'); // force camera
+                fileInput.click();
             };
 
+            // Open gallery
             window.openGallery = function () {
-                galleryInput.click();
+                fileInput.removeAttribute('capture'); // allow gallery
+                fileInput.click();
             };
 
-            // Before submit → merge all files
-            $('form').on('submit', function () {
-                const dataTransfer = new DataTransfer();
+            // Handle file selection
+            fileInput.addEventListener('change', function (e) {
+                const file = e.target.files[0];
 
-                allFiles.forEach(f => {
-                    if (f) dataTransfer.items.add(f);
+                if (!file || !file.type.startsWith('image/')) return;
+
+                // Clear previous preview (only 1 file allowed)
+                previewContainer.innerHTML = '';
+
+                const imageUrl = URL.createObjectURL(file);
+
+                const wrapper = document.createElement('div');
+                wrapper.style.position = 'relative';
+                wrapper.style.width = '120px';
+                wrapper.style.height = '150px';
+
+                const img = document.createElement('img');
+                img.src = imageUrl;
+                img.style.width = '100%';
+                img.style.height = '100%';
+                img.style.objectFit = 'cover';
+                img.style.borderRadius = '6px';
+
+                wrapper.appendChild(img);
+
+                // Click → open full image
+                wrapper.addEventListener('click', function (e) {
+                    if (e.target.tagName.toLowerCase() === 'i') return;
+                    window.open(imageUrl, '_blank');
                 });
 
-                const input = document.createElement('input');
-                input.type = 'file';
-                input.name = 'file[]';
-                input.multiple = true;
-                input.files = dataTransfer.files;
+                // Remove button
+                const btn = document.createElement('button');
+                btn.type = 'button';
+                btn.className = 'ui red mini circular icon button';
+                btn.style.position = 'absolute';
+                btn.style.top = '5px';
+                btn.style.right = '5px';
+                btn.innerHTML = '<i class="close icon"></i>';
 
-                this.appendChild(input);
+                btn.onclick = function (e) {
+                    e.stopPropagation();
+                    wrapper.remove();
+                    fileInput.value = ''; // clear selected file
+                };
+
+                wrapper.appendChild(btn);
+                previewContainer.appendChild(wrapper);
             });
 
-            // Dropdown (unchanged)
+            // Dropdown logic
             $('#processesDropdown').dropdown({
                 onChange: function (value) {
                     if (value === 'Finish Good') {
