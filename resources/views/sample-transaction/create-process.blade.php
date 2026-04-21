@@ -44,7 +44,7 @@
                     <label class="!text-base">Picture</label>
 
                     <div class="ui">
-                        <input class="ui invisible file input" type="file" name="file" id="fileInput" accept="image/*">
+                        <input class="ui invisible file input" type="file" name="file" id="fileInput" accept="image/*" capture="environment">
                         <label for="fileInput" class="ui icon button">
                             <i class="file icon"></i>
                             Upload Picture
