@@ -78,7 +78,7 @@
                                 <p class="m-0"><strong>Finish Note:</strong> {{ $p->finish_note ?? '-' }}</p>
                             </div>
                             <div>
-                                @if ($p->start_filepath || $p->finish_filepath)
+                                @if ($p->filepath)
                                     <div class="flex flex-wrap gap-2" 
                                         id="previewContainer_{{ $p->id }}" 
                                         style="min-height: 150px;">
@@ -125,8 +125,7 @@
                 if (!container) continue;
 
                 const files = [
-                    dt.start_filepath,
-                    dt.finish_filepath
+                    dt.filepath,
                 ];
 
                 for (const fp of files) {

@@ -138,8 +138,7 @@
                         <th style="padding:13px 11px !important;">Start At</th>
                         <th style="padding:13px 11px !important;">Finish At</th>
                         <th style="padding:13px 11px !important;">Total Day</th>
-                        <th style="text-align:center;">Start Picture</th>
-                        <th style="text-align:center;">Finish Picture</th>
+                        <th style="text-align:center;">Picture</th>
                         <th style="padding:13px 11px !important;">Start Note</th>
                         <th style="padding:13px 11px !important;">Finish Note</th>
                         <th style="text-align:center;">Actions</th>
@@ -175,17 +174,8 @@
                             <td>${p.total_day ?? ''}</td>
                             <td style="text-align:center;">
                                 ${
-                                    p.start_file_url 
-                                    ? `<a href="${p.start_file_url}" target="_blank" class="ui icon">
-                                        <i class="file alternate large icon"></i>
-                                    </a>`
-                                    : ''
-                                }
-                            </td>
-                            <td style="text-align:center;">
-                                ${
-                                    p.finish_file_url 
-                                    ? `<a href="${p.finish_file_url}" target="_blank" class="ui icon">
+                                    p.file_url 
+                                    ? `<a href="${p.file_url}" target="_blank" class="ui icon">
                                         <i class="file alternate large icon"></i>
                                     </a>`
                                     : ''

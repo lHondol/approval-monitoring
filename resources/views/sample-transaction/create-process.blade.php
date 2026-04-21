@@ -57,11 +57,11 @@
                 </div>
 
                 <div class="field">
-                    <label class="!text-base">Start Note</label>
+                    <label id="startNoteLabel" class="!text-base">Start Note</label>
                     <textarea style="resize: none;" name="start_note" placeholder="Start Note" rows="3"></textarea>
                 </div>
 
-                <button class="ui button customButton mt-4" type="submit">Start</button>
+                <button id="submitBtn" class="ui button customButton mt-4" type="submit">Start</button>
             </form>
         </div>
     </div>
@@ -139,7 +139,17 @@
                 fileInput.files = dataTransfer.files;
             });
 
-            $('#processesDropdown').dropdown();
+            $('#processesDropdown').dropdown({
+                onChange: function(value, text) {
+                    if (value === 'Finish Good') {
+                        submitBtn.innerText = 'Finish';
+                        startNoteLabel.innerHTML = 'Finish Note';
+                    } else {
+                        submitBtn.innerText = 'Start';
+                        startNoteLabel.innerHTML = 'Start Note';
+                    }
+                }
+            });
         });
     </script>
 @endsection

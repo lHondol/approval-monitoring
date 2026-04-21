@@ -20,7 +20,7 @@
             label="Remove"
         />
         
-        @if (auth()->user()->hasPermissionTo('create_sample_transaction_process') && !empty($data->picture_received_at))
+        @if (auth()->user()->hasPermissionTo('create_sample_transaction_process') && !empty($data->picture_received_at) && is_null($data->latestUnfinishedProcess))
             <a href="{{ route('sampleTransactionCreateProcess', $data->id) }}" class="item">Start Process</a>
         @endif
     </div>

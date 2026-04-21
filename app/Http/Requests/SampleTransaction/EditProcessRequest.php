@@ -23,35 +23,35 @@ class EditProcessRequest extends FormRequest
     {
         return [
             'finish_note' => 'nullable',
-            'file' => 'required|file|image',
-            'existing_file' => 'nullable|string',
+            // 'file' => 'required|file|image',
+            // 'existing_file' => 'nullable|string',
         ];
     }
 
     
-    public function attributes(): array
-    {
-        return [
-            'file' => 'file',
-        ];
-    }
+    // public function attributes(): array
+    // {
+    //     return [
+    //         'file' => 'file',
+    //     ];
+    // }
 
-    public function messages(): array
-    {
-        return [
-            'file.mimes' => 'Each file must be a image',
-            'file.max' => 'Each file must not exceed 5MB.',
-        ];
-    }
+    // public function messages(): array
+    // {
+    //     return [
+    //         'file.mimes' => 'Each file must be a image',
+    //         'file.max' => 'Each file must not exceed 5MB.',
+    //     ];
+    // }
 
-    public function withValidator($validator)
-    {
-        $validator->after(function ($validator) {
+    // public function withValidator($validator)
+    // {
+    //     $validator->after(function ($validator) {
     
-            if (!$this->hasFile('file') && !$this->filled('existing_file')) {
-                $validator->errors()->add('file', 'Please upload at least one file.');
-            }
+    //         if (!$this->hasFile('file') && !$this->filled('existing_file')) {
+    //             $validator->errors()->add('file', 'Please upload at least one file.');
+    //         }
     
-        });
-    }
+    //     });
+    // }
 }

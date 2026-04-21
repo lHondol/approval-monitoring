@@ -23,4 +23,11 @@ class SampleTransaction extends Model
     public function customer() {
         return $this->belongsTo(Customer::class);
     }
+
+    public function latestUnfinishedProcess()
+    {
+        return $this->hasOne(SampleTransactionProcess::class)
+            ->whereNull('finish_at')
+            ->latestOfMany('start_at');
+    }
 }
