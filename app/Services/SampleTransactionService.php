@@ -526,7 +526,7 @@ class SampleTransactionService
             if ($row->hasFinished) {
                 $color = 'green';
                 $text = 'On Track';
-                return "<div style='display:flex; align-items:center; gap:8px;'>
+                return "<div style='display:flex; align-items:center; justify-content:center; gap:8px;'>
                     <span style='width:14px; height:14px; border-radius:50%; background:$color; display:inline-block;'></span>
                     <b>$text</b>
                 </div>";
@@ -546,10 +546,10 @@ class SampleTransactionService
             $color = $diff <= 3 ? 'green' : 'red';
             $text = $diff <= 3 ? 'On Track' : 'Delayed';
             
-            return "<div style='display:flex; align-items:center; gap:8px;'>
-                        <span style='width:14px; height:14px; border-radius:50%; background:$color; display:inline-block;'></span>
-                        <b>$text</b>
-                    </div>";
+            return "<div style='display:flex; align-items:center; justify-content:center; gap:8px;'>
+                <span style='width:14px; height:14px; border-radius:50%; background:$color; display:inline-block;'></span>
+                <b>$text</b>
+            </div>";
         })
         ->filter(function($query) {
             if ($search = request('search.value')) {

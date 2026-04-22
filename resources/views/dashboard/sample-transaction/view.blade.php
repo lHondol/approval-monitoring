@@ -54,8 +54,8 @@
                     { data: 'latest_unfinished_process_name', name: 'latest_unfinished_process_name' },
                     { data: 'actual_process_days', name: 'actual_process_days' },
                     { data: 'total_lead_time', name: 'total_lead_time' },
-                    { data: 'progress', name: 'progress' },
-                    { data: 'status', name: 'status' },
+                    { data: 'progress', name: 'progress', width: 50 },
+                    { data: 'status', name: 'status', width: 120 },
                 ],
                 columnDefs: [
                     { targets: -1, className: 'dt-center', orderable: false, searchable: false } // Actions column
@@ -63,7 +63,7 @@
                 scrollX: true,
                 fixedColumns: {
                     start: 0,
-                    end: 1
+                    end: 2
                 },
                 layout: {
                     topStart: {
