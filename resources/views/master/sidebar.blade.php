@@ -76,29 +76,38 @@
 
         <div class="flex flex-col flex-1 min-h-0">
             <div class="flex-1 overflow-y-auto text-xl min-h-0">
-                @if (auth()->user()->hasAnyPermission(['view_prerelease_so_transaction', 'view_sample_transaction']))
-                    <div class="relative">
+                <div class="relative">
+                    <button
+                        class="parentMenu w-full text-left !flex justify-between items-center {{ navParentClass(['dashboard*']) }}"
+                        onclick="
+                            document.getElementById('dashboardMenu').classList.toggle('hidden');
+                            document.getElementById('dashboardIcon').classList.toggle('-rotate-90');
+                        "
+                    >
+                        <span>Dashboard</span>
+                        <i id="dashboardIcon"
+                        class="angle left icon transition-transform duration-200
+                        {{ request()->is('sample-transactions*') ? '-rotate-90' : '' }}">
+                        </i>
+                    </button>
 
-                        <button
-                            class="parentMenu w-full text-left !flex justify-between items-center {{ navParentClass(['prerelease-so-transactions*', 'sample-transactions*']) }}"
-                            onclick="
-                                document.getElementById('dashboardMenu').classList.toggle('hidden');
-                                document.getElementById('dashboardIcon').classList.toggle('-rotate-90');
-                            "
-                        >
-                            <span>Dashboard</span>
-                            <i id="dashboardIcon"
-                            class="angle left icon transition-transform duration-200
-                            {{ request()->is('prerelease-so-transactions*') || request()->is('sample-transactions*') ? '-rotate-90' : '' }}">
-                            </i>
-                        </button>
+                    <div id="dashboardMenu" class="{{ isParentOpen(['dashboard*']) }}">
+                        
+                    {{--@if (auth()->user()->hasAnyPermission(['view_prerelease_so_transaction']))
+                        <a href="{{ route('prereleaseSoTransactionDashboardView') }}"
+                            class="{{ navClass('dashboard/prerelease-so-transactions*']) }} childMenu">
+                                SO Regular
+                            </a>
+                    @endif--}}
 
-                        <div id="dashboardMenu" class="{{ isParentOpen(['prerelease-so-transactions*', 'sample-transactions*']) }}">
-
-
-                        </div>
+                    @if (auth()->user()->hasAnyPermission(['view_sample_transaction']))
+                        <a href="{{ route('sampleTransactionDashboardView') }}"
+                        class="{{ navClass('dashboard/sample-transactions*') }} childMenu">
+                            SO Sample
+                        </a>
                     </div>
-                @endif
+                    @endif
+                </div>
 
                 @if (auth()->user()->hasAnyPermission(['view_drawing_transaction', 'view_distributed_drawing_transaction']))
                     <a href="{{ route('reportingView') }}" class="{{ navClass('reportings*') }}">
@@ -115,7 +124,7 @@
                 @if (auth()->user()->hasAnyPermission(['view_prerelease_so_transaction']))
                     <a href="{{ route('prereleaseSoTransactionView') }}"
                     class="{{ navClass('prerelease-so-transactions*') }} !flex justify-between items-center">
-                        <span>SO Regular</span>
+                        <span>Preleased Transactions</span>
                         <div id="prereleaseBadge"
                             class="bg-yellow-600 min-w-[50px] text-center text-sm rounded"
                             style="display:none;">

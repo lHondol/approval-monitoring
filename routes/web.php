@@ -304,6 +304,13 @@ Route::controller(PasswordController::class)
 Route::middleware('auth')
 ->controller(SampleTransactionController::class)
 ->group(function () {
+    Route::middleware('permission:view_sample_transaction')
+        ->get('/dashboard/sample-transactions', 'dashboardView')
+        ->name('sampleTransactionDashboardView');
+
+    Route::middleware('permission:view_sample_transaction')
+        ->get('/dashboard/sample-transactions/data', 'getForReportingDashboard')
+        ->name('sampleTransactionDashboardData');
 
     Route::middleware('permission:view_sample_transaction')
         ->get('/sample-transactions/calendar', 'calendarView')

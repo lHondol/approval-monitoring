@@ -38,7 +38,7 @@
 @push('scripts')
     <script src="{{ asset('js/custom.js') }}"></script>
     <script>
-        const customersTable = $(document).ready(function() {
+        const sampleTransactions = $(document).ready(function() {
             $('#sampleTransactions').DataTable({
                 processing: true,
                 serverSide: true,

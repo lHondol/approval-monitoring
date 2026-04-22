@@ -30,4 +30,10 @@ class SampleTransaction extends Model
             ->whereNull('finish_at')
             ->latestOfMany('start_at');
     }
+
+    public function hasFinished()
+    {
+        return $this->hasOne(SampleTransactionProcess::class)
+            ->where('process_name', 'Finish Good');
+    }
 }

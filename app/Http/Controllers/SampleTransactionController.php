@@ -18,6 +18,14 @@ class SampleTransactionController extends Controller
         $this->sampleTransactionService = $sampleTransactionService;
     }
 
+    public function dashboardView() {
+        return view('dashboard.sample-transaction.view');
+    }
+
+    public function getForReportingDashboard() {
+        return $this->sampleTransactionService->getForReportingDashboard();
+    }
+
     public function calendarView() {
         return view('sample-transaction.calendar.view');
     }

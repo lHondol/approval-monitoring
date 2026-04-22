@@ -426,4 +426,213 @@ class SampleTransactionService
 
         return $sampleProcess;
     }
+
+    public function getForReportingDashboard() {
+        return DataTables::of(
+            SampleTransaction::with(['processes' => function ($query) {
+                $query->orderBy('created_at', 'asc');
+            }, 'latestUnfinishedProcess', 'hasFinished'])->select([
+                'sample_transactions.id', 
+                'so_number', 
+                'customer_id', 
+                'so_created_at',
+                'note', 
+                'shipment_request', 
+                'picture_received_at',
+                'picture_received_note'
+            ])
+        )
+        ->addColumn('customer_name', function($row) {
+            return $row->customer?->name ?? '';
+        })
+        ->orderColumn('customer_name', function($query, $order) {
+            $query->leftJoin('customers', 'customers.id', '=', 'sample_transactions.customer_id')
+                    ->orderBy('customers.name', $order);
+        })
+        ->addColumn('start_at', function($row) {
+            return $row->picture_received_at;
+        })
+        ->addColumn('latest_unfinished_process_name', function($row) {
+            if ($row->hasFinished)
+                return 'Finish Good';
+
+            if (!$row->picture_received_at)
+                return 'Waiting for RND Approval';
+
+            if (!$row->latestUnfinishedProcess)
+                return 'Waiting for next process to be created';
+
+            return $row->latestUnfinishedProcess->process_name;
+        })
+        ->addColumn('actual_process_days', function($row) {    
+            if ($row->hasFinished)
+                return '0';
+        
+            if (!$row->picture_received_at)
+                return 'Waiting for RND Approval';
+
+            if (!$row->latestUnfinishedProcess) 
+                return 'Waiting for next process to be created';
+
+            $now = Carbon::now();
+            $diff = $row->latestUnfinishedProcess->start_at->copy()->startOfDay()->diffInDays(
+                $now->copy()->startOfDay()
+            );
+            return $diff ?? '0';
+        })
+        ->addColumn('total_lead_time', function($row) {
+            if (!$row->picture_received_at)
+                return 'Waiting for RND Approval';
+
+            if (!$row->latestUnfinishedProcess && !$row->hasFinished)
+                return 'Waiting for next process to be created';
+
+            $totalDays = collect($row->processes)->sum(function ($p) {
+                $start = $p->start_at->copy()->startOfDay();
+                $end = $p->finish_at
+                    ? $p->finish_at->copy()->startOfDay()
+                    : now()->startOfDay();
+        
+                return $start->diffInDays($end);
+            });
+            
+            return $totalDays;
+        })
+        ->addColumn('progress', function($row) {
+            $steps = $this->getProcesses();
+        
+            $processes = collect($row->processes);
+        
+            // Normalize processes by name => only those finished
+            $finished = $processes
+                ->filter(fn ($p) => !is_null($p->finish_at))
+                ->pluck('process_name');
+
+            // If Finish Good is finished → 100%
+            if ($finished->contains('Finish Good'))
+                return '100%';
+
+            $done = $finished
+                ->intersect($steps) // ensure only valid steps counted
+                ->count();
+
+            $total = count($steps);
+
+            $percentage = $done > 0 ? ceil(($done / $total) * 100) : 0;
+
+            return "$percentage%";
+        })
+        ->addColumn('status', function($row) {
+            if ($row->hasFinished) {
+                $color = 'green';
+                $text = 'On Track';
+                return "<div style='display:flex; align-items:center; gap:8px;'>
+                    <span style='width:14px; height:14px; border-radius:50%; background:$color; display:inline-block;'></span>
+                    <b>$text</b>
+                </div>";
+            }
+
+            if (!$row->picture_received_at)
+                return 'Waiting for RND Approval';
+
+            if (!$row->latestUnfinishedProcess) 
+                return 'Waiting for next process to be created';
+
+            $now = Carbon::now();
+            $diff = $row->latestUnfinishedProcess->start_at->copy()->startOfDay()->diffInDays(
+                $now->copy()->startOfDay()
+            );
+            
+            $color = $diff <= 3 ? 'green' : 'red';
+            $text = $diff <= 3 ? 'On Track' : 'Delayed';
+            
+            return "<div style='display:flex; align-items:center; gap:8px;'>
+                        <span style='width:14px; height:14px; border-radius:50%; background:$color; display:inline-block;'></span>
+                        <b>$text</b>
+                    </div>";
+        })
+        ->filter(function($query) {
+            if ($search = request('search.value')) {
+                $query->leftJoin('customers', 'customers.id', '=', 'sample_transactions.customer_id');
+        
+                $query->where(function ($q) use ($search) {
+                    $q->where('sample_transactions.so_number', 'LIKE', "%{$search}%")
+                        ->orWhere('customers.name', 'LIKE', "%{$search}%")
+                        ->orWhere('note', 'LIKE', "%{$search}%")
+                        ->orWhereRaw(
+                            "DATE_FORMAT(sample_transactions.so_created_at, '%d %b %Y %H:%i:%s') LIKE ?",
+                            ["%{$search}%"]
+                        )
+                        ->orWhereRaw(
+                            "DATE_FORMAT(sample_transactions.shipment_request, '%d %b %Y %H:%i:%s') LIKE ?",
+                            ["%{$search}%"]
+                        )
+                        ->orWhereRaw(
+                            "DATE_FORMAT(sample_transactions.picture_received_at, '%d %b %Y %H:%i:%s') LIKE ?",
+                            ["%{$search}%"]
+                        );
+
+                    $q->orWhereHas('latestUnfinishedProcess', function ($sub) use ($search) {
+                        $sub->where('process_name', 'LIKE', "%{$search}%");
+                    });
+                    
+                    // actual_process_days (days since start_at)
+                    $q->orWhereHas('latestUnfinishedProcess', function ($sub) use ($search) {
+                        $sub->whereRaw("DATEDIFF(CURDATE(), DATE(start_at)) LIKE ?", ["%{$search}%"]);
+                    });
+                    
+                    // total_lead_time (sum of all processes)
+                    $q->orWhereHas('processes', function ($sub) use ($search) {
+                        $sub->whereRaw("
+                            DATEDIFF(IFNULL(finish_at, NOW()), start_at) LIKE ?
+                        ", ["%{$search}%"]);
+                    });
+                    
+                    // progress (rough match: percentage buckets)
+                    $q->orWhere(function ($sub) use ($search) {
+                        if (is_numeric($search)) {
+                            $sub->whereHas('processes', function ($p) use ($search) {
+                                $p->whereNotNull('finish_at');
+                            });
+                        }
+                    });
+                    
+                    // status (text match)
+                    if (strtolower($search) === 'on track') {
+                        $q->orWhereHas('latestUnfinishedProcess', function ($sub) {
+                            $sub->whereRaw("DATEDIFF(CURDATE(), DATE(start_at)) <= 3");
+                        });
+                    }
+                    
+                    if (strtolower($search) === 'delayed') {
+                        $q->orWhereHas('latestUnfinishedProcess', function ($sub) {
+                            $sub->whereRaw("DATEDIFF(CURDATE(), DATE(start_at)) > 3");
+                        });
+                    }
+                        
+                });
+            }
+        })
+        ->editColumn('start_at', function($row) {
+            if ($row->picture_received_at)
+                return Carbon::parse($row->picture_received_at)->format('d M Y H:i:s');
+            return 'Waiting for RND Approval';
+        })
+        ->editColumn('shipment_request', function($row) {
+            if ($row->shipment_request)
+                return Carbon::parse($row->shipment_request)->format('d M Y H:i:s');
+            return '';
+        })
+        ->rawColumns([
+            'customer_name', 
+            'start_at',
+            'processes', 
+            'latest_unfinished_process_name',
+            'actual_process_days',
+            'total_lead_time',
+            'progress',
+            'status',
+        ])
+        ->make(true);
+    }
 }
