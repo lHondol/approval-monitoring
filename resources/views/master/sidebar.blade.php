@@ -93,12 +93,12 @@
 
                     <div id="dashboardMenu" class="{{ isParentOpen(['dashboard*']) }}">
                         
-                    {{--@if (auth()->user()->hasAnyPermission(['view_prerelease_so_transaction']))
+                    @if (auth()->user()->hasAnyPermission(['view_prerelease_so_transaction']))
                         <a href="{{ route('prereleaseSoTransactionDashboardView') }}"
-                            class="{{ navClass('dashboard/prerelease-so-transactions*']) }} childMenu">
+                            class="{{ navClass('dashboard/prerelease-so-transactions*') }} childMenu">
                                 SO Regular
                             </a>
-                    @endif--}}
+                    @endif
 
                     @if (auth()->user()->hasAnyPermission(['view_sample_transaction']))
                         <a href="{{ route('sampleTransactionDashboardView') }}"

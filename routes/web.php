@@ -90,7 +90,14 @@ Route::middleware('auth')
 ->controller(PrereleaseSoTransactionController::class)
 ->group(function () {
 
-    // View
+    Route::middleware('permission:view_prerelease_so_transaction')
+        ->get('/dashboard/prerelease-so-transactions', 'dashboardView')
+        ->name('prereleaseSoTransactionDashboardView');
+
+    Route::middleware('permission:view_prerelease_so_transaction')
+        ->get('/dashboard/prerelease-so-transactions/data', 'getForReportingDashboard')
+        ->name('prereleaseSoTransactionDashboardData');
+
     Route::middleware('permission:view_prerelease_so_transaction')
         ->get('/prerelease-so-transactions', 'view')
         ->name('prereleaseSoTransactionView');

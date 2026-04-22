@@ -2,7 +2,7 @@
 
 @section('content')
     <div>
-        <table id="sampleTransactions" class="ui celled table">
+        <table id="prereleaseSoTransactions" class="ui celled table">
             <thead>
                 <tr>
                     <th>No</th>
@@ -10,7 +10,6 @@
                     <th>Buyer</th>
                     <th>Start Date</th>
                     <th>Due Date</th>
-                    <th>Product</th>
                     <th>Current Process</th>
                     <th>Actual Process Days</th>
                     <th>Total Lead Time</th>
@@ -27,7 +26,6 @@
                     <th class="!font-bold">Buyer</th>
                     <th class="!font-bold">Start Date</th>
                     <th class="!font-bold">Due Date</th>
-                    <th class="!font-bold">Product</th>
                     <th class="!font-bold">Current Process</th>
                     <th class="!font-bold">Actual Process Days</th>
                     <th class="!font-bold">Total Lead Time</th>
@@ -43,18 +41,17 @@
     <script src="{{ asset('js/custom.js') }}"></script>
     <script>
         const customersTable = $(document).ready(function() {
-            $('#sampleTransactions').DataTable({
+            $('#prereleaseSoTransactions').DataTable({
                 processing: true,
                 serverSide: true,
-                ajax: "{{ route('sampleTransactionDashboardData') }}",
+                ajax: "{{ route('prereleaseSoTransactionDashboardData') }}",
                 columns: [
                     { data: 'no', name: 'no' },
                     { data: 'so_number', name: 'so_number' },
                     { data: 'customer_name', name: 'customer_name' },
-                    { data: 'start_at', name: 'start_at' },
-                    { data: 'shipment_request', name: 'shipment_request' },
-                    { data: 'note', name: 'note' },
-                    { data: 'latest_unfinished_process_name', name: 'latest_unfinished_process_name' },
+                    { data: 'created_at', name: 'created_at' },
+                    { data: 'target_shipment', name: 'target_shipment' },
+                    { data: 'current_process', name: 'current_process' },
                     { data: 'actual_process_days', name: 'actual_process_days' },
                     { data: 'total_lead_time', name: 'total_lead_time' },
                     { data: 'progress', name: 'progress', width: 50 },
@@ -94,7 +91,7 @@
                                     text: 'Add Record',
                                     className: 'customButton !ml-3',
                                     action: function () {
-                                        window.location.href = "{{ route('sampleTransactionCreateForm') }}";
+                                        window.location.href = "{{ route('prereleaseSoTransactionCreateForm') }}";
                                     }
                                 }
                             @endif

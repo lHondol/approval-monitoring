@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Enums\ActionPrereleaseSoTransactionStep;
 use App\Enums\StatusPrereleaseSoTransaction;
 use App\Interfaces\PrereleaseSoTransactionState;
 use App\States\DrawingTransaction\WaitingForBomApprovalState;
@@ -69,5 +70,24 @@ class PrereleaseSoTransaction extends Model
             PrereleaseSoNotificationRead::class,
             'prerelease_so_transaction_id'
         );
+    }
+
+    public function latestStep()
+    {
+        return $this->hasOne(PrereleaseSoTransactionStep::class)->latestOfMany('created_at');
+    }
+
+    public function latestReleasedStep()
+    {
+        return $this->hasOne(PrereleaseSoTransactionStep::class)
+            ->where('action_done', ActionPrereleaseSoTransactionStep::RELEASED_MKT_STAFF)
+            ->latestOfMany('created_at');
+    }
+
+    public function latestBeforeAccountingStep()
+    {
+        return $this->hasOne(PrereleaseSoTransactionStep::class)
+            ->where('action_done', ActionPrereleaseSoTransactionStep::APPROVE_RND_BOM)
+            ->latestOfMany('created_at');
     }
 }

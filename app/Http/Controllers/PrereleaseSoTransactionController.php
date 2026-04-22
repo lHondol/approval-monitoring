@@ -23,6 +23,14 @@ class PrereleaseSoTransactionController extends Controller
         $this->prereleaseSoNotificationReadService = $prereleaseSoNotificationReadService;
     }
 
+    public function dashboardView() {
+        return view('dashboard.prerelease-so-transaction.view');
+    }
+
+    public function getForReportingDashboard() {
+        return $this->prereleaseSoTransactionService->getForReportingDashboard();
+    }
+
     public function view() {
         return view('prerelease-so-transaction.view');
     }

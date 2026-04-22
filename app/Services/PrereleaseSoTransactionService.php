@@ -481,4 +481,228 @@ class PrereleaseSoTransactionService
 
         return $count;
     }
+
+    public function getStatusProcessName($status) {
+        return match ($status) {
+            StatusPrereleaseSoTransaction::WAITING_RND_DRAWING_APPROVAL->value => "Drawing",
+            StatusPrereleaseSoTransaction::WAITING_RND_BOM_APPROVAL->value => "BOM",
+            StatusPrereleaseSoTransaction::WAITING_ACCOUNTING_APPROVAL->value => "Accounting",
+            StatusPrereleaseSoTransaction::WAITING_MKT_STAFF_RELEASE->value => "Mkt Staff",
+
+
+            StatusPrereleaseSoTransaction::WAITING_MKT_MGR_CONFIRM_MARGIN->value => "Accounting",
+            StatusPrereleaseSoTransaction::RELEASED_WAITING_PO_KACA_APPROVAL->value => "Mkt Staff",
+            StatusPrereleaseSoTransaction::RELEASED_PO_KACA_DONE->value => "Mkt Staff",
+            StatusPrereleaseSoTransaction::RELEASED_PO_KACA_NONE->value => "Mkt Staff",
+            StatusPrereleaseSoTransaction::REVISE_NEEDED->value => "Mkt Staff (Revised)",
+            
+        };
+    }
+
+    public function getForReportingDashboard() {
+        return DataTables::of(PrereleaseSoTransaction::select([
+            'prerelease_so_transactions.id',
+            'prerelease_so_transactions.so_number',
+            'prerelease_so_transactions.customer_id',
+            'prerelease_so_transactions.status',
+            'prerelease_so_transactions.target_shipment_month',
+            'prerelease_so_transactions.target_shipment_year',
+            // COMPUTED CREATED_AT
+            DB::raw("
+                (
+                    SELECT COALESCE(
+                        MAX(CASE WHEN action_done = 'Upload (Revised)' THEN done_at END),
+                        MAX(CASE WHEN action_done = 'Upload' THEN done_at END)
+                    )
+                    FROM prerelease_so_transaction_steps
+                    WHERE prerelease_so_transaction_steps.prerelease_so_transaction_id = prerelease_so_transactions.id
+                ) as created_at
+            "),
+        ])->with(['customer', 'steps']))
+        ->addColumn('customer_name', function($row) {
+            return $row->customer?->name ?? '';
+        })
+        ->orderColumn('customer_name', function($query, $order) {
+            $query->leftJoin('customers', 'customers.id', '=', 'prerelease_so_transactions.customer_id')
+                  ->orderBy('customers.name', $order);
+        })
+        ->addColumn('current_process', function($row) {
+            return $this->getStatusProcessName($row->status);
+        })
+        ->addColumn('actual_process_days', function ($row) {
+            // If no step at all
+            if (!$row->latestStep || !$row->latestStep->done_at) {
+                return '0';
+            }
+
+            // If already released → stop counting
+            if ($row->latestReleasedStep) {
+                return '0';
+            }
+
+            // Decide reference
+            $reference = $row->latestStep;
+
+            // If currently at MKT Manager → fallback to BOM (before accounting)
+            if ($row->latestStep->action_done === ActionPrereleaseSoTransactionStep::CONFIRM_MARGIN_MKT_MGR) {
+                $reference = $row->latestBeforeAccountingStep;
+            }
+
+            if (!$reference || !$reference->done_at) {
+                return '0';
+            }
+
+            return $reference->done_at
+                ->copy()
+                ->startOfDay()
+                ->diffInDays(now()->startOfDay());
+        })
+        ->addColumn('total_lead_time', function($row) {
+            if ($row->latestStep->action_done == 'Released - MKT Staff') {
+                $days = (string) Carbon::parse($row->created_at)
+                ->startOfDay()
+                ->diffInDays(Carbon::parse($row->latestStep->done_at)->startOfDay());
+                return "$days day(s)"; 
+            }
+            
+            $days = (string) Carbon::parse($row->created_at)
+            ->startOfDay()
+            ->diffInDays(Carbon::now()->startOfDay());
+            return "$days day(s)"; 
+        })
+        ->addColumn('progress', function($row) {
+            if ($row->status === StatusPrereleaseSoTransaction::REVISE_NEEDED->value)
+                return '0%';
+            
+            $steps = [
+                'Approve - RnD Drawing',
+                'Approve - RnD BOM',
+                'Approve - Accounting',
+                'Released - MKT Staff',
+            ];
+        
+            $processes = collect($row->steps);
+
+            $processes = $processes->filter(function ($p) use ($row) {
+                return $p->done_at > $row->created_at;
+            });
+        
+            // Normalize processes by name => only those finished
+            $finished = $processes
+            ->filter(fn ($p) => 
+                in_array($p->action_done, $steps)
+            )
+            ->pluck('action_done');
+
+            // If Finish Good is finished → 100%
+            if ($finished->contains('Released - MKT Staff'))
+                return '100%';
+
+            $done = $finished
+                ->intersect($steps) // ensure only valid steps counted
+                ->count();
+
+            $total = count($steps);
+
+            $percentage = $done > 0 ? ceil(($done / $total) * 100) : 0;
+
+            return "$percentage%";
+        })
+        ->addColumn('status', function($row) {
+            if ($row->latestReleasedStep) {
+                $color = 'green';
+                $text = 'On Track';
+                return "<div style='display:flex; align-items:center; justify-content:center; gap:8px;'>
+                    <span style='width:14px; height:14px; border-radius:50%; background:$color; display:inline-block;'></span>
+                    <b>$text</b>
+                </div>";
+            }
+
+            $diff = $row->latestStep->done_at
+                ->copy()
+                ->startOfDay()
+                ->diffInDays(now()->startOfDay());
+
+            $color = $diff <= 2 ? 'green' : 'red';
+            $text = $diff <= 2 ? 'On Track' : 'Delayed';
+            
+            return "<div style='display:flex; align-items:center; justify-content:center; gap:8px;'>
+                <span style='width:14px; height:14px; border-radius:50%; background:$color; display:inline-block;'></span>
+                <b>$text</b>
+            </div>";
+        })
+        ->addColumn('target_shipment', function ($row) {
+            if (!$row->target_shipment_month || !$row->target_shipment_year) {
+                return '';
+            }
+
+            $date = Carbon::createFromDate(
+                $row->target_shipment_year,
+                $row->target_shipment_month,
+                1
+            );
+
+            return $date->format('F Y');
+        })
+        ->filter(function($query) {
+            if ($search = request('search.value')) {
+                $query->leftJoin('customers', 'customers.id', '=', 'prerelease_so_transactions.customer_id');
+                $query->where(function ($q) use ($search) {
+                    if (str_contains($search, ';')) {
+                        $soNumbers = collect(explode(';', $search))
+                            ->map(fn ($v) => trim($v))
+                            ->filter()
+                            ->values()
+                            ->toArray();
+
+                        $q->whereIn('prerelease_so_transactions.so_number', $soNumbers);
+                    } else {
+                        $q->where('prerelease_so_transactions.so_number', 'LIKE', "%{$search}%");
+                    }
+
+                    $q->orWhere('customers.name', 'LIKE', "%{$search}%")
+                        ->orWhereRaw("
+                        DATE_FORMAT(
+                            (
+                                SELECT COALESCE(
+                                    MAX(CASE WHEN action_done = 'Upload (Revised)' THEN done_at END),
+                                    MAX(CASE WHEN action_done = 'Upload' THEN done_at END)
+                                )
+                                FROM prerelease_so_transaction_steps
+                                WHERE prerelease_so_transaction_steps.prerelease_so_transaction_id = prerelease_so_transactions.id
+                            ),
+                            '%d %b %Y %H:%i:%s'
+                        ) LIKE ?
+                    ", ["%{$search}%"]);
+                });
+            }
+        })
+        ->editColumn('created_at', function($row) {
+            if ($row->created_at)
+                return Carbon::parse($row->created_at)->format('d M Y H:i:s');
+            return '';
+        })
+        ->orderColumn('created_at', function ($query, $order) {
+            $query->orderByRaw("
+                (
+                    SELECT COALESCE(
+                        MAX(CASE WHEN action_done = 'Upload (Revised)' THEN done_at END),
+                        MAX(CASE WHEN action_done = 'Upload' THEN done_at END)
+                    )
+                    FROM prerelease_so_transaction_steps
+                    WHERE prerelease_so_transaction_steps.prerelease_so_transaction_id = prerelease_so_transactions.id
+                ) {$order}
+            ");
+        })
+        ->rawColumns([
+            'customer_name',
+            'target_shipment',
+            'current_process',
+            'actual_process_days',
+            'total_lead_time',
+            'progress',
+            'status',
+        ])
+        ->make(true);
+    }
 }
