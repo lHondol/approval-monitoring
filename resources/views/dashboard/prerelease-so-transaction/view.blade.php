@@ -85,17 +85,6 @@
                     },
                     topEnd: {
                         search: 'applied',
-                        buttons: [
-                            @if(auth()->user()->hasPermissionTo('create_sample_transaction'))
-                                {
-                                    text: 'Add Record',
-                                    className: 'customButton !ml-3',
-                                    action: function () {
-                                        window.location.href = "{{ route('prereleaseSoTransactionCreateForm') }}";
-                                    }
-                                }
-                            @endif
-                        ]
                     }
                 },
                 initComplete: function () {

@@ -532,12 +532,12 @@ class PrereleaseSoTransactionService
         ->addColumn('actual_process_days', function ($row) {
             // If no step at all
             if (!$row->latestStep || !$row->latestStep->done_at) {
-                return '0';
+                return '0 day(s)';
             }
 
             // If already released → stop counting
             if ($row->latestReleasedStep) {
-                return '0';
+                return '0 day(s)';
             }
 
             // Decide reference
@@ -549,13 +549,14 @@ class PrereleaseSoTransactionService
             }
 
             if (!$reference || !$reference->done_at) {
-                return '0';
+                return '0 day(s)';
             }
 
-            return $reference->done_at
+            $days = $reference->done_at
                 ->copy()
                 ->startOfDay()
                 ->diffInDays(now()->startOfDay());
+            return "$days day(s)";
         })
         ->addColumn('total_lead_time', function($row) {
             if ($row->latestStep->action_done == 'Released - MKT Staff') {
@@ -674,6 +675,48 @@ class PrereleaseSoTransactionService
                             '%d %b %Y %H:%i:%s'
                         ) LIKE ?
                     ", ["%{$search}%"]);
+
+                    $q->orWhere(function ($sub) use ($search) {
+
+                        $searchLower = strtolower($search);
+                    
+                        // actual_process_days
+                        $sub->orWhereHas('latestStep', function ($q2) use ($search) {
+                            $q2->whereRaw("DATEDIFF(CURDATE(), DATE(done_at)) = ?", [$search]);
+                        });
+                    
+                        // total_lead_time
+                        if (preg_match('/\d+/', $search, $m)) {
+                            $days = $m[0];
+                    
+                            $sub->orWhereRaw("
+                                DATEDIFF(
+                                    CURDATE(),
+                                    (
+                                        SELECT COALESCE(
+                                            MAX(CASE WHEN action_done = 'Upload (Revised)' THEN done_at END),
+                                            MAX(CASE WHEN action_done = 'Upload' THEN done_at END)
+                                        )
+                                        FROM prerelease_so_transaction_steps
+                                        WHERE prerelease_so_transaction_steps.prerelease_so_transaction_id = prerelease_so_transactions.id
+                                    )
+                                ) = ?
+                            ", [$days]);
+                        }
+                    
+                        // status (text match)
+                        if (strtolower($search) === 'on track') {
+                            $sub->orWhereHas('latestStep', function ($sub) {
+                                $sub->whereRaw("DATEDIFF(CURDATE(), DATE(done_at)) <= 3");
+                            });
+                        }
+                        
+                        if (strtolower($search) === 'delayed') {
+                            $sub->orWhereHas('latestStep', function ($sub) {
+                                $sub->whereRaw("DATEDIFF(CURDATE(), DATE(done_at)) > 3");
+                            });
+                        }
+                    });
                 });
             }
         })

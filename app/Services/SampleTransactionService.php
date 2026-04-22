@@ -430,7 +430,7 @@ class SampleTransactionService
     public function getForReportingDashboard() {
         return DataTables::of(
             SampleTransaction::with(['processes' => function ($query) {
-                $query->orderBy('created_at', 'asc');
+                $query->orderBy('created_at', 'desc');
             }, 'latestUnfinishedProcess', 'hasFinished'])->select([
                 'sample_transactions.id', 
                 'so_number', 
@@ -466,7 +466,7 @@ class SampleTransactionService
         })
         ->addColumn('actual_process_days', function($row) {    
             if ($row->hasFinished)
-                return '0';
+                return '0 day(s)';
         
             if (!$row->picture_received_at)
                 return 'Waiting for RND Approval';
@@ -478,7 +478,7 @@ class SampleTransactionService
             $diff = $row->latestUnfinishedProcess->start_at->copy()->startOfDay()->diffInDays(
                 $now->copy()->startOfDay()
             );
-            return $diff ?? '0';
+            return $diff ?? '0 day(s)';
         })
         ->addColumn('total_lead_time', function($row) {
             if (!$row->picture_received_at)
@@ -496,7 +496,7 @@ class SampleTransactionService
                 return $start->diffInDays($end);
             });
             
-            return $totalDays;
+            return "$totalDays day(s)";
         })
         ->addColumn('progress', function($row) {
             $steps = $this->getProcesses();
@@ -560,10 +560,6 @@ class SampleTransactionService
                         ->orWhere('customers.name', 'LIKE', "%{$search}%")
                         ->orWhere('note', 'LIKE', "%{$search}%")
                         ->orWhereRaw(
-                            "DATE_FORMAT(sample_transactions.so_created_at, '%d %b %Y %H:%i:%s') LIKE ?",
-                            ["%{$search}%"]
-                        )
-                        ->orWhereRaw(
                             "DATE_FORMAT(sample_transactions.shipment_request, '%d %b %Y %H:%i:%s') LIKE ?",
                             ["%{$search}%"]
                         )
@@ -587,16 +583,7 @@ class SampleTransactionService
                             DATEDIFF(IFNULL(finish_at, NOW()), start_at) LIKE ?
                         ", ["%{$search}%"]);
                     });
-                    
-                    // progress (rough match: percentage buckets)
-                    $q->orWhere(function ($sub) use ($search) {
-                        if (is_numeric($search)) {
-                            $sub->whereHas('processes', function ($p) use ($search) {
-                                $p->whereNotNull('finish_at');
-                            });
-                        }
-                    });
-                    
+                
                     // status (text match)
                     if (strtolower($search) === 'on track') {
                         $q->orWhereHas('latestUnfinishedProcess', function ($sub) {
