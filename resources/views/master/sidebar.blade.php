@@ -49,6 +49,10 @@
         background-color: var(--sidebar-bg);
         color: white;
     }
+
+    .childMenu {
+        padding-left: calc(25px + var(--indent, 0px)) !important;
+    }
 </style>
 
 <div>
@@ -71,11 +75,72 @@
         </h1>
 
         <div class="flex flex-col flex-1 min-h-0">
-
             <div class="flex-1 overflow-y-auto text-xl min-h-0">
-                <a href="{{ route('dashboard') }}" class="{{ navClass('dashboard') }}">
-                    Dashboard
-                </a>
+                @if (auth()->user()->hasAnyPermission(['view_prerelease_so_transaction', 'view_sample_transaction']))
+                    <div class="relative">
+
+                        <button
+                            class="parentMenu w-full text-left !flex justify-between items-center {{ navParentClass(['prerelease-so-transactions*', 'sample-transactions*']) }}"
+                            onclick="
+                                document.getElementById('dashboardMenu').classList.toggle('hidden');
+                                document.getElementById('dashboardIcon').classList.toggle('-rotate-90');
+                            "
+                        >
+                            <span>Dashboard</span>
+                            <i id="dashboardIcon"
+                            class="angle left icon transition-transform duration-200
+                            {{ request()->is('prerelease-so-transactions*') || request()->is('sample-transactions*') ? '-rotate-90' : '' }}">
+                            </i>
+                        </button>
+
+                        <div id="dashboardMenu" class="{{ isParentOpen(['prerelease-so-transactions*', 'sample-transactions*']) }}">
+
+                            @if (auth()->user()->hasAnyPermission(['view_prerelease_so_transaction']))
+                                <a href="{{ route('prereleaseSoTransactionView') }}"
+                                class="{{ navClass('prerelease-so-transactions*') }} !flex justify-between items-center childMenu">
+                                    <span>SO Regular</span>
+                                    <div id="prereleaseBadge"
+                                        class="bg-yellow-600 min-w-[50px] text-center text-sm rounded"
+                                        style="display:none;">
+                                    </div>
+                                </a>
+                            @endif
+
+                            @if (auth()->user()->hasAnyPermission(['view_sample_transaction']))
+                                <div class="relative">
+
+                                    <button
+                                        class="parentMenu w-full text-left !flex justify-between items-center {{ navParentClass(['sample-transactions*']) }} childMenu"
+                                        onclick="
+                                            document.getElementById('sampleManagementMenu').classList.toggle('hidden');
+                                            document.getElementById('sampleManagementIcon').classList.toggle('-rotate-90');
+                                        "
+                                    >
+                                        <span>SO Sample Management</span>
+                                        <i id="sampleManagementIcon"
+                                        class="angle left icon transition-transform duration-200
+                                        {{ request()->is('sample-transactions*') ? '-rotate-90' : '' }}">
+                                        </i>
+                                    </button>
+
+                                    <div id="sampleManagementMenu" class="{{ isParentOpen(['sample-transactions*']) }}">
+                                        <a href="{{ route('sampleTransactionView') }}"
+                                        class="{{ navClass('sample-transactions*', ['sample-transactions/calendar*']) }} childMenu" style="--indent: 7px;">
+                                            SO Sample
+                                        </a>
+
+                                        <a href="{{ route('sampleTransactionCalendarView') }}"
+                                        class="{{ navClass('sample-transactions/calendar*') }} childMenu" style="--indent: 7px;">
+                                            Calendar View
+                                        </a>
+                                    </div>
+
+                                </div>
+                            @endif
+
+                        </div>
+                    </div>
+                @endif
 
                 @if (auth()->user()->hasAnyPermission(['view_drawing_transaction', 'view_distributed_drawing_transaction']))
                     <a href="{{ route('reportingView') }}" class="{{ navClass('reportings*') }}">
@@ -86,17 +151,6 @@
                 @if (auth()->user()->hasAnyPermission(['view_drawing_transaction', 'view_distributed_drawing_transaction']))
                     <a href="{{ route('drawingTransactionView') }}" class="{{ navClass('drawing-transactions*') }}">
                         Drawing Transactions
-                    </a>
-                @endif
-
-                @if (auth()->user()->hasAnyPermission(['view_prerelease_so_transaction']))
-                    <a href="{{ route('prereleaseSoTransactionView') }}" 
-                        class="{{ navClass('prerelease-so-transactions*') }} !flex justify-between items-center">
-                        <span>Prerelease So Transactions</span>
-                        <div id="prereleaseBadge" 
-                            class="bg-yellow-600 min-w-[50px] text-center text-sm rounded" 
-                            style="display:none;">
-                        </div>
                     </a>
                 @endif
 
@@ -126,40 +180,13 @@
 
                         <div id="userManagementMenu" class="{{ isParentOpen(['users*', 'roles*']) }}">
                             @if (auth()->user()->hasPermissionTo('view_user'))
-                                <a href="{{ route('userView') }}" class="{{ navClass('users*') }}">
+                                <a href="{{ route('userView') }}" class="{{ navClass('users*') }} childMenu">
                                     Users
                                 </a>
                             @endif
                             @if (auth()->user()->hasPermissionTo('view_role'))
-                                <a href="{{ route('roleView') }}" class="{{ navClass('roles*') }}">
+                                <a href="{{ route('roleView') }}" class="{{ navClass('roles*') }} childMenu">
                                     Roles
-                                </a>
-                            @endif
-                        </div>
-                    </div>
-                @endif
-
-                @if (auth()->user()->hasAnyPermission(['view_sample_transaction']))
-                    <div class="relative">
-                        <button
-                            class="parentMenu w-full text-left !flex justify-between items-center {{ navParentClass(['sample-transactions*']) }}"
-                            onclick="document.getElementById('sampleManagementMenu').classList.toggle('hidden');
-                                    document.getElementById('sampleManagementIcon').classList.toggle('-rotate-90');">
-                            <span>Sample Management</span>
-                            <i id="sampleManagementIcon"
-                            class="angle left icon transition-transform duration-200
-                            {{ request()->is('sample-transactions*') ? '-rotate-90' : '' }}"></i>
-                        </button>
-
-                        <div id="sampleManagementMenu" class="{{ isParentOpen(['sample-transactions*', 'roles*']) }}">
-                            @if (auth()->user()->hasPermissionTo('view_sample_transaction'))
-                                <a href="{{ route('sampleTransactionView') }}" class="{{ navClass('sample-transactions*', ['sample-transactions/calendar*']) }}">
-                                    Sample Transactions
-                                </a>
-                            @endif
-                            @if (auth()->user()->hasPermissionTo('view_sample_transaction'))
-                                <a href="{{ route('sampleTransactionCalendarView') }}" class="{{ navClass('sample-transactions/calendar*') }}">
-                                    Calendar View
                                 </a>
                             @endif
                         </div>
