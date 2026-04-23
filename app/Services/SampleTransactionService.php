@@ -464,6 +464,38 @@ class SampleTransactionService
 
             return $row->latestUnfinishedProcess->process_name;
         })
+        ->orderColumn('latest_unfinished_process_name', function ($query, $order) {
+            $query->orderByRaw("
+                (
+                    CASE
+                        WHEN EXISTS (
+                            SELECT 1
+                            FROM sample_transaction_processes p
+                            WHERE p.sample_transaction_id = sample_transactions.id
+                              AND p.process_name = 'Finish Good'
+                        ) THEN 'Finish Good'
+        
+                        WHEN sample_transactions.picture_received_at IS NULL THEN 'Waiting for RND Approval'
+        
+                        WHEN NOT EXISTS (
+                            SELECT 1
+                            FROM sample_transaction_processes p
+                            WHERE p.sample_transaction_id = sample_transactions.id
+                              AND p.finish_at IS NULL
+                        ) THEN 'Waiting for next process to be created'
+        
+                        ELSE (
+                            SELECT p.process_name
+                            FROM sample_transaction_processes p
+                            WHERE p.sample_transaction_id = sample_transactions.id
+                              AND p.finish_at IS NULL
+                            ORDER BY p.start_at DESC
+                            LIMIT 1
+                        )
+                    END
+                ) {$order}
+            ");
+        })
         ->addColumn('actual_process_days', function($row) {    
             if ($row->hasFinished)
                 return '0 day(s)';
@@ -478,7 +510,40 @@ class SampleTransactionService
             $diff = $row->latestUnfinishedProcess->start_at->copy()->startOfDay()->diffInDays(
                 $now->copy()->startOfDay()
             );
-            return $diff ?? '0 day(s)';
+            return "$diff day(s)" ?? '0 day(s)';
+        })
+        ->orderColumn('actual_process_days', function ($query, $order) {
+            $query->orderByRaw("
+                CASE
+                    -- Finished → 0
+                    WHEN EXISTS (
+                        SELECT 1
+                        FROM sample_transaction_processes p
+                        WHERE p.sample_transaction_id = sample_transactions.id
+                          AND p.process_name = 'Finish Good'
+                    ) THEN 0
+        
+                    -- Waiting states → push to bottom
+                    WHEN sample_transactions.picture_received_at IS NULL THEN 99999
+        
+                    WHEN NOT EXISTS (
+                        SELECT 1
+                        FROM sample_transaction_processes p
+                        WHERE p.sample_transaction_id = sample_transactions.id
+                          AND p.finish_at IS NULL
+                    ) THEN 99998
+        
+                    -- Active process → calculate days
+                    ELSE (
+                        SELECT DATEDIFF(CURDATE(), DATE(p.start_at))
+                        FROM sample_transaction_processes p
+                        WHERE p.sample_transaction_id = sample_transactions.id
+                          AND p.finish_at IS NULL
+                        ORDER BY p.start_at DESC
+                        LIMIT 1
+                    )
+                END {$order}
+            ");
         })
         ->addColumn('total_lead_time', function($row) {
             if (!$row->picture_received_at)
@@ -497,6 +562,32 @@ class SampleTransactionService
             });
             
             return "$totalDays day(s)";
+        })
+        ->orderColumn('total_lead_time', function ($query, $order) {
+            $query->orderByRaw("
+                CASE
+                    -- Waiting states
+                    WHEN sample_transactions.picture_received_at IS NULL THEN 99999
+        
+                    WHEN NOT EXISTS (
+                        SELECT 1
+                        FROM sample_transaction_processes p
+                        WHERE p.sample_transaction_id = sample_transactions.id
+                    ) THEN 99998
+        
+                    -- Finished / in progress → sum of lead time
+                    ELSE (
+                        SELECT SUM(
+                            DATEDIFF(
+                                IFNULL(p.finish_at, CURDATE()),
+                                DATE(p.start_at)
+                            )
+                        )
+                        FROM sample_transaction_processes p
+                        WHERE p.sample_transaction_id = sample_transactions.id
+                    )
+                END {$order}
+            ");
         })
         ->addColumn('progress', function($row) {
             $steps = $this->getProcesses();
@@ -521,6 +612,41 @@ class SampleTransactionService
             $percentage = $done > 0 ? ceil(($done / $total) * 100) : 0;
 
             return "$percentage%";
+        })
+        ->orderColumn('progress', function ($query, $order) {
+            $query->orderByRaw("
+                CASE
+                    -- Finished → 100
+                    WHEN EXISTS (
+                        SELECT 1
+                        FROM sample_transaction_processes p
+                        WHERE p.sample_transaction_id = sample_transactions.id
+                          AND p.process_name = 'Finish Good'
+                    ) THEN 100
+        
+                    -- No start → 0
+                    WHEN sample_transactions.picture_received_at IS NULL THEN 0
+        
+                    -- No active process
+                    WHEN NOT EXISTS (
+                        SELECT 1
+                        FROM sample_transaction_processes p
+                        WHERE p.sample_transaction_id = sample_transactions.id
+                          AND p.finish_at IS NULL
+                    ) THEN 0
+        
+                    -- Calculate progress
+                    ELSE (
+                        SELECT 
+                            CEIL(
+                                (COUNT(CASE WHEN p.finish_at IS NOT NULL THEN 1 END) / 
+                                 NULLIF(COUNT(*), 0)) * 100
+                            )
+                        FROM sample_transaction_processes p
+                        WHERE p.sample_transaction_id = sample_transactions.id
+                    )
+                END {$order}
+            ");
         })
         ->addColumn('status', function($row) {
             if ($row->hasFinished) {
@@ -550,6 +676,40 @@ class SampleTransactionService
                 <span style='width:14px; height:14px; border-radius:50%; background:$color; display:inline-block;'></span>
                 <b>$text</b>
             </div>";
+        })
+        ->orderColumn('status', function ($query, $order) {
+            $query->orderByRaw("
+                CASE
+                    WHEN sample_transactions.picture_received_at IS NULL THEN 1
+        
+                    WHEN NOT EXISTS (
+                        SELECT 1
+                        FROM sample_transaction_processes p
+                        WHERE p.sample_transaction_id = sample_transactions.id
+                          AND p.finish_at IS NULL
+                    ) THEN 2
+        
+                    WHEN EXISTS (
+                        SELECT 1
+                        FROM sample_transaction_processes p
+                        WHERE p.sample_transaction_id = sample_transactions.id
+                          AND p.process_name = 'Finish Good'
+                    )
+                    OR DATEDIFF(
+                        CURDATE(),
+                        (
+                            SELECT p.start_at
+                            FROM sample_transaction_processes p
+                            WHERE p.sample_transaction_id = sample_transactions.id
+                              AND p.finish_at IS NULL
+                            ORDER BY p.start_at DESC
+                            LIMIT 1
+                        )
+                    ) <= 3 THEN 3
+        
+                    ELSE 4
+                END {$order}
+            ");
         })
         ->filter(function($query) {
             if ($search = request('search.value')) {

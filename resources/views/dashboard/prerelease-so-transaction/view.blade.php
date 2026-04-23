@@ -66,7 +66,7 @@
                             return meta.row + meta.settings._iDisplayStart + 1;
                         }
                     },
-                    { targets: -1, className: 'dt-center', orderable: false, searchable: false } // Actions column
+                    { targets: -1, className: 'dt-center', orderable: true, searchable: true } // Actions column
                 ],
                 scrollX: true,
                 fixedColumns: {

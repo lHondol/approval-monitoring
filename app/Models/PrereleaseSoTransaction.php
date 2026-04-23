@@ -77,13 +77,6 @@ class PrereleaseSoTransaction extends Model
         return $this->hasOne(PrereleaseSoTransactionStep::class)->latestOfMany('created_at');
     }
 
-    public function latestReleasedStep()
-    {
-        return $this->hasOne(PrereleaseSoTransactionStep::class)
-            ->where('action_done', ActionPrereleaseSoTransactionStep::RELEASED_MKT_STAFF)
-            ->latestOfMany('created_at');
-    }
-
     public function latestBeforeAccountingStep()
     {
         return $this->hasOne(PrereleaseSoTransactionStep::class)

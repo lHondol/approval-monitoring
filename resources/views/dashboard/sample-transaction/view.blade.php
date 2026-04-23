@@ -47,6 +47,7 @@
                 processing: true,
                 serverSide: true,
                 ajax: "{{ route('sampleTransactionDashboardData') }}",
+                order: [[11, 'desc']],
                 columns: [
                     { data: 'no', name: 'no' },
                     { data: 'so_number', name: 'so_number' },
@@ -59,6 +60,8 @@
                     { data: 'total_lead_time', name: 'total_lead_time' },
                     { data: 'progress', name: 'progress', width: 50 },
                     { data: 'status', name: 'status', width: 120 },
+
+                    { data: 'so_created_at', name: 'so_created_at', visible: false },
                 ],
                 columnDefs: [
                     {
@@ -69,7 +72,7 @@
                             return meta.row + meta.settings._iDisplayStart + 1;
                         }
                     },
-                    { targets: -1, className: 'dt-center', orderable: false, searchable: false } // Actions column
+                    { targets: -1, visible:false, orderable: true, searchable: false } // Actions column
                 ],
                 scrollX: true,
                 fixedColumns: {

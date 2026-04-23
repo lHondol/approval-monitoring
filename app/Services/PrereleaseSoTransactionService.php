@@ -536,7 +536,7 @@ class PrereleaseSoTransactionService
             }
 
             // If already released → stop counting
-            if ($row->latestReleasedStep) {
+            if ($row->latestStep->action_done === ActionPrereleaseSoTransactionStep::RELEASED_MKT_STAFF->value) {
                 return '0 day(s)';
             }
 
@@ -544,7 +544,7 @@ class PrereleaseSoTransactionService
             $reference = $row->latestStep;
 
             // If currently at MKT Manager → fallback to BOM (before accounting)
-            if ($row->latestStep->action_done === ActionPrereleaseSoTransactionStep::CONFIRM_MARGIN_MKT_MGR) {
+            if ($row->latestStep->action_done === ActionPrereleaseSoTransactionStep::CONFIRM_MARGIN_MKT_MGR->value) {
                 $reference = $row->latestBeforeAccountingStep;
             }
 
