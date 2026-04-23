@@ -840,6 +840,103 @@ class PrereleaseSoTransactionService
                 ) {$order}
             ");
         })
+        ->filterColumn('status', function ($query, $keyword) {
+
+            $keyword = strtolower($keyword);
+        
+            $query->where(function ($q) use ($keyword) {
+        
+                /**
+                 * =========================
+                 * ON TRACK
+                 * =========================
+                 */
+                if (str_contains($keyword, 'on track')) {
+        
+                    $q->orWhere(function ($sub) {
+        
+                        $sub->where(function ($a) {
+        
+                            $a->whereRaw("
+                                (
+                                    SELECT p.action_done
+                                    FROM prerelease_so_transaction_steps p
+                                    WHERE p.prerelease_so_transaction_id = prerelease_so_transactions.id
+                                      AND p.done_at IS NOT NULL
+                                    ORDER BY p.done_at DESC
+                                    LIMIT 1
+                                ) IN (
+                                    '".ActionPrereleaseSoTransactionStep::APPROVE_PO_KACA->value."',
+                                    '".ActionPrereleaseSoTransactionStep::RELEASED_MKT_STAFF->value."'
+                                )
+                            ");
+        
+                        })
+                        ->orWhere(function ($b) {
+        
+                            $b->whereRaw("
+                                DATEDIFF(
+                                    CURDATE(),
+                                    (
+                                        SELECT p.done_at
+                                        FROM prerelease_so_transaction_steps p
+                                        WHERE p.prerelease_so_transaction_id = prerelease_so_transactions.id
+                                          AND p.done_at IS NOT NULL
+                                        ORDER BY p.done_at DESC
+                                        LIMIT 1
+                                    )
+                                ) <= 2
+                            ");
+        
+                        });
+        
+                    });
+        
+                }
+        
+                /**
+                 * =========================
+                 * DELAYED
+                 * =========================
+                 */
+                if (str_contains($keyword, 'delayed')) {
+        
+                    $q->orWhere(function ($sub) {
+        
+                        $sub->whereRaw("
+                            DATEDIFF(
+                                CURDATE(),
+                                (
+                                    SELECT p.done_at
+                                    FROM prerelease_so_transaction_steps p
+                                    WHERE p.prerelease_so_transaction_id = prerelease_so_transactions.id
+                                      AND p.done_at IS NOT NULL
+                                    ORDER BY p.done_at DESC
+                                    LIMIT 1
+                                )
+                            ) > 2
+                        ")
+                        ->whereRaw("
+                            (
+                                SELECT p.action_done
+                                FROM prerelease_so_transaction_steps p
+                                WHERE p.prerelease_so_transaction_id = prerelease_so_transactions.id
+                                  AND p.done_at IS NOT NULL
+                                ORDER BY p.done_at DESC
+                                LIMIT 1
+                            ) NOT IN (
+                                '".ActionPrereleaseSoTransactionStep::APPROVE_PO_KACA->value."',
+                                '".ActionPrereleaseSoTransactionStep::RELEASED_MKT_STAFF->value."'
+                            )
+                        ");
+        
+                    });
+        
+                }
+        
+            });
+        
+        })
         ->filter(function($query) {
             if ($search = request('search.value')) {
                 $query->leftJoin('customers', 'customers.id', '=', 'prerelease_so_transactions.customer_id');

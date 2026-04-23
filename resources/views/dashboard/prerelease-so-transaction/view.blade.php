@@ -2,6 +2,19 @@
 
 @section('content')
     <div>
+        <div class="flex flex-col gap-3 w-fit">
+            <div id="statusFilterDt" 
+                class="ui clearable selection dropdown" 
+                style="min-width: 180px;">
+                <input type="hidden" name="status">
+                <i class="dropdown icon"></i>
+                <div class="default text">Filter Status</div>
+                <div class="menu">
+                    <div class="item" data-value="On Track">On Track</div>
+                    <div class="item" data-value="Delayed">Delayed</div>
+                </div>
+            </div>
+        </div>
         <table id="prereleaseSoTransactions" class="ui celled table">
             <thead>
                 <tr>
@@ -40,8 +53,9 @@
 @push('scripts')
     <script src="{{ asset('js/custom.js') }}"></script>
     <script>
-        const customersTable = $(document).ready(function() {
-            $('#prereleaseSoTransactions').DataTable({
+        let prereleaseSoTransactionsTable = undefined;
+        $(document).ready(function() {
+            prereleaseSoTransactionsTable = $('#prereleaseSoTransactions').DataTable({
                 processing: true,
                 serverSide: true,
                 ajax: "{{ route('prereleaseSoTransactionDashboardData') }}",
@@ -94,6 +108,16 @@
                     initDropdownPortal();
                 }
             });
+        });
+
+        $('#statusFilterDt').dropdown({
+                on: 'click',
+                onChange: function(value) {
+                    prereleaseSoTransactionsTable
+                    .column('status:name')
+                    .search(value)
+                    .draw();
+                }
         });
     </script>
 @endpush
