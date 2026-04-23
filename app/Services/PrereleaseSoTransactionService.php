@@ -487,15 +487,24 @@ class PrereleaseSoTransactionService
             StatusPrereleaseSoTransaction::WAITING_RND_DRAWING_APPROVAL->value => "Drawing",
             StatusPrereleaseSoTransaction::WAITING_RND_BOM_APPROVAL->value => "BOM",
             StatusPrereleaseSoTransaction::WAITING_ACCOUNTING_APPROVAL->value => "Accounting",
-            StatusPrereleaseSoTransaction::WAITING_MKT_STAFF_RELEASE->value => "Mkt Staff",
-
-
             StatusPrereleaseSoTransaction::WAITING_MKT_MGR_CONFIRM_MARGIN->value => "Accounting",
+            StatusPrereleaseSoTransaction::WAITING_MKT_STAFF_RELEASE->value => "Mkt Staff",
             StatusPrereleaseSoTransaction::RELEASED_WAITING_PO_KACA_APPROVAL->value => "Mkt Staff",
             StatusPrereleaseSoTransaction::RELEASED_PO_KACA_DONE->value => "Mkt Staff",
             StatusPrereleaseSoTransaction::RELEASED_PO_KACA_NONE->value => "Mkt Staff",
-            StatusPrereleaseSoTransaction::REVISE_NEEDED->value => "Mkt Staff (Revised)",
-            
+            StatusPrereleaseSoTransaction::REVISE_NEEDED->value => "Mkt Staff (Revised)"
+        };
+    }
+
+    public function getActionDonePriority($action) {
+        return match ($action) {
+            ActionPrereleaseSoTransactionStep::APPROVE_RND_DRAWING->value => 1,
+            ActionPrereleaseSoTransactionStep::APPROVE_RND_BOM->value => 2,
+            ActionPrereleaseSoTransactionStep::APPROVE_ACCOUNTING->value => 3,
+            ActionPrereleaseSoTransactionStep::CONFIRM_MARGIN_MKT_MGR->value => 3,
+            ActionPrereleaseSoTransactionStep::APPROVE_PO_KACA->value => 5,
+            ActionPrereleaseSoTransactionStep::RELEASED_MKT_STAFF->value => 5,
+            default => 99
         };
     }
 
@@ -529,14 +538,30 @@ class PrereleaseSoTransactionService
         ->addColumn('current_process', function($row) {
             return $this->getStatusProcessName($row->status);
         })
+        ->orderColumn('current_process', function ($query, $order) {
+            $query->orderByRaw("
+                CASE
+                    WHEN status = '".StatusPrereleaseSoTransaction::WAITING_RND_DRAWING_APPROVAL->value."' THEN 1
+                    WHEN status = '".StatusPrereleaseSoTransaction::WAITING_RND_BOM_APPROVAL->value."' THEN 2
+                    WHEN status = '".StatusPrereleaseSoTransaction::WAITING_ACCOUNTING_APPROVAL->value."' THEN 3
+                    WHEN status = '".StatusPrereleaseSoTransaction::WAITING_MKT_STAFF_RELEASE->value."' THEN 4
+                    WHEN status = '".StatusPrereleaseSoTransaction::WAITING_MKT_MGR_CONFIRM_MARGIN->value."' THEN 3
+                    WHEN status = '".StatusPrereleaseSoTransaction::RELEASED_WAITING_PO_KACA_APPROVAL->value."' THEN 4
+                    WHEN status = '".StatusPrereleaseSoTransaction::RELEASED_PO_KACA_DONE->value."' THEN 4
+                    WHEN status = '".StatusPrereleaseSoTransaction::RELEASED_PO_KACA_NONE->value."' THEN 4
+                    WHEN status = '".StatusPrereleaseSoTransaction::REVISE_NEEDED->value."' THEN 4
+                    ELSE 99
+                END {$order}
+            ");
+        })
         ->addColumn('actual_process_days', function ($row) {
             // If no step at all
-            if (!$row->latestStep || !$row->latestStep->done_at) {
+            if (!$row->latestStep || !$row->latestStep->created_at) {
                 return '0 day(s)';
             }
 
             // If already released → stop counting
-            if ($row->latestStep->action_done === ActionPrereleaseSoTransactionStep::RELEASED_MKT_STAFF->value) {
+            if ($this->getActionDonePriority($row->latestStep->action_done) === 5) {
                 return '0 day(s)';
             }
 
@@ -558,8 +583,44 @@ class PrereleaseSoTransactionService
                 ->diffInDays(now()->startOfDay());
             return "$days day(s)";
         })
+        ->orderColumn('actual_process_days', function ($query, $order) {
+            $query->orderByRaw("
+                DATEDIFF(
+                    CURDATE(),
+                    COALESCE(
+        
+                        -- fallback BOM when MKT Manager
+                        CASE
+                            WHEN EXISTS (
+                                SELECT 1
+                                FROM prerelease_so_transaction_steps p
+                                WHERE p.prerelease_so_transaction_id = prerelease_so_transactions.id
+                                  AND p.action_done = '".ActionPrereleaseSoTransactionStep::CONFIRM_MARGIN_MKT_MGR->value."'
+                            )
+                            THEN (
+                                SELECT p.done_at
+                                FROM prerelease_so_transaction_steps p
+                                WHERE p.prerelease_so_transaction_id = prerelease_so_transactions.id
+                                  AND p.action_done = '".ActionPrereleaseSoTransactionStep::APPROVE_RND_BOM->value."'
+                                ORDER BY p.done_at DESC
+                                LIMIT 1
+                            )
+                        END,
+        
+                        -- otherwise latest step
+                        (
+                            SELECT p.done_at
+                            FROM prerelease_so_transaction_steps p
+                            WHERE p.prerelease_so_transaction_id = prerelease_so_transactions.id
+                            ORDER BY p.done_at DESC
+                            LIMIT 1
+                        )
+                    )
+                ) {$order}
+            ");
+        })
         ->addColumn('total_lead_time', function($row) {
-            if ($row->latestStep->action_done == 'Released - MKT Staff') {
+            if ($this->getActionDonePriority($row->latestStep->action_done) === 5) {
                 $days = (string) Carbon::parse($row->created_at)
                 ->startOfDay()
                 ->diffInDays(Carbon::parse($row->latestStep->done_at)->startOfDay());
@@ -570,6 +631,50 @@ class PrereleaseSoTransactionService
             ->startOfDay()
             ->diffInDays(Carbon::now()->startOfDay());
             return "$days day(s)"; 
+        })
+        ->orderColumn('total_lead_time', function ($query, $order) {
+            $query->orderByRaw("
+                CASE
+                    WHEN (
+                        SELECT p.action_done
+                        FROM prerelease_so_transaction_steps p
+                        WHERE p.prerelease_so_transaction_id = prerelease_so_transactions.id
+                          AND p.done_at IS NOT NULL
+                        ORDER BY p.done_at DESC
+                        LIMIT 1
+                    ) IN ('APPROVE_PO_KACA', 'RELEASED_MKT_STAFF')
+                    THEN DATEDIFF(
+                        (
+                            SELECT p.done_at
+                            FROM prerelease_so_transaction_steps p
+                            WHERE p.prerelease_so_transaction_id = prerelease_so_transactions.id
+                              AND p.done_at IS NOT NULL
+                            ORDER BY p.done_at DESC
+                            LIMIT 1
+                        ),
+                        (
+                            SELECT COALESCE(
+                                MAX(CASE WHEN action_done = 'Upload (Revised)' THEN done_at END),
+                                MAX(CASE WHEN action_done = 'Upload' THEN done_at END)
+                            )
+                            FROM prerelease_so_transaction_steps
+                            WHERE prerelease_so_transaction_steps.prerelease_so_transaction_id = prerelease_so_transactions.id
+                        )
+                    )
+                    ELSE DATEDIFF(CURDATE(),
+                        (
+                            SELECT COALESCE(
+                                MAX(CASE WHEN action_done = 'Upload (Revised)' THEN done_at END),
+                                MAX(CASE WHEN action_done = 'Upload' THEN done_at END)
+                            )
+                            FROM prerelease_so_transaction_steps
+                            WHERE prerelease_so_transaction_steps.prerelease_so_transaction_id = prerelease_so_transactions.id
+                        )
+                    )
+                END {$order},
+        
+                prerelease_so_transactions.id ASC
+            ");
         })
         ->addColumn('progress', function($row) {
             if ($row->status === StatusPrereleaseSoTransaction::REVISE_NEEDED->value)
@@ -609,8 +714,49 @@ class PrereleaseSoTransactionService
 
             return "$percentage%";
         })
+        ->orderColumn('progress', function ($query, $order) {
+            $query->orderByRaw("
+                CASE
+                    WHEN EXISTS (
+                        SELECT 1
+                        FROM prerelease_so_transaction_steps p
+                        WHERE p.prerelease_so_transaction_id = prerelease_so_transactions.id
+                          AND p.action_done = 'Released - MKT Staff'
+                          AND p.done_at > (
+                                SELECT COALESCE(
+                                    MAX(CASE WHEN action_done = 'Upload (Revised)' THEN done_at END),
+                                    MAX(CASE WHEN action_done = 'Upload' THEN done_at END)
+                                )
+                                FROM prerelease_so_transaction_steps
+                                WHERE prerelease_so_transaction_steps.prerelease_so_transaction_id = prerelease_so_transactions.id
+                          )
+                    )
+                    THEN 100
+        
+                    ELSE (
+                        SELECT COUNT(DISTINCT p.action_done)
+                        FROM prerelease_so_transaction_steps p
+                        WHERE p.prerelease_so_transaction_id = prerelease_so_transactions.id
+                          AND p.done_at > (
+                                SELECT COALESCE(
+                                    MAX(CASE WHEN action_done = 'Upload (Revised)' THEN done_at END),
+                                    MAX(CASE WHEN action_done = 'Upload' THEN done_at END)
+                                )
+                                FROM prerelease_so_transaction_steps
+                                WHERE prerelease_so_transaction_steps.prerelease_so_transaction_id = prerelease_so_transactions.id
+                          )
+                          AND p.action_done IN (
+                                'Approve - RnD Drawing',
+                                'Approve - RnD BOM',
+                                'Approve - Accounting',
+                                'Released - MKT Staff'
+                          )
+                    ) * 25
+                END {$order}
+            ");
+        })
         ->addColumn('status', function($row) {
-            if ($row->latestReleasedStep) {
+            if ($this->getActionDonePriority($row->latestStep->action_done) === 5) {
                 $color = 'green';
                 $text = 'On Track';
                 return "<div style='display:flex; align-items:center; justify-content:center; gap:8px;'>
@@ -632,6 +778,42 @@ class PrereleaseSoTransactionService
                 <b>$text</b>
             </div>";
         })
+        ->orderColumn('status', function ($query, $order) {
+            $query->orderByRaw("
+                CASE
+                    -- Priority 5 (Finish / Released / MKT Staff)
+                    WHEN (
+                        SELECT p.action_done
+                        FROM prerelease_so_transaction_steps p
+                        WHERE p.prerelease_so_transaction_id = prerelease_so_transactions.id
+                          AND p.done_at IS NOT NULL
+                        ORDER BY p.done_at DESC
+                        LIMIT 1
+                    ) IN (
+                        '" . ActionPrereleaseSoTransactionStep::APPROVE_PO_KACA->value . "',
+                        '" . ActionPrereleaseSoTransactionStep::RELEASED_MKT_STAFF->value . "'
+                    )
+                    THEN 1
+        
+                    -- On Track (<= 2 days)
+                    WHEN DATEDIFF(
+                        CURDATE(),
+                        (
+                            SELECT p.done_at
+                            FROM prerelease_so_transaction_steps p
+                            WHERE p.prerelease_so_transaction_id = prerelease_so_transactions.id
+                              AND p.done_at IS NOT NULL
+                            ORDER BY p.done_at DESC
+                            LIMIT 1
+                        )
+                    ) <= 2
+                    THEN 2
+        
+                    -- Delayed
+                    ELSE 3
+                END {$order}
+            ");
+        })
         ->addColumn('target_shipment', function ($row) {
             if (!$row->target_shipment_month || !$row->target_shipment_year) {
                 return '';
@@ -644,6 +826,19 @@ class PrereleaseSoTransactionService
             );
 
             return $date->format('F Y');
+        })
+        ->orderColumn('target_shipment', function ($query, $order) {
+            $query->orderByRaw("
+                STR_TO_DATE(
+                    CONCAT(
+                        prerelease_so_transactions.target_shipment_year,
+                        '-',
+                        prerelease_so_transactions.target_shipment_month,
+                        '-01'
+                    ),
+                    '%Y-%m-%d'
+                ) {$order}
+            ");
         })
         ->filter(function($query) {
             if ($search = request('search.value')) {
@@ -674,49 +869,39 @@ class PrereleaseSoTransactionService
                             ),
                             '%d %b %Y %H:%i:%s'
                         ) LIKE ?
+                    ", ["%{$search}%"])
+
+                        // TARGET SHIPMENT SEARCH
+                        ->orWhereRaw("
+                        LOWER(DATE_FORMAT(
+                            STR_TO_DATE(
+                                CONCAT(
+                                    prerelease_so_transactions.target_shipment_year,
+                                    '-',
+                                    prerelease_so_transactions.target_shipment_month,
+                                    '-01'
+                                ),
+                                '%Y-%m-%d'
+                            ),
+                            '%M %Y'
+                        )) LIKE ?
+                    ", ["%" . strtolower($search) . "%"])
+
+                        // CURRENT PROCESS (status mapping)
+                        ->orWhereRaw("
+                        CASE status
+                            WHEN '".StatusPrereleaseSoTransaction::WAITING_RND_DRAWING_APPROVAL->value."' THEN 'drawing'
+                            WHEN '".StatusPrereleaseSoTransaction::WAITING_RND_BOM_APPROVAL->value."' THEN 'bom'
+                            WHEN '".StatusPrereleaseSoTransaction::WAITING_ACCOUNTING_APPROVAL->value."' THEN 'accounting'
+                            WHEN '".StatusPrereleaseSoTransaction::WAITING_MKT_STAFF_RELEASE->value."' THEN 'mkt staff'
+                            WHEN '".StatusPrereleaseSoTransaction::WAITING_MKT_MGR_CONFIRM_MARGIN->value."' THEN 'accounting'
+                            WHEN '".StatusPrereleaseSoTransaction::RELEASED_WAITING_PO_KACA_APPROVAL->value."' THEN 'mkt staff'
+                            WHEN '".StatusPrereleaseSoTransaction::RELEASED_PO_KACA_DONE->value."' THEN 'mkt staff'
+                            WHEN '".StatusPrereleaseSoTransaction::RELEASED_PO_KACA_NONE->value."' THEN 'mkt staff'
+                            WHEN '".StatusPrereleaseSoTransaction::REVISE_NEEDED->value."' THEN 'revise'
+                            ELSE ''
+                        END LIKE ?
                     ", ["%{$search}%"]);
-
-                    $q->orWhere(function ($sub) use ($search) {
-
-                        $searchLower = strtolower($search);
-                    
-                        // actual_process_days
-                        $sub->orWhereHas('latestStep', function ($q2) use ($search) {
-                            $q2->whereRaw("DATEDIFF(CURDATE(), DATE(done_at)) = ?", [$search]);
-                        });
-                    
-                        // total_lead_time
-                        if (preg_match('/\d+/', $search, $m)) {
-                            $days = $m[0];
-                    
-                            $sub->orWhereRaw("
-                                DATEDIFF(
-                                    CURDATE(),
-                                    (
-                                        SELECT COALESCE(
-                                            MAX(CASE WHEN action_done = 'Upload (Revised)' THEN done_at END),
-                                            MAX(CASE WHEN action_done = 'Upload' THEN done_at END)
-                                        )
-                                        FROM prerelease_so_transaction_steps
-                                        WHERE prerelease_so_transaction_steps.prerelease_so_transaction_id = prerelease_so_transactions.id
-                                    )
-                                ) = ?
-                            ", [$days]);
-                        }
-                    
-                        // status (text match)
-                        if (strtolower($search) === 'on track') {
-                            $sub->orWhereHas('latestStep', function ($sub) {
-                                $sub->whereRaw("DATEDIFF(CURDATE(), DATE(done_at)) <= 3");
-                            });
-                        }
-                        
-                        if (strtolower($search) === 'delayed') {
-                            $sub->orWhereHas('latestStep', function ($sub) {
-                                $sub->whereRaw("DATEDIFF(CURDATE(), DATE(done_at)) > 3");
-                            });
-                        }
-                    });
                 });
             }
         })

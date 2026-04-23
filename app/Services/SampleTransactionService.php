@@ -742,21 +742,7 @@ class SampleTransactionService
                         $sub->whereRaw("
                             DATEDIFF(IFNULL(finish_at, NOW()), start_at) LIKE ?
                         ", ["%{$search}%"]);
-                    });
-                
-                    // status (text match)
-                    if (strtolower($search) === 'on track') {
-                        $q->orWhereHas('latestUnfinishedProcess', function ($sub) {
-                            $sub->whereRaw("DATEDIFF(CURDATE(), DATE(start_at)) <= 3");
-                        });
-                    }
-                    
-                    if (strtolower($search) === 'delayed') {
-                        $q->orWhereHas('latestUnfinishedProcess', function ($sub) {
-                            $sub->whereRaw("DATEDIFF(CURDATE(), DATE(start_at)) > 3");
-                        });
-                    }
-                        
+                    }); 
                 });
             }
         })

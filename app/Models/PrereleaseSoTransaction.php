@@ -74,13 +74,13 @@ class PrereleaseSoTransaction extends Model
 
     public function latestStep()
     {
-        return $this->hasOne(PrereleaseSoTransactionStep::class)->latestOfMany('created_at');
+        return $this->hasOne(PrereleaseSoTransactionStep::class)->latestOfMany('done_at');
     }
 
     public function latestBeforeAccountingStep()
     {
         return $this->hasOne(PrereleaseSoTransactionStep::class)
             ->where('action_done', ActionPrereleaseSoTransactionStep::APPROVE_RND_BOM)
-            ->latestOfMany('created_at');
+            ->latestOfMany('done_at');
     }
 }
