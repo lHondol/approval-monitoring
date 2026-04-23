@@ -547,46 +547,73 @@ class SampleTransactionService
             ");
         })
         ->addColumn('total_lead_time', function($row) {
-            if (!$row->picture_received_at)
+
+            if (!$row->picture_received_at) {
                 return 'Waiting for RND Approval';
-
-            if (!$row->latestUnfinishedProcess && !$row->hasFinished)
-                return 'Waiting for next process to be created';
-
-            $totalDays = collect($row->processes)->sum(function ($p) {
-                $start = $p->start_at->copy()->startOfDay();
-                $end = $p->finish_at
-                    ? $p->finish_at->copy()->startOfDay()
-                    : now()->startOfDay();
+            }
         
-                return $start->diffInDays($end);
-            });
-            
-            return "$totalDays day(s)";
+            if (!$row->latestUnfinishedProcess && !$row->hasFinished) {
+                return 'Waiting for next process to be created';
+            }
+        
+            $start = Carbon::parse($row->picture_received_at)->startOfDay();
+        
+            // Finished → use finish date
+            if ($row->hasFinished) {
+                $finish = Carbon::parse($row->hasFinished->finish_at)->startOfDay();
+                $days = $start->diffInDays($finish);
+                return "$days day(s)";
+            }
+        
+            // Ongoing → use today
+            $days = $start->diffInDays(now()->startOfDay());
+            return "$days day(s)";
         })
         ->orderColumn('total_lead_time', function ($query, $order) {
+
             $query->orderByRaw("
                 CASE
-                    -- Waiting states
+                    -- Waiting RND
                     WHEN sample_transactions.picture_received_at IS NULL THEN 99999
         
+                    -- Waiting next process
                     WHEN NOT EXISTS (
                         SELECT 1
                         FROM sample_transaction_processes p
                         WHERE p.sample_transaction_id = sample_transactions.id
-                    ) THEN 99998
-        
-                    -- Finished / in progress → sum of lead time
-                    ELSE (
-                        SELECT SUM(
-                            DATEDIFF(
-                                IFNULL(p.finish_at, CURDATE()),
-                                DATE(p.start_at)
-                            )
-                        )
+                    )
+                    AND NOT EXISTS (
+                        SELECT 1
                         FROM sample_transaction_processes p
                         WHERE p.sample_transaction_id = sample_transactions.id
+                          AND p.process_name = 'Finish Good'
+                    ) THEN 99998
+        
+                    -- Finished → use finish_at
+                    WHEN EXISTS (
+                        SELECT 1
+                        FROM sample_transaction_processes p
+                        WHERE p.sample_transaction_id = sample_transactions.id
+                          AND p.process_name = 'Finish Good'
                     )
+                    THEN DATEDIFF(
+                        (
+                            SELECT p.finish_at
+                            FROM sample_transaction_processes p
+                            WHERE p.sample_transaction_id = sample_transactions.id
+                              AND p.process_name = 'Finish Good'
+                            ORDER BY p.finish_at DESC
+                            LIMIT 1
+                        ),
+                        DATE(sample_transactions.picture_received_at)
+                    )
+        
+                    -- Ongoing → use today
+                    ELSE DATEDIFF(
+                        CURDATE(),
+                        DATE(sample_transactions.picture_received_at)
+                    )
+        
                 END {$order}
             ");
         })
