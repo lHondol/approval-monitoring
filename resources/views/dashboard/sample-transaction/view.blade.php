@@ -2,6 +2,21 @@
 
 @section('content')
     <div>
+        <div class="flex flex-col gap-3 w-fit">
+            <div id="statusFilterDt" 
+                class="ui clearable selection dropdown" 
+                style="min-width: 180px;">
+                <input type="hidden" name="status">
+                <i class="dropdown icon"></i>
+                <div class="default text">Filter Status</div>
+                <div class="menu">
+                    <div class="item" data-value="On Track">On Track</div>
+                    <div class="item" data-value="Delayed">Delayed</div>
+                    <div class="item" data-value="Waiting for RND Approval">Waiting for RND Approval</div>
+                    <div class="item" data-value="Waiting for next process to be created">Waiting for next process to be created</div>
+                </div>
+            </div>
+        </div>
         <table id="sampleTransactions" class="ui celled table">
             <thead>
                 <tr>
@@ -42,8 +57,10 @@
 @push('scripts')
     <script src="{{ asset('js/custom.js') }}"></script>
     <script>
-        const customersTable = $(document).ready(function() {
-            $('#sampleTransactions').DataTable({
+        let sampleTransactionsTable = undefined;
+
+        $(document).ready(function() {
+            sampleTransactionsTable = $('#sampleTransactions').DataTable({
                 processing: true,
                 serverSide: true,
                 ajax: "{{ route('sampleTransactionDashboardData') }}",
@@ -100,6 +117,16 @@
                     initDropdownPortal();
                 }
             });
+        });
+
+        $('#statusFilterDt').dropdown({
+                on: 'click',
+                onChange: function(value) {
+                    sampleTransactionsTable
+                    .column('status:name')
+                    .search(value)
+                    .draw();
+                }
         });
     </script>
 @endpush

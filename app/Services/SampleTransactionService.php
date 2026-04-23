@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use App\Enums\ActionPrereleaseSoTransactionStep;
 use App\Models\Customer;
 use App\Models\SampleTransaction;
 use App\Models\SampleTransactionProcess;
@@ -710,6 +711,60 @@ class SampleTransactionService
                     ELSE 4
                 END {$order}
             ");
+        })
+        ->filterColumn('status', function ($query, $keyword) {
+
+            $keyword = strtolower($keyword);
+        
+            $query->where(function ($q) use ($keyword) {
+        
+                /*
+                1. Waiting for RND Approval
+                */
+                if (str_contains($keyword, 'rnd')) {
+                    $q->orWhereNull('picture_received_at');
+                }
+        
+                /*
+                2. Waiting for next process to be created
+                */
+                if (str_contains($keyword, 'next process')) {
+                    $q->orWhereNotNull('picture_received_at')
+                      ->whereDoesntHave('latestUnfinishedProcess')
+                      ->whereDoesntHave('hasFinished');
+                }
+        
+                /*
+                3. On Track
+                */
+                if (str_contains($keyword, 'on track')) {
+
+                    $q->orWhere(function ($sub) {
+                
+                        $sub->whereHas('hasFinished')
+                            ->orWhere(function ($b) {
+                
+                                $b->whereNotNull('picture_received_at')
+                                  ->whereHas('latestUnfinishedProcess', function ($q2) {
+                                      $q2->whereRaw("DATEDIFF(CURDATE(), start_at) <= 3");
+                                  });
+                
+                            });
+                
+                    });
+                
+                }
+        
+                /*
+                4. Delayed
+                */
+                if (str_contains($keyword, 'delayed')) {
+                    $q->orWhereHas('latestUnfinishedProcess', function ($sub) {
+                        $sub->whereRaw("DATEDIFF(CURDATE(), start_at) > 3");
+                    });
+                }
+        
+            });
         })
         ->filter(function($query) {
             if ($search = request('search.value')) {
