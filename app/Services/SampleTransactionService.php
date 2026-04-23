@@ -171,7 +171,7 @@ class SampleTransactionService
         $sample->so_number = $data->so_number;
         $sample->customer_id = $data->customer;
         $sample->so_created_at = Carbon::now();
-        $sample->shipment_request = Carbon::parse($data->shipment_request);
+        $sample->shipment_request = Carbon::parse($data->shipment_request)->startOfDay();
         
         if (isset($data->note)) {
             $sample->note = $data->note;

@@ -42,7 +42,7 @@
                     <div id="shipment-request" class="ui calendar">
                         <div class="ui input left icon">
                             <i class="calendar icon"></i>
-                            <input type="text" name="shipment_request" placeholder="YYYY-MM-DD HH:MM AM">
+                            <input type="text" name="shipment_request" placeholder="YYYY-MM-DD">
                         </div>
                     </div>
                 </div>
@@ -174,7 +174,7 @@
             const shipmentRequest = $('#shipment-request');
 
             shipmentRequest.calendar({
-                type: 'datetime'
+                type: 'date'
             });
         });
     </script>
