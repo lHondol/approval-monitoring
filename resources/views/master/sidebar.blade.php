@@ -92,21 +92,20 @@
                     </button>
 
                     <div id="dashboardMenu" class="{{ isParentOpen(['dashboard*']) }}">
-                        
-                    @if (auth()->user()->hasAnyPermission(['view_prerelease_so_transaction']))
-                        <a href="{{ route('prereleaseSoTransactionDashboardView') }}"
-                            class="{{ navClass('dashboard/prerelease-so-transactions*') }} childMenu">
-                                SO Regular
-                            </a>
-                    @endif
+                        @if (auth()->user()->hasAnyPermission(['view_prerelease_so_transaction']))
+                            <a href="{{ route('prereleaseSoTransactionDashboardView') }}"
+                                class="{{ navClass('dashboard/prerelease-so-transactions*') }} childMenu">
+                                    SO Regular
+                                </a>
+                        @endif
 
-                    @if (auth()->user()->hasAnyPermission(['view_sample_transaction']))
-                        <a href="{{ route('sampleTransactionDashboardView') }}"
-                        class="{{ navClass('dashboard/sample-transactions*') }} childMenu">
-                            SO Sample
-                        </a>
+                        @if (auth()->user()->hasAnyPermission(['view_sample_transaction']))
+                            <a href="{{ route('sampleTransactionDashboardView') }}"
+                            class="{{ navClass('dashboard/sample-transactions*') }} childMenu">
+                                SO Sample
+                            </a>
+                        @endif
                     </div>
-                    @endif
                 </div>
 
                 @if (auth()->user()->hasAnyPermission(['view_drawing_transaction', 'view_distributed_drawing_transaction']))
